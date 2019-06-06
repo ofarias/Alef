@@ -15662,23 +15662,18 @@ function Pagos() {
     }
 
     function editarProveedor($idprov, $urgencia, $envio, $recoleccion, $tp_efe, $tp_ch, $tp_cr, $tp_tr, $certificado, $banco, $cuenta, $beneficiario, $responsable, $plazo, $email1, $email2, $email3){
-    	
     	$user=$_SESSION['user']->NOMBRE;
     	$this->query="SELECT * FROM PROV01 WHERE trim(CLAVE) = TRIM('$idprov')";
     	$rs=$this->QueryObtieneDatosN();
     	$row=ibase_fetch_object($rs);
     	$cer = $row->CERTIFICADO;
-
     	if($cer == 'Si' and $certificado == 'Si'){
-    		$this->query="UPDATE PROV01 SET urgencia ='$urgencia', envio= '$envio', recoleccion='$recoleccion', tp_efectivo = '$tp_efe', tp_credito = '$tp_cr', tp_transferencia= '$tp_tr', tp_cheque='$tp_ch', certificado = '$certificado', nom_banco='$banco', cuenta='$cuenta', beneficiario = '$beneficiario', resp_compra='$responsable', diascred = $plazo, emailpred = '$email1', email2 = '$email2', email3 = '$email3' WHERE CLAVE = '$idprov'";
+    		$this->query="UPDATE PROV01 SET urgencia ='$urgencia', envio= '$envio', recoleccion='$recoleccion', tp_efectivo = '$tp_efe', tp_credito = '$tp_cr', tp_transferencia= '$tp_tr', tp_cheque='$tp_ch', certificado = '$certificado', nom_banco='$banco', cuenta='$cuenta', beneficiario = '$beneficiario', resp_compra='$responsable', diascred = $plazo, emailpred = '$email1', email2 = '$email2', email3 = '$email3', fax= '$serv' WHERE CLAVE = '$idprov'";
 	    	$rs=$this->EjecutaQuerySimple();
     	}elseif (empty($cer) or $cer == 'No'  ){
-    		$this->query="UPDATE PROV01 SET urgencia ='$urgencia', envio= '$envio', recoleccion='$recoleccion', tp_efectivo = '$tp_efe', tp_credito = '$tp_cr', tp_transferencia= '$tp_tr', tp_cheque='$tp_ch', certificado = '$certificado', nom_banco='$banco', cuenta='$cuenta', beneficiario = '$beneficiario', resp_compra='$responsable', fecha_cert = current_timestamp, usr_cert = '$user', num_cert= iif(num_cert is null, 1, num_cert + 1), diascred = $plazo , emailpred = '$email1', email2 = '$email2', email3 = '$email3' WHERE CLAVE = '$idprov'";
+    		$this->query="UPDATE PROV01 SET urgencia ='$urgencia', envio= '$envio', recoleccion='$recoleccion', tp_efectivo = '$tp_efe', tp_credito = '$tp_cr', tp_transferencia= '$tp_tr', tp_cheque='$tp_ch', certificado = '$certificado', nom_banco='$banco', cuenta='$cuenta', beneficiario = '$beneficiario', resp_compra='$responsable', fecha_cert = current_timestamp, usr_cert = '$user', num_cert= iif(num_cert is null, 1, num_cert + 1), diascred = $plazo , emailpred = '$email1', email2 = '$email2', email3 = '$email3', fax= '$serv' WHERE CLAVE = '$idprov'";
 	    	$rs=$this->EjecutaQuerySimple();
     	}
-    	
-    	//echo $this->query;
-    	//break;
     	return;
     }
 
