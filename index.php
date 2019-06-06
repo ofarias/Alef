@@ -1880,7 +1880,6 @@ elseif (isset($_POST['imprimeValidacion'])) {
 	}else{
 		$anio = '';
 	}
-
 	$controller->pagarFacturas($items, $seleccion_cr, $total, $pagos, $mes, $anio);
 }elseif (isset($_POST['aplicarPago2'])) {
 	$idp=$_POST['idp'];

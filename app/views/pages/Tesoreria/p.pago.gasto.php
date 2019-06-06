@@ -23,20 +23,13 @@
                             	<th>GUARDAR</th>
                         	</tr>
                     	</thead>   
-<!--                        	<tfoot>
-                        	<tr>
-                            	<th colspan="8" style="text-align:right">
-                               	 
-                            	</th>                       	 
-                        	</tr>
-                    	</tfoot>-->
-                    	<tbody>
+                      	<tbody>
                         	<?php
                         	foreach ($exec as $data):
                             	?>
                             	<tr class="odd gradeX">                                  			                                       	 
                                 	<td><?php echo $data->CONCEPTO; ?></a></td>
-                                	<td><?php echo $data->PROVEEDOR; ?></td>
+                                	<td><?php echo $data->PROV; ?></td>
                                 	<td><?php echo $data->FECHA_CREACION; ?></td>
                         	<form action="index.php" method="post">
                             	<td>
@@ -53,20 +46,18 @@
                                 	<input name="claveProveedor" type="hidden" value="<?php echo $data->CONCEPTO ?>"/>
                                 	<input name="importe" type="hidden" value="<?php echo $data->MONTO_PAGO ?>" />
                                 	<input name="fechadocumento" type="hidden" value="<?php echo $data->FECHA_CREACION ?>"/>
-
                                 	<select name="tipopago" required="required">
                                     	<option value="">--Elige tipo de pago--</option>
                                     	<option value="tr">Transferencia</option>
                                     	<option value="cr">Crédito</option>
                                     	<option value="ef">Efectivo</option>
                                     	<option value="ch">Cheque</option>
-                                   	 
                                 	</select>
                             	</td>
                             	<td><?php echo "$ " . number_format($data->MONTO_PAGO, 2, '.', ','); ?></td>
-                            	<td><input name="monto" type="text" required="required" min="0" max="499999"/></td>
+                            	<td><input name="monto" type="number" step="any" required="required" min="0" max="<?php echo $data->MONTO_PAGO + 1?>"/></td>
                             	<td>
-                                	<button name="formpago_gasto" type="submit" value="enviar" class="btn btn-warning">Pagar! <i class="fa fa-floppy-o"></i></button>                                       	 
+                                	<button name="formpago_gasto" type="submit" value="enviar" class="btn btn-success">Pagar <i class="fa fa-money"></i></button>                                       	 
                             	</td>
                         	</form>
                         	</tr>

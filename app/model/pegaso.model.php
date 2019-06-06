@@ -9809,8 +9809,8 @@ function VerCobranzaC($cc){
 		return $result;
 	}
 
-	 function listadoGastos(){
-        $this->query = " SELECT A.ID,
+	function listadoGastos(){
+        $this->query = "SELECT A.ID,
         A.STATUS,
         A.CVE_CATGASTOS,
         B.CONCEPTO,
@@ -9821,13 +9821,14 @@ function VerCobranzaC($cc){
         B.PRESUPUESTO,
         A.FECHA_CREACION,
         A.CLASIFICACION,
-        C.DESCRIPCION
+        C.DESCRIPCION, 
+        (SELECT NOMBRE FROM PROV01 WHERE CLAVE = A.CVE_PROV) AS PROV
         FROM GASTOS A
         left JOIN CAT_GASTOS B ON A.CVE_CATGASTOS = B.ID
         left JOIN CLA_GASTOS C ON C.ID = A.CLASIFICACION
         WHERE A.STATUS = 'E'
         and (AUTORIZACION ='' or AUTORIZACION = '1')";
-        $result = $this->QueryObtieneDatosN();
+        $result = $this->EjecutaQuerySimple();
         while ($tsArray = ibase_fetch_object($result)) {
             $data[] = $tsArray;
         }
@@ -9835,7 +9836,7 @@ function VerCobranzaC($cc){
     }
     
 	function PagosGastos($identificador) {
-        $this->query = "SELECT a.ID, d.CONCEPTO, d.PROVEEDOR, a.MONTO_PAGO, a.FECHA_CREACION, a.SALDO, a.TIPO_PAGO, a.CLASIFICACION, c.DESCRIPCION 
+        $this->query = "SELECT a.ID, d.CONCEPTO, d.PROVEEDOR, a.MONTO_PAGO, a.FECHA_CREACION, a.SALDO, a.TIPO_PAGO, a.CLASIFICACION, c.DESCRIPCION, (SELECT NOMBRE FROM PROV01 WHERE CLAVE = a.CVE_PROV) AS PROV 
                         from GASTOS a 
                         left JOIN CLA_GASTOS c ON a.clasificacion = c.id
                         left JOIN CAT_GASTOS d ON a.CVE_CATGASTOS = d.ID 
