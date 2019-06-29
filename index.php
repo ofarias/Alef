@@ -1830,8 +1830,30 @@ elseif (isset($_POST['imprimeValidacion'])) {
 	$telefono =$_POST['telefono'];
 	$presup =$_POST['presup'];
 	$idm = $_POST['idm'];
-	//$cliente=$_POST['cliente'];
-	$controller->creaCC($cvem,$nombre, $contacto, $telefono, $presup, $idm);
+	$plazo=$_POST['plazo'];
+	$diasRevision = '';
+	$diasPago='';
+	for($i = 1; $i <= 7; $i++){
+		if(isset($_POST['rev'.$i])){
+			$diasRevision.= $_POST['rev'.$i].',';
+		}
+		if(isset($_POST['pag'.$i])){
+			$diasPago.= $_POST['pag'.$i].',';
+		}
+    }
+	if(empty($_POST['cob'])){
+    	$cob = '';
+    }else{
+    	$cob=$_POST['cob'];
+    }
+	$maps = isset($_POST['maps'])? $_POST['maps']:'';
+    $ln = isset($_POST['lincred'])? $_POST['lincred']:'';
+    $pc =  isset($_POST['portalcob'])?$_POST['portalcob']:'';
+    $bancoDeposito = isset($_POST['bancoDeposito'])? $_POST['bancoDeposito']:'';
+    $bancoOrigen = isset($_POST['bancoOrigen'])? $_POST['bancoOrigen']:'';
+    $referEdo = isset($_POST['referEdo'])? $_POST['referEdo']:'';
+    $metodoPago = isset($_POST['metodoPago'])? $_POST['metodoPago']:'';
+	$controller->creaCC($cvem,$nombre, $contacto, $telefono, $presup, $idm, $plazo,$diasRevision,$diasPago,$cob,$maps,$ln,$pc,$bancoDeposito,$bancoOrigen,$referEdo,$metodoPago);
 }elseif (isset($_POST['rechazarFTC'])) {
 	$idca= $_POST['idca'];
 	$idp = $_POST['idp'];
@@ -3735,20 +3757,7 @@ else{switch ($_GET['action']){
 			$idm =$_GET['idm'];
 			$controller->editarMaestro($idm);
 			break;
-		case 'verAsociados':
-			$cc = $_GET['cc'];
-			if(isset($_GET['cliente'])){
-				$clie=$_GET['cliente'];
-			}else{
-				$clie = '';
-			}
-			if(isset($_GET['cancela'])){
-				$cancela =$_GET['cancela'];
-			}else{
-				$cancela = 0;
-			}
-			$controller->verAsociados($cc, $cancela, $clie);
-			break;
+		
 		case 'detallePagoFactura':
 			$docf=$_GET['docf'];
 			$controller->detallePagoFactura($docf);
@@ -4294,7 +4303,10 @@ else{switch ($_GET['action']){
 			break;
 		case 'imprimeUUID':
 			$controller->imprimeUUID($_GET['uuid']);
-			break;	
+			break;
+		case 'cxc':
+			$controller->MenuCxC();
+			break;
 		default: 
 		header('Location: index.php?action=login');
 		break;

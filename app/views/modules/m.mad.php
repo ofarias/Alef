@@ -142,10 +142,21 @@
                     </div>
                 </div>
             </div>
-             <div class="col-md-3">
+            <div class="col-md-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4><i class="fa fa-list-alt"></i> Administración de Usuarios</h4>
+                        <h4><i class="fa fa-list-alt"></i> Cobranza </h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Modulo de Cobranza</p>
+                        <center><a href="index.php?action=cxc" class="btn btn-default"> <img src="app/views/images/Cobranza/Cobranza.png" width="58" height="60"></a></center>
+                    </div>
+                </div>
+            </div>     
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Usuarios</h4>
                     </div>
                     <div class="panel-body">
                         <p>Usuarios.</p>

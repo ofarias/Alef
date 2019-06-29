@@ -6229,19 +6229,19 @@ function ReEnrutar($id_preoc, $pxr, $doco){
 	}
 
 	function verembalaje($id, $docf){
-
+		$data= array();
 		$a="SELECT * FROM PAQUETES WHERE IDCAJA = $id and documento = '$docf' and devuelto < cantidad ";
 		$this->query=$a;
 		$result=$this->QueryObtieneDatosN();
 		while ($tsArray=ibase_fetch_object($result)){
 			$data[]=$tsArray;
 		}
-
 		return @$data;
 	}
 
 	function devueltoNC($id, $docf){
-		$a="SELECT * FROM PAQUETES WHERE idcaja = $id and devuelto > 0";
+		$data = array();
+		$a="SELECT p.*, (SELECT STATUS_LOG FROM CAJAS WHERE ID = $id) as sta FROM PAQUETES P WHERE idcaja = $id and devuelto > 0";
 		$this->query=$a;
 		$result=$this->QueryObtieneDatosN();
 		while($tsArray=ibase_fetch_object($result)){
@@ -9273,33 +9273,47 @@ function VerCobranzaC($cc){
     }
 
     function paquetedevolucion($idc, $docf){
-    	$usuario = $_SESSION['user']->NOMBRE;
+    	$usuario = $_SESSION['user_p']->NOMBRE;
     	$folio="SELECT MAX(FOLIO_DEV) as folio FROM PAQUETES";
     	$this->query =$folio;
     	$result=$this->QueryObtieneDatosN();
     	$row=ibase_fetch_object($result);
     	$folact=$row->FOLIO;
     	$folsig=$folact + 1;
-
+    	$idcn='';
     	$a="UPDATE PAQUETES SET IMPRESION_DEV = 'Si', FOLIO_DEV = $folsig, fecha_ultima_dev = current_date, STATUS='ingresoBodega' WHERE IDCAJA = $idc and documento = '$docf'";
     	$this->query=$a;
-    	$result=$this->grabaBD();
+    	$result=$this->queryActualiza();
 		#### PENDIENTE colocar la diferencia entre factura y remision.
     	$folsigstr=(string)$folsig;
 
-    	$this->query="UPDATE FACTF01 SET VALIDACION = ('DNC'||'$folsigstr') where cve_doc =(select factura from cajas where id = $idc)";
+    	$this->query="SELECT * FROM CAJAS WHERE ID= $idc and cve_fact ='$docf'";
     	$rs=$this->EjecutaQuerySimple();
+    	$row=ibase_fetch_object($rs);
 
-    	$this->query="UPDATE FACTR01 SET VALIDACION = ('DNC'||'$folsigstr') where cve_doc =(select factura from cajas where id = $idc)";
-    	$rs=$this->EjecutaQuerySimple();
+    	$this->query="SELECT count(id) as id FROM PAQUETES where idcaja = $idc  and cantidad - devuelto > 0";
+    	$res=$this->EjecutaQuerySimple();
+    	$v=ibase_fetch_object($res);
+    	$va=$v->ID;
+    	if($va > 0 and ($row->FACTURA != '' or !empty($row->FACTURA)) ){
+    		$this->query="INSERT INTO CAJAS (ID ) VALUES (NULL) returning ID";
+	    	$res=$this->grabaBD();
+    		$ridcn=ibase_fetch_object($res);
+    		$idcn = $ridcn->ID;
+    		$this->query="EXECUTE PROCEDURE SP_COPIA_PAQUETES_DEV('$usuario', $idc, $idcn)";
+    		$res=$this->EjecutaQuerySimple();
+    	}
+    	
+    	/// Este codigo se ulitizaba para controlar en Aspel SAE la Devolucion la condicionaba con el Ingreso a la Bodega, pero no funciona correctamente.
+    	//$this->query="UPDATE FACTF01 SET VALIDACION = ('DNC'||'$folsigstr') where cve_doc =(select factura from cajas where id = $idc)";
+    	//$rs=$this->EjecutaQuerySimple();
 
+    	//$this->query="UPDATE FACTR01 SET VALIDACION = ('DNC'||'$folsigstr') where cve_doc =(select factura from cajas where id = $idc)";
+    	//$rs=$this->EjecutaQuerySimple();
     	$c="UPDATE CAJAS SET FOLIO_DEV = ('DNC'||'$folsigstr') where id =$idc";
     	$this->query=$c;
     	$result=$this->grabaBD();
     	//echo $folsig;
-    	$this->query="SELECT * FROM CAJAS WHERE ID= $idc and cve_fact ='$docf'";
-    	$rs=$this->EjecutaQuerySimple();
-    	$row=ibase_fetch_object($rs);
     	if($row){
     		//echo 'Debe de entrar si encuentra algo. <br/>';
     		if(empty($row->FACTURA)){
@@ -9315,7 +9329,7 @@ function VerCobranzaC($cc){
 		    	$tablad = 'FTC_NCI_DETALLE';
 		    	$this->query="EXECUTE PROCEDURE SP_PF_NCI ('$factura','$pedido','$docNCD','$folio','$serie', '$usuario')";
 		    		$r=$this->EjecutaQuerySimple();
-		    		$row2=ibase_fetch_object($r);		
+		    		$row2=ibase_fetch_object($r);
 		    }else{
     			//echo 'Actualizamos las facturas con su NC.<br/>';
     			$fact= new factura;
@@ -9327,22 +9341,31 @@ function VerCobranzaC($cc){
 		    	$tabla = 'FTC_NC';
 		    	$tablad = 'FTC_NC_DETALLE';
 		    	if(substr($factura, 0,3) == 'FAA' or (substr($factura,0,2) == 'RF' and substr($factura,0,3) != 'RFP')){
+		    		//echo '<br/>Es Documento de Aspel SAE<br/>';
 		    		$this->query="EXECUTE PROCEDURE SP_FAA_NCD ('$factura', '$docNCD','$folio','$serie', '$usuario')";
 		    		$r=$this->EjecutaQuerySimple();
 		    		$row2=ibase_fetch_object($r);		
 		    	}else{
+		    		//echo '<br/> Es Documento del sistema de Pegaso <br/>';
 		    		$this->query="EXECUTE PROCEDURE SP_FP_NC('$folio','$serie','$factura', '$usuario', '$docNCD')";
 		    		$r=$this->EjecutaQuerySimple();
 		    		$row2=ibase_fetch_object($r);
 		    	}
     		}
-		    $this->insertaDetalleNC($folsig, $tablad, $row2->TERMINO, $docNCD, $docf, $usuario, $idc,$factura );
+
+    		if($tablad=='FTC_NC_DETALLE'){
+    			$this->insertaDetalleNC($folsig, $tablad, $row2->TERMINO, $docNCD, $docf, $usuario, $idc,$factura);	
+    		}else{
+    			$this->insertaDetalleNCI($folsig, $tablad, $row2->TERMINO, $docNCD, $docf, $usuario, $idc,$factura);	
+    		}
+		    
 		    $this->query="UPDATE $tabla SET 
 			 	SUBTOTAL = (select sum(subtotal) from $tablad where DOCUMENTO = '$docNCD'),
 			  	 TOTAL = (SELECT SUM(TOTAL) FROM $tablad WHERE DOCUMENTO = '$docNCD'),
 			  	  IVA = (SELECT SUM(SUBTOTAL)*.16 from $tablad WHERE DOCUMENTO = '$docNCD'), 
 			  	  desc1 = (SELECT sum(DESC1) FROM $tablad WHERE DOCUMENTO = '$docNCD') 
 			  	where documento = '$docNCD'";
+			  	//echo '<br/> Actualiza la tabla correcta<br/>'.$this->query;
 			$this->EjecutaQuerySimple();
     	}else{
     		echo ' esto no debe de pasar por que vienen todos los datos correctos.
@@ -9351,6 +9374,7 @@ function VerCobranzaC($cc){
 
     	$this->query="SELECT * FROM $tabla where documento = '$docNCD'";
     	$res=$this->EjecutaQuerySimple();
+    	//echo 'Seleccion del valor de la NC; '.$this->query;
     	$rowM=ibase_fetch_object($res);
     	$montonc = $rowM->TOTAL;
 
@@ -9358,27 +9382,32 @@ function VerCobranzaC($cc){
 
     	if(substr($factura, 0,3) == 'FAA' or (substr($factura, 0,2) == 'RF' and substr($factura, 0,3) != 'RFP')){
     	$this->query="UPDATE FACTF01 SET NC_APLICADAS = iif(NC_APLICADAS='','$docNCD', NC_APLICADAS||','||'$docNCD'), IMPORTE_NC= IMPORTE_NC + $montonc, saldofinal = saldofinal - $montonc where CVE_DOC = '$factura'"; 	
-    	}else{
+    	}elseif(substr($factura, 0,3) == 'FP' or substr($factura, 0,3) == 'RFP'){
     	$this->query="UPDATE FTC_FACTURAS SET NOTAS_CREDITO = iif(NOTAS_CREDITO='','$docNCD', NOTAS_CREDITO||','||'$docNCD'), MONTO_NC= MONTO_NC + $montonc, saldo_final = saldo_final - $montonc where documento = '$factura'";
+    	}else{
+	    	return array("status"=>"ok","devolucion"=>$folsig, "idcaja"=>$idc, "docf"=>$docf, "nc"=>$docNCD,"refact"=>$va, "nvaCaja"=>$idcn);
     	}
+    	//echo 'Consulta que actualiza la NC: <br/>'.$this->query;
     	$rs=$this->queryActualiza();
     	if($rs == 1){
-	    	return array("status"=>"ok","devolucion"=>$folsig, "idcaja"=>$idc, "docf"=>$docf);
+	    	return array("status"=>"ok","devolucion"=>$folsig, "idcaja"=>$idc, "docf"=>$docf, "nc"=>$docNCD,"refact"=>$va, "nvaCaja"=>$idcn);
     	}else{
-    		return array("status"=>"no","devolucion"=>$folsig, "idcaja"=>$idc, "docf"=>$docf);
+    		return array("status"=>"no","devolucion"=>$folsig, "idcaja"=>$idc, "docf"=>$docf, "nc"=>$docNCD,"refact"=>$va,"nvaCaja"=>$idcn);
     	}
 
     }
 
-    function insertaDetalleNC($folsig, $tablad, $termino, $docNCD, $docf, $usuario, $idc, $factura){
-    	$this->query="SELECT * FROM PAQUETES WHERE FOLIO_DEV = $folsig";
+function insertaDetalleNC($folsig, $tablad, $termino, $docNCD, $docf, $usuario, $idc, $factura){
+    	//$this->query="SELECT * FROM PAQUETES WHERE FOLIO_DEV = $folsig";
+    	$this->query="SELECT * FROM PAQUETES WHERE idcaja = $idc";
 		    	$res = $this->EjecutaQuerySimple();
 		    	while ($tsArray=ibase_fetch_object($res)) {
 		    		$data[]=$tsArray;
 		    	}
 		    	$partida = 0;
 		    	foreach ($data as $i) {
-		    		$cant = $i->DEVUELTO;
+		    		$cant = $i->CANTIDAD;
+		    		$art = substr($i->ARTICULO, 3);
 		    		if($cant>0){
 		    			$partida++;
 			    		$acumulado = 0;
@@ -9389,7 +9418,6 @@ function VerCobranzaC($cc){
 			    		if($row3){
 			    			$acumulado=$row3->CANTIDAD;
 			    		}
-
 			    		$this->query="SELECT sum(cantidad) AS CANTIDAD FROM FTC_NCI_DETALLE WHERE IDPAQUETE =$i->ID";
 			    		$res = $this->EjecutaQuerySimple();
 			    		$row4 =ibase_fetch_object($res);
@@ -9397,37 +9425,106 @@ function VerCobranzaC($cc){
 			    		if($row4){
 			    			$acumulado=$row4->CANTIDAD;
 			    		}
-			    		$devuelto = $i->DEVUELTO - $acumulado;
+			    		$devuelto=$i->CANTIDAD - $acumulado;
 			    		if($devuelto > 0){
 			    			$this->query="INSERT INTO $tablad (IDFP, IDF, DOCUMENTO, PARTIDA, CANTIDAD, ARTICULO, UM, DESCRIPCION, IMP1, IMP2, IMP3, IMP4, DESC1, DESC2, DESC3, DESCF, SUBTOTAL, TOTAL, CLAVE_SAT, MEDIDA_SAT, PEDIMENTOSAT, LOTE, USUARIO, FECHA, IDPREOC, IDCAJA, IDPAQUETE, PRECIO, STATUS) VALUES 
 			  				(NULL, $termino, '$docNCD', $partida, $devuelto, '$i->ARTICULO',
 			  				(select coalesce(uni_med, 'Pza') from inve01 where cve_art = '$i->ARTICULO'), 
 			  				'$i->DESCRIPCION', 0.16, 0,0,0, 
-			  				(SELECT (((DBIMPDES/100) * DBIMPPRE)*$devuelto) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND 'PGS'||FTCD.CVE_ART = '$i->ARTICULO'),
+			  				(SELECT (((DBIMPDES/100) * DBIMPPRE)*$devuelto) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND 'PGN'||FTCD.CVE_ART = '$i->ARTICULO'),
 			  				 0, 0, 0,
-			  				 (((SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE FTC.CVE_COTIZACION = '$docf') AND 'PGS'||FTCD.CVE_ART = '$i->ARTICULO') * $devuelto) 
+			  				 (((SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE FTC.CVE_COTIZACION = '$docf') AND FTCD.CVE_ART = '$art') * $devuelto) 
 			  				 - 
-			  				 (SELECT (((DBIMPDES/100) * DBIMPPRE)*$devuelto) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND 'PGS'||FTCD.CVE_ART = '$i->ARTICULO'))
+			  				 (SELECT (((DBIMPDES/100) * DBIMPPRE)*$devuelto) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND FTCD.CVE_ART = '$art'))
 			  				  ,
 			  				  (
-			  				 ((SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND 'PGS'||FTCD.CVE_ART = '$i->ARTICULO') * $devuelto) 
+			  				 ((SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND FTCD.CVE_ART = '$art') * $devuelto) 
 			  				 - 
-			  				 (SELECT ( ((DBIMPDES/100) * DBIMPPRE)*$devuelto) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION WHERE CVE_COTIZACION = '$docf'  AND 'PGS'||FTCD.CVE_ART = '$i->ARTICULO'))
+			  				 (SELECT ( ((DBIMPDES/100) * DBIMPPRE)*$devuelto) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION WHERE CVE_COTIZACION = '$docf'  AND FTCD.CVE_ART = '$art'))
 			  				  )*1.16, 
 			  				  (select coalesce(cve_prodserv, '41071014') from inve01 where cve_art = '$i->ARTICULO'),
 			  				(select coalesce(cve_unidad, 'H87') from inve01 where cve_art = '$i->ARTICULO'),
 			  				'','', '$usuario', current_timestamp, $i->ID_PREOC, $idc, $i->ID, 
-			  				(SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION WHERE CVE_COTIZACION = '$docf'  AND 'PGS'||FTCD.CVE_ART = '$i->ARTICULO')), 
+			  				(SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION WHERE CVE_COTIZACION = '$docf'  AND FTCD.CVE_ART = '$art')), 
 			  				0)";
 			  				$this->EjecutaQuerySimple();		
+			  				$dev=$i->DEVUELTO;
 			  				$this->query="INSERT INTO INGRESOBODEGA (ID, DESCRIPCION, CANT, FECHA, MARCA, PROVEEDOR, COSTO, UNIDAD, PRODUCTO, RESTANTE, ASIGNADO, USUARIO, RECIBIDO, ORIGEN, documento)
-			    						  VALUES (NULL, '$i->DESCRIPCION', $devuelto, CURRENT_TIMESTAMP, (SELECT MARCA FROM PRODUCTO_FTC WHERE CLAVE = '$i->ARTICULO'), 
+			    						  VALUES (NULL, '$i->DESCRIPCION', $dev, CURRENT_TIMESTAMP, (SELECT MARCA FROM PRODUCTO_FTC WHERE CLAVE = '$i->ARTICULO'), 
 			    						  (SELECT coalesce(PROV_ALT, PROVE) FROM PREOC01 WHERE ID = $i->ID_PREOC), 
 			    						  (SELECT MAX(COSTO) FROM FTC_POC_DETALLE WHERE IDPREOC =$i->ID_PREOC), 
 			    						  (SELECT UM FROM PREOC01 WHERE ID = $i->ID_PREOC),
 			    						  '$i->ARTICULO', 
-			    						  $devuelto,
-			    						  0, '$usuario', $devuelto, 'Devolucion Factura', '$factura')";
+			    						  $dev,
+			    						  0, '$usuario', $dev, 'Devolucion Factura', '$factura')";
+			    						$this->grabaBD();
+			    		}
+			  		}
+		    	}
+		return;
+    }
+    
+
+    function insertaDetalleNCI($folsig, $tablad, $termino, $docNCD, $docf, $usuario, $idc, $factura){
+    	$this->query="SELECT * FROM PAQUETES WHERE idcaja = $idc and devuelto > 0";
+		    	$res = $this->EjecutaQuerySimple();
+		    	while ($tsArray=ibase_fetch_object($res)) {
+		    		$data[]=$tsArray;
+		    	}
+		    	$partida=0;
+		    	foreach ($data as $i) {
+		    		$cant=$i->CANTIDAD;
+		    		$art = substr($i->ARTICULO, 3);
+		    		if($cant>0){
+		    			$partida++;
+			    		$acumulado = 0;
+			    		$this->query="SELECT coalesce(sum(cantidad), 0) AS CANTIDAD FROM FTC_NC_DETALLE WHERE IDPAQUETE =$i->ID";
+			    		$res = $this->EjecutaQuerySimple();
+			    		$row3 =ibase_fetch_object($res);
+			    		//echo 'Revisamos lo ya devuelto'.$this->query.'<br/>';
+			    		if($row3){
+			    			$acumulado=$acumulado + $row3->CANTIDAD;
+			    		}
+			    		$this->query="SELECT coalesce(sum(cantidad),0) AS CANTIDAD FROM FTC_NCI_DETALLE WHERE IDPAQUETE =$i->ID";
+			    		$res = $this->EjecutaQuerySimple();
+			    		$row4 =ibase_fetch_object($res);
+			    		//echo 'Revisamos lo ya devuelto'.$this->query.'<br/>';
+			    		if($row4){
+			    			$acumulado=$acumulado + $row4->CANTIDAD;
+			    		}
+			    		$devuelto=$i->CANTIDAD - ($acumulado + $i->DEVUELTO);
+			    		$dev=$i->DEVUELTO - $acumulado;
+			    	
+			    		if($devuelto >= 0){
+			    			$this->query="INSERT INTO $tablad (IDFP, IDF, DOCUMENTO, PARTIDA, CANTIDAD, ARTICULO, UM, DESCRIPCION, IMP1, IMP2, IMP3, IMP4, DESC1, DESC2, DESC3, DESCF, SUBTOTAL, TOTAL, CLAVE_SAT, MEDIDA_SAT, PEDIMENTOSAT, LOTE, USUARIO, FECHA, IDPREOC, IDCAJA, IDPAQUETE, PRECIO, STATUS) VALUES 
+			  				(NULL, $termino, '$docNCD', $partida, $dev, '$i->ARTICULO',
+			  				(select coalesce(uni_med, 'Pza') from inve01 where cve_art = '$i->ARTICULO'), 
+			  				'$i->DESCRIPCION', 0.16, 0,0,0, 
+			  				(SELECT (((DBIMPDES/100) * DBIMPPRE)*$dev) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND 'PGN'||FTCD.CVE_ART = '$i->ARTICULO'),
+			  				 0, 0, 0,
+			  				 (((SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE FTC.CVE_COTIZACION = '$docf') AND FTCD.CVE_ART = '$art') * $dev) 
+			  				 - 
+			  				 (SELECT (((DBIMPDES/100) * DBIMPPRE)*$dev) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND FTCD.CVE_ART = '$art'))
+			  				  ,
+			  				  (
+			  				 ((SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT FTC.CDFOLIO FROM FTC_COTIZACION FTC WHERE CVE_COTIZACION = '$docf') AND FTCD.CVE_ART = '$art') * $dev) 
+			  				 - 
+			  				 (SELECT ( ((DBIMPDES/100) * DBIMPPRE)*$dev) FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION WHERE CVE_COTIZACION = '$docf'  AND FTCD.CVE_ART = '$art'))
+			  				  )*1.16, 
+			  				  (select coalesce(cve_prodserv, '41071014') from inve01 where cve_art = '$i->ARTICULO'),
+			  				(select coalesce(cve_unidad, 'H87') from inve01 where cve_art = '$i->ARTICULO'),
+			  				'','', '$usuario', current_timestamp, $i->ID_PREOC, $idc, $i->ID, 
+			  				(SELECT DBIMPPRE FROM FTC_COTIZACION_DETALLE FTCD WHERE FTCD.CDFOLIO = (SELECT CDFOLIO FROM FTC_COTIZACION WHERE CVE_COTIZACION = '$docf'  AND FTCD.CVE_ART = '$art')), 
+			  				0)";
+			  				$this->EjecutaQuerySimple();		
+			  				$this->query="INSERT INTO INGRESOBODEGA (ID, DESCRIPCION, CANT, FECHA, MARCA, PROVEEDOR, COSTO, UNIDAD, PRODUCTO, RESTANTE, ASIGNADO, USUARIO, RECIBIDO, ORIGEN, documento)
+			    						  VALUES (NULL, '$i->DESCRIPCION', $dev, CURRENT_TIMESTAMP, (SELECT MARCA FROM PRODUCTO_FTC WHERE CLAVE = '$i->ARTICULO'), 
+			    						  (SELECT coalesce(PROV_ALT, PROVE) FROM PREOC01 WHERE ID = $i->ID_PREOC), 
+			    						  coalesce ((SELECT MAX(COSTO) FROM FTC_POC_DETALLE WHERE IDPREOC =$i->ID_PREOC), 0), 
+			    						  (SELECT UM FROM PREOC01 WHERE ID = $i->ID_PREOC),
+			    						  '$i->ARTICULO', 
+			    						  $dev,
+			    						  0, '$usuario', $dev, 'Devolucion Factura', '$factura')";
 			    						$this->grabaBD();
 			    		}
 			  		}
@@ -9747,6 +9844,7 @@ function VerCobranzaC($cc){
         (cant_orig - recepcion) as Restante,
         RECEPCION,
         EMPACADO,
+        DEVUELTO,
         (recepcion - empacado) as BODEGA,
         FACTURADO,
         REMISIONADO,
@@ -10826,7 +10924,11 @@ function Pagos() {
 			$bn=ibase_fetch_object($res);
 			$corte = $bn->DIA_CORTE;
 			$fechaIni=$corte.'.'.$mes.'.'.$anio;
-			$fechafin=($corte-1).'.'.($mes+1).'.'.$anio;
+			if($corte == 1){
+				$fechafin=($corte).'.'.($mes+1).'.'.$anio;
+			}else{
+				$fechafin=($corte-1).'.'.($mes+1).'.'.$anio;
+			}
 		###########################################################
 
 		$this->query="SELECT 1 as s, FECHA_RECEP AS sort, 'Venta' AS TIPO,  iif(FOLIO_X_BANCO = 'TR', (FOLIO_X_BANCO||id), FOLIO_X_BANCO) AS CONSECUTIVO, FECHA_RECEP AS FECHAMOV, MONTO AS ABONO, 0 AS CARGO, SALDO AS SALDO, BANCO AS BANCO, USUARIO AS USUARIO, tipo_pago as TP, id as identificador, registro as registro, folio_acreedor as FA , fecha_recep as fe, '' as comprobado, contabilizado, seleccionado, '' as tp_tes, CEP, ARCHIVO_CEP, obs 
@@ -14207,7 +14309,7 @@ function Pagos() {
 
     function verMaestros($cartera){
     	$data=array();
-    	$this->query="SELECT * FROM MAESTROS where status is null or status= 'A'";
+    	$this->query="SELECT m.*, (SELECT coalesce(SUM(LINEA_CRED),0) from cartera where tipo = m.clave ) as lineaOtorgada FROM MAESTROS m where m.status is null or m.status= 'A'";
     	$rs=$this->EjecutaQuerySimple();
     	while($tsArray=ibase_fetch_object($rs)){
     		$data[]=$tsArray;
@@ -15436,10 +15538,16 @@ function Pagos() {
     	$rs=$this->EjecutaQuerySimple();
     	$row=ibase_fetch_object($rs);
     	if( ($letra = $_SESSION['user']->LETRA) == 'G'){
-    		$this->query="SELECT ca.*, ftcc.urgente, ftcc.cve_cliente, iif(cl.status_cobranza is null, 0 , cl.status_cobranza) as status_cobranza, 	ftcc.dbimptot, cl.saldo_monto_cobranza, cl.nombre as cliente, ftcc.idpedido as oc, ftcc.cdfolio from cajas_almacen ca left join FTC_COTIZACION ftcc on ftcc.CDfolio = ca.cotizacion 
+    		$this->query="SELECT ca.*, ftcc.urgente, ftcc.cve_cliente, iif(cl.status_cobranza is null, 0 , cl.status_cobranza) as status_cobranza, 	ftcc.dbimptot, cl.saldo_monto_cobranza, cl.nombre as cliente, ftcc.idpedido as oc, ftcc.cdfolio, 
+
+    		(SELECT coalesce(SUM(SALDO_FINAL), 0) FROM FTC_FACTURAS WHERE CLIENTE = ftcc.cve_cliente) + (SELECT coalesce(sum( ((cant_orig - facturado - devuelto) * (Total/ cant_orig) ) * 1.16 ), 0) from preoc01 where trim(clien) = ftcc.cve_cliente and status <>'P') as SaldoTotal, 
+
+    		(SELECT LINEA_CRED FROM cartera WHERE ccc = cl.C_COMPRAS) as linea,
+    		(SELECT NOMBRE FROM MAESTROS_CCC WHERE ID = cl.C_COMPRAS) AS ccred
+    			from cajas_almacen ca left join FTC_COTIZACION ftcc on ftcc.CDfolio = ca.cotizacion
     				left join clie01 cl on trim(cl.clave) = trim(ftcc.cve_cliente) where (ca.status  = 0 or datediff(day from fecha_ventas to current_timestamp) < 15) order by ca.fecha_ventas desc";
     	}else{
-    		$this->query="SELECT ca.*, ftcc.urgente, ftcc.cve_cliente, iif(cl.status_cobranza is null, 0 , cl.status_cobranza) as status_cobranza, 	ftcc.dbimptot, cl.saldo_monto_cobranza, cl.nombre as cliente, ftcc.idpedido as oc, ftcc.cdfolio from cajas_almacen ca left join FTC_COTIZACION ftcc on ftcc.CDfolio = ca.cotizacion 
+    		$this->query="SELECT ca.*, ftcc.urgente, ftcc.cve_cliente, iif(cl.status_cobranza is null, 0 , cl.status_cobranza) as status_cobranza, 	ftcc.dbimptot, cl.saldo_monto_cobranza, cl.nombre as cliente, ftcc.idpedido as oc, ftcc.cdfolio,  (SELECT coalesce(SUM(SALDO_FINAL), 0) FROM FTC_FACTURAS WHERE CLIENTE = ftcc.cve_cliente) + (SELECT coalesce(sum( ((cant_orig - facturado - devuelto) * (Total/ cant_orig) ) * 1.16 ), 0) from preoc01 where trim(clien) = ftcc.cve_cliente and status <>'P') as SaldoTotal from cajas_almacen ca left join FTC_COTIZACION ftcc on ftcc.CDfolio = ca.cotizacion 
     				left join clie01 cl on trim(cl.clave) = trim(ftcc.cve_cliente) where PEDIDO Starting with('$row->LETRA_NUEVA') AND (ca.status  = 0 or datediff(day from fecha_ventas to current_timestamp) < 15) order by ca.fecha_ventas desc";
     	}
     	$rs=$this->EjecutaQuerySimple();
@@ -15662,7 +15770,7 @@ function Pagos() {
     	return $data;
     }
 
-    function editarProveedor($idprov, $urgencia, $envio, $recoleccion, $tp_efe, $tp_ch, $tp_cr, $tp_tr, $certificado, $banco, $cuenta, $beneficiario, $responsable, $plazo, $email1, $email2, $email3){
+    function editarProveedor($idprov, $urgencia, $envio, $recoleccion, $tp_efe, $tp_ch, $tp_cr, $tp_tr, $certificado, $banco, $cuenta, $beneficiario, $responsable, $plazo, $email1, $email2, $email3, $serv){
     	$user=$_SESSION['user']->NOMBRE;
     	$this->query="SELECT * FROM PROV01 WHERE trim(CLAVE) = TRIM('$idprov')";
     	$rs=$this->QueryObtieneDatosN();
@@ -16463,8 +16571,9 @@ function Pagos() {
 
 
 	function verCCC($idm, $cvem){
-		$this->query="SELECT MCC.*, CL.NOMBRE AS CLIENTE FROM MAESTROS_CCC MCC
-					  LEFT JOIN CLIE01 CL ON CL.CLAVE = MCC.INDIVIDUAL
+		$data = array();
+		$this->query="SELECT MCC.*, C.*, (SELECT COUNT(CLAVE) FROM CLIE01 WHERE C_COMPRAS = MCC.ID) AS clientes FROM MAESTROS_CCC MCC
+					  LEFT JOIN CARTERA C ON C.CCC = MCC.ID
 					  WHERE MCC.CVE_MAESTRO = '$cvem'";
 		$rs=$this->QueryObtieneDatosN();
 
@@ -16486,15 +16595,20 @@ function Pagos() {
 		return @$data;
 	}
 
-	function creaCC($cvem, $nombre, $contacto, $telefono, $presup, $idm){
+	function creaCC($cvem,$nombre, $contacto, $telefono, $presup, $idm, $plazo, $diasRevision,$diasPago,$cob,$maps,$ln,$pc,$bancoDeposito,$bancoOrigen,$referEdo,$metodoPago){
 		$user=$_SESSION['user']->NOMBRE;
-
 		$this->query="INSERT INTO MAESTROS_CCC(ID, CVE_MAESTRO, PRESUPUESTO_mensual, NOMBRE, COMPRADOR, telefono, USUARIO , FECHA_ALTA, id_maestro) 
-							VALUES(null, '$cvem', $presup,'$nombre', '$contacto', '$telefono', '$user', current_timestamp, '$idm' )";
+							VALUES(null, '$cvem', $presup,'$nombre', '$contacto', '$telefono', '$user', current_timestamp, '$idm' ) RETURNING ID";
 		$rs=$this->EjecutaQuerySimple();
-
-		//echo $this->query;
-		//break;
+		$row =ibase_fetch_object($rs);
+		$idcliente = 'CC'.$row->ID;
+		$cobr='';
+		foreach ($cob as $a) {
+			$cobr.=$a.',';
+		}
+		$this->query= "INSERT INTO CARTERA (IDCLIENTE, DIAS_REVISION, DIAS_PAGO, PLAZO, MAPS, LINEA_CRED, PORTAL_COB, CCC, tipo) 
+							VALUES('$idcliente', '$diasRevision', '$diasPago', $plazo, '$maps', $ln, '$cobr', $row->ID, '$cvem')";
+		$this->EjecutaQuerySimple();
 		return;
 	}
 
@@ -16510,32 +16624,12 @@ function Pagos() {
 		return $data;
 	}
 
-	function verAsociados($cc){
-		$this->query="SELECT cl.clave, cl.RFC, cl.nombre, cl.calle, cl.numext, m.nombre as maestro, cc.nombre as ccompra, clib.camplib7, cl.c_compras 
-					 FROM CLIE01 cl
-					 inner join maestros m on m.clave = cl.cve_maestro
-					 inner join maestros_ccc cc on cc.id = cl.c_compras
-					 inner join CLIE_CLIB01 clib on clib.cve_clie =cl.clave
-					  WHERE C_COMPRAS = $cc";
-		$rs = $this->EjecutaQuerySimple();
-		while($tsArray=ibase_fetch_object($rs)){
-			$data[]=$tsArray;
-		}
-		return @$data;
-	}
-
 	function asociaCC($cc, $cliente, $cvem){
 		$this->query="UPDATE CLIE01 SET C_COMPRAS = $cc, cve_maestro = '$cvem' where CLAVE = '$cliente'";
 		$rs=$this->EjecutaQuerySimple();
 		return;
 	}
 
-	function cancelaAsociacion($cc, $clie){
-		$this->query="UPDATE CLIE01 SET C_COMPRAS = null, cve_maestro = '' where CLAVE = '$clie'";
-		$rs=$this->EjecutaQuerySimple();
-		echo $this->query;
-		return;
-	}
 
 	function rechazarFTC($idca, $idp, $folio, $urgente){
 		$this->query="UPDATE cajas_almacen SET STATUS = 2 WHERE IDca = $idca";
@@ -21572,7 +21666,7 @@ function invAunaFecha($fecha, $tipo){
 
      function facturaPegaso($factura){
 		$data=array();
-		if(substr($factura,0,3)=='NCR' or substr($factura,0,3)=='NCS' or substr($factura, 0,3) == 'NCD' or substr($factura, 0,3) == 'NCB'){
+		if(substr($factura,0,3)=='NCR' or substr($factura,0,3)=='NCS' or substr($factura, 0,3) == 'NCD' or (substr($factura, 0,2) == 'NC' and substr($factura,0,3)!='NCI')){
 			$this->query="SELECT * FROM NC_PEGASO WHERE DOCUMENTO = '$factura'";
 			$res=$this->EjecutaQuerySimple();
 		}elseif(substr($factura,0,3)=='NCI'){
@@ -22644,7 +22738,7 @@ function creaFactura($idc, $uso, $tpago, $mpago, $cp){
 
 	function detalleFacturaPegaso($factura){
 		$data=array();
-		if(substr($factura, 0,3) =='NCR' or substr($factura, 0,3) =='NCS' or substr($factura, 0,3) =='NCD' or substr($factura, 0,3) =='NCB'){
+		if(substr($factura, 0,3) =='NCR' or substr($factura, 0,3) =='NCS' or substr($factura, 0,3) =='NCD' or (substr($factura, 0,2) == 'NC' and substr($factura,0,3)!='NCI')){
 			$this->query="SELECT nc.*, (select descripcion from claves_sat cs where cs.cve_prod_serv = nc.clave_sat) as descCve, 
 				(select descripcion from unidades_sat us where  us.clave = nc.medida_sat) as descUni 
 				 FROM FTC_NC_DETALLE nc WHERE DOCUMENTO = '$factura'";
@@ -26424,5 +26518,98 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
 			return array("statsu"=>'ok', "info"=>"Esto es un abono");
 		}
 	}
+
+	function diaMx($n){
+		if($n == 1){
+			$n = 'Lunes';
+		}elseif ($n==2) {
+			$n = 'Martes';
+		}elseif ($n==3) {
+			$n = 'Miercoles';
+		}elseif ($n==4) {
+			$n = 'Jueves';
+		}elseif ($n==5) {
+			$n = 'Viernes';
+		}elseif ($n==6) {
+			$n = 'Sabado';
+		}elseif ($n==7) {
+			$n = 'Domingo';
+		}
+		return $n;
+	}
+
+	function mesMx($n){
+		if($n == 1){
+			$n = 'Enero';
+		}elseif ($n==2) {
+			$n = 'Febrero';
+		}elseif ($n==3) {
+			$n = 'Marzo';
+		}elseif ($n==4) {
+			$n = 'Abril';
+		}elseif ($n==5) {
+			$n = 'Mayo';
+		}elseif ($n==6) {
+			$n = 'Junio';
+		}elseif ($n==7) {
+			$n = 'Julio';
+		}elseif ($n==8) {
+			$n = 'Agosto';
+		}elseif ($n==9) {
+			$n = 'Septiembre';
+		}elseif ($n==10) {
+			$n = 'Octubre';
+		}elseif ($n==11) {
+			$n = 'Noviembre';
+		}elseif ($n==12) {
+			$n = 'Dieciembre';
+		}
+		return $n;	
+	}
+
+ 	function actCF(){
+ 		$this->query="SELECT  id, monto, saldo, cf, monto_cf ,
+    			(select list(id) from cargo_financiero cf where cp.id = cf.id_pago and rfc is null) as cft,
+    			(select sum(monto) from cargo_financiero cf where cp.id= cf.id_pago) as montoCF
+ 			from carga_pagos cp where
+    		tipo_pago is null
+    		and cp.cf is not null and cp.cf != '0'";
+ 		$rs=$this->EjecutaQuerySimple();
+ 		while ($tsArray = ibase_fetch_object($rs)){
+ 			$data[]=$tsArray;
+ 		}
+ 		$monto=0;
+ 		foreach ($data as $key) {
+ 			$cfs=$key->CF;
+ 			$idp= $key->ID;
+ 			if(strpos($cfs, ",")){
+ 				$cfs = explode(",", $cfs);
+ 				for ($i=0; $i < count($cfs) ; $i++) { 
+ 					$cfin=$cfs[$i];
+ 					$this->query="SELECT MONTO FROM CARGO_FINANCIERO WHERE ID = $cfin and rfc is null";
+ 					//echo '<br/>'.$this->query.'<br/>';
+ 					$res=$this->EjecutaQuerySimple();
+ 					$row=ibase_fetch_object($res);
+ 					$this->query="UPDATE CARGA_PAGOS SET MONTO_CF = iif(MONTO_CF is null,  $row->MONTO, MONTO_CF + $row->MONTO) WHERE ID = $idp";
+ 					//echo '<br/>'.$this->query.'<br/>';
+ 					$r=$this->EjecutaQuerySimple();
+ 					$this->query="UPDATE CARGO_FINANCIERO SET  ID_PAGO = $idp where id = $cfin and rfc is null";
+ 					$res=$this->EjecutaQuerySimple();
+ 				}
+ 			}else{
+ 				$this->query="SELECT MONTO FROM CARGO_FINANCIERO WHERE ID = $cfs and rfc is null";
+ 				//	echo '<br/>'.$this->query.'<br/>';
+ 					$res=$this->EjecutaQuerySimple();
+ 					$row=ibase_fetch_object($res);
+ 				$this->query="UPDATE CARGA_PAGOS SET MONTO_CF = iif(MONTO_CF is null,  $row->MONTO, MONTO_CF + $row->MONTO) WHERE ID = $idp";
+ 				//	echo '<br/>'.$this->query.'<br/>';
+ 					$r=$this->EjecutaQuerySimple();
+ 				$this->query="UPDATE CARGO_FINANCIERO SET  ID_PAGO = $idp where id = $cfs and rfc is null";
+ 					$res=$this->EjecutaQuerySimple();
+ 			}
+ 		}
+ 		exit();
+ 	}
+
 
 }?>

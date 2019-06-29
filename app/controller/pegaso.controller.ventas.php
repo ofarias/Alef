@@ -141,12 +141,12 @@ class pegaso_controller_ventas{
             $datav = new pegaso_ventas;     
             $val = $datav->validacion($folio);
             if($val != 'PENDIENTE'){
+                echo '<script>alert("La Cotizacion ya ha sido cerrada con anterioridad o el cliente no  esta asociado a un Maestro")</script>';
                 $redireccionar = "consultarCotizaciones";
                 $pagina=$this->load_template('Pedidos');
                 $html = $this->load_page('app/views/pages/p.redirectform.v.php');
                 include 'app/views/pages/p.redirectform.v.php';
                 $this->view_page($pagina);      
-                echo '<script>alert("La Cotizacion ya ha sido cerrada con anterioridad")</script>';
                 return;
             }
             $pagina=$this->load_template('Pagos'); 

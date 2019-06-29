@@ -82,7 +82,18 @@
                         <center><a href="index.php?action=buscaFacturaNC" class="btn btn-default"><img src="app/views/images/Clipboard-Paste-icon.png"></a></center>
                     </div>
                 </div>
-            </div> 
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Solicitudes de Margen Bajo </h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Definir Margen Bajo</p>
+                        <center><a href="index.v.php?action=verSMB" class="btn btn-default"><img src="app/views/images/users.png"></a></center>
+                    </div>
+                </div>
+            </div>     
             <?php }?>
         </div>
     </div>

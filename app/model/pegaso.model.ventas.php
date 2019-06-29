@@ -1500,13 +1500,19 @@ class pegaso_ventas extends database{
         //$response = array('nordenado'=>$nordenado,'nrecepcion'=>$nrecepcion,'nempacado'=>$nempacado);
     }
 
-
     function validacion($folio){
+        $val='';
         $this->query="SELECT * FROM FTC_COTIZACION WHERE CDFOLIO = $folio";
         $rs=$this->EjecutaQuerySimple();
         $row=ibase_fetch_object($rs);
-        //$status2=$row->INSTATUS;
-        return($row->INSTATUS);
+        $val = $row->INSTATUS;
+        $this->query="SELECT * FROM CLIE01 WHERE CLAVE_TRIM='$row->CVE_CLIENTE'";
+        $res=$this->EjecutaQuerySimple();
+        $row2=ibase_fetch_object($res);
+        if(empty($row2->C_COMPRAS) or empty($row2->CVE_MAESTRO)){
+            $val="SIN MAESTRO O CENTRO DE COSTOS";
+        }
+        return($val);
     }
 
     function cancelar($docf, $uuid){

@@ -10,8 +10,8 @@
 
      $pdf = new FPDF('P', 'mm', 'Letter');
      $pdf->AddPage();
-     $pdf->Image('../views/images/headerContraReciboCompra.jpg', 10, 15, 205, 55);
-     $pdf->SetFont('Arial', 'I', 12);
+     //$pdf->Image('../views/images/headerContraReciboCompra.jpg', 10, 15, 205, 55);
+     $pdf->Image('app/views/images/logos/'.$_SESSION['empresa']['logo'],10,5);$pdf->SetFont('Arial', 'I', 12);
      $pdf->SetTextColor(14, 3, 3);
      $pdf->Ln(60);
      $pdf->Cell(10, 10, 'Tipo de documento : ' . $data->TIPO);

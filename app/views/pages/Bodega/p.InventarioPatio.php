@@ -62,11 +62,14 @@
                                                 $status = 'Cancelado';
                                                 $color="style='background-color:#F78181;'";
                                             }
-
-                                            $totalCosto = $totalCosto + ($data->COSTO_REAL * $data->BODEGA);
-
+                                            if(($data->EMPACADO - $data->DEVUELTO) > 0){
+                                                $totalCosto = $totalCosto + ($data->COSTO_REAL * $data->BODEGA);
+                                            }
 
                                         ?>
+
+                                        <?php if(($data->EMPACADO - $data->DEVUELTO) > 0){ ?>
+                                            
                                        <tr class="odd gradeX" <?php echo $color;?> >
                                             <td><?php echo $data->CONSECUTIVO?></td>
                                             <td><?php echo $data->CAJA_PEGASO.'<br/>'.$data->FECHA_LIBERACION;?></td>
@@ -92,6 +95,7 @@
                                             <td align="right"><?php echo '$ '.number_format($data->DIFERENCIA,2)?></td>
                                             <td align="right"><?php echo '$ '.number_format($data->PPTO_VENTA,2)?></td>
                                             </tr>
+                                        <?php } ?>
                                         <?php endforeach; ?>
                                  </tbody>
                                  <label><font size="15px"> <b>Costo Total del Inventario:</b> </font> <font color="red" size="13px"><?php echo '$ '.number_format($totalCosto,2)?></font> <font size="8px"> (Sin IVA) </font></label>

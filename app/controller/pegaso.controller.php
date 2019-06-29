@@ -338,6 +338,40 @@ class pegaso_controller{
 
 /// Finaliza Menus 
 
+	function MenuCxC(){     //14062016		
+		if(isset($_SESSION['user']) && ($_SESSION['user']->USER_ROL=='cxc' ||$_SESSION['user']->USER_ROL=='administracion')){
+			$tipoUsuario=$_SESSION['user']->LETRA;
+			$data=new pegaso;
+			$data2=new pegasoCobranza;
+			$usuario = $_SESSION['user']->NOMBRE;
+			ob_start();
+			$table = ob_get_clean();
+			$pagina = $this->load_template('Menu Admin');
+			$documentos = 0;
+			//$a = $data->actCF();
+			$fecha = date('d-m-Y');
+			$dia = $data->diaMx(date('N'));
+			$mes = $data->mesMx(date('n'));
+			$anio = date('Y');
+			$semana=array('L', 'MA','MI', 'J', 'V', 'S', 'D');
+			$maestros=$data2->maestrosCartera();
+			$doctos=$data2->docVencidos($tipoUsuario, $semana);
+			$rutas = $data2->rutasCobranza($tipoUsuario);
+			$rutasActivas = $data2->verRutasCobranza($tipo='A', $tipoUsuario);
+			if($documentos == 0 ){	
+				include 'app/views/modules/m.mcxc.php';
+				$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
+			}else{
+				include 'app/views/modules/m.mbloqueologisticaReparto.php';
+				$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);	
+			}
+			$this-> view_page($pagina);
+		}else{
+			$e = "Favor de Revisar sus datos";
+			header('Location: index.php?action=login&e='.urlencode($e)); exit;
+		}  
+    }
+
 	function CambiarSenia(){	
 		if(isset($_SESSION['user'])){
 			$data= new pegaso;
@@ -9241,15 +9275,33 @@ function imprimirFacturasAcuse(){
         $this->view_page($pagina);                    */
    	 }
 
-   	 function generaDevolucion($idc, $docf){
+   	function generaDevolucion($idc, $docf){
    	 	$data = new pegaso;
+   	 	$factura = new factura;
    	 	$actcaja = $data->cajabodeganc($idc, $docf); #Actualiza la caja para que deje de aparecer en la lista.
         $actpaquete = $data->paquetedevolucion($idc, $docf); #Actualiza el paquete con lo devuelto e impreso, crea folio de Devolucion de paquetes.
+        $docf=$actpaquete['nc'];
+        $val=$actpaquete['refact'];
         if($actpaquete['status']== 'no'){
+        	$this->avisoDevFallida($actpaquete, $idc, $docf);
         	exit('Enviar correo informando que no se actualizo');
+        }elseif(substr($docf,0,3) == 'NCD'){
+        	//echo 'Nota de credito Fiscal'.$docf; 
+        	$docf=$actpaquete['nc'];
+        	$dev=$actpaquete['devolucion'];
+        	$timbraNC=$factura->timbraNC($docf, $idc, $dev);
+        	$registro=$factura->moverNCSUB($nc=$docf, $rfc=$timbraNC);
+        	$actpaquete["archivo"]=$registro['archivo'];
+        	$_SESSION['archivoDev']=$registro['archivo'];
+        	if($val > 0 ){
+        		$dnf=$data->traeDatosFactura($idc);
+	        	$nuevaFactura=$factura->nuevaFactura($idca=$actpaquete['nvaCaja'], $uso=$dnf['uso'], $tpago=$dnf['mpago'], $mpago=$dnf['tpago'], $cp=$dnf['cp'], $rel='', $ocdet='', $entdet='');
+	        	###mover la factura y cargarla
+	        	$actualizaCaja=$data->actCaja($idc, $idcn=$actpaquete['nvaCaja'], $factura=$nuevaFactura['factura']);
+        	}
         }
         return $actpaquete;
-   	 }
+   	}
 
      function ImprimirDevolucion($idc, $docf){
     	ob_start();
@@ -10089,7 +10141,6 @@ function imprimirFacturasAcuse(){
     	
     	if (isset($_SESSION['user'])) {
         	$data = new pegaso;
-
         	$pagina = $this->load_template('Pagos');        	
         	$html = $this->load_page('app/views/pages/p.pagos.ximprimir.php');
         	ob_start();
@@ -13716,12 +13767,12 @@ function ImpSolicitud2($idsol){
         	$cartera = $_SESSION['user']->CC;
             $data = new pegaso;
             $pagina = $this->load_template('Compra Venta');
-            $html = $this->load_page('app/views/pages/p.verMaestros.php');
+            $html = $this->load_page('app/views/pages/Maestros/p.verMaestros.php');
             ob_start();
             $maestros = $data->verMaestros($cartera);
             //$saldoAcumulado=$data->saldoAcumulado();
             if (count($maestros)>0){
-                include 'app/views/pages/p.verMaestros.php';
+                include 'app/views/pages/Maestros/p.verMaestros.php';
                 $table = ob_get_clean();
                 $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
             } else {
@@ -13748,17 +13799,17 @@ function ImpSolicitud2($idsol){
         	if (isset($_SESSION['user'])){
         	$data = new pegaso;
             $pagina = $this->load_template('Compra Venta');
-            $html = $this->load_page('app/views/pages/p.editarMaestro.php');
+            $html = $this->load_page('app/views/pages/Maestros/p.editarMaestro.php');
             ob_start();
             $datosMaestro=$data->editarMaestro($idm);
             $ccc=$data->traeCCC($idm);
             $clientes=$data->treaeClientesSinCC();
+            include 'app/views/pages/Maestros/p.editarMaestro.php';
+            $table = ob_get_clean();    
             if (count($datosMaestro)>0){
-                include 'app/views/pages/p.editarMaestro.php';
-                $table = ob_get_clean();
                 $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
             } else {
-            	$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $html . '<div class="alert-danger"><center><h2>NO SE ENCONTRO LA INFORMACION DE LA ORDEN DE COMPRA, FAVOR DE VIERFICAR Y EJECUTAR NUEVAMENTE.</h2><center></div>', $pagina);
+            	$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table . '<div class="alert-danger"><center><h2>NO SE ENCONTRO LA INFORMACION DE LA ORDEN DE COMPRA, FAVOR DE VIERFICAR Y EJECUTAR NUEVAMENTE.</h2><center></div>', $pagina);
             }
             $this->view_page($pagina);
         	} else {
@@ -13773,7 +13824,7 @@ function ImpSolicitud2($idsol){
         	if (isset($_SESSION['user'])){
         	$data = new pegaso;
             $pagina = $this->load_template('Compra Venta');
-            $html = $this->load_page('app/views/pages/p.editarMaestro.php');
+            $html = $this->load_page('app/views/pages/Maestros/p.editarMaestro.php');
             ob_start();
             $datosMaestro=$data->editaMaestro($idm);
          
@@ -13794,7 +13845,7 @@ function ImpSolicitud2($idsol){
 		if (isset($_SESSION['user'])){
         	$data = new pegaso;
             $pagina = $this->load_template('Compra Venta');
-            $html = $this->load_page('app/views/pages/p.editarMaestro.php');
+            $html = $this->load_page('app/views/pages/Maestros/p.editarMaestro.php');
             ob_start();
             $asociaCC=$data->asociaCC($cc, $cliente, $cvem);
             $redireccionar="editarMaestro&idm={$idm}";
@@ -13802,34 +13853,6 @@ function ImpSolicitud2($idsol){
             $html = $this->load_page('app/views/pages/p.redirectform.php');
             include 'app/views/pages/p.redirectform.php';
             $this->view_page($pagina);
-        	} else {
-            $e = "Favor de Iniciar Sesión";
-            header('Location: index.php?action=login&e=' . urlencode($e));
-            exit;
-        	}		
-	}
-
-	function verAsociados($cc, $cancela, $clie){
-			
-        	if (isset($_SESSION['user'])){
-        	$data = new pegaso;
-            $pagina = $this->load_template('Compra Venta');
-            $html = $this->load_page('app/views/pages/p.verAsociados.php');
-            ob_start();
-            echo $cancela;
-            if($cancela == 1){
-            	$cancelar = $data->cancelaAsociacion($cc, $clie);
-            }
-            $asociados=$data->verAsociados($cc);
-	            if(count($asociados)> 0){
-	            	include 'app/views/pages/p.verAsociados.php';
-	            	$table = ob_get_clean();
-                	$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
-	            	    
-	        	}else{
-	        		$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $html . '<div class="alert-danger"><center><h2>EL CENTRO DE COMPRAS NO TIENE NINGUN CLIENTE ASOCIADO.</h2><center></div>', $pagina);
-	        	}	
-	        	$this->view_page($pagina);  
         	} else {
             $e = "Favor de Iniciar Sesión";
             header('Location: index.php?action=login&e=' . urlencode($e));
@@ -13855,8 +13878,7 @@ function ImpSolicitud2($idsol){
         	}		
 	}
 
-	function altaMaestro($nombre){
-		
+	function altaMaestro($nombre){		
         	if (isset($_SESSION['user'])){
         	$data = new pegaso;
             $pagina = $this->load_template('Compra Venta');
@@ -14872,11 +14894,11 @@ function ImpSolicitud2($idsol){
     	if($_SESSION['user']){
     		$data = new pegaso;
     		$pagina=$this->load_template('Pedidos');
-    		$html = $this->load_page('app/views/pages/p.editaProveedor.php');
+    		$html = $this->load_page('app/views/pages/Proveedores/p.editaProveedor.php');
     		ob_start();
     		$responsables=$data->traeResponsablesProve();
     		$proveedor=$data->editaProveedor($idprov);
-    		include 'app/views/pages/p.editaProveedor.php';
+    		include 'app/views/pages/Proveedores/p.editaProveedor.php';
     		$table = ob_get_clean();
     		$pagina= $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
     		$this->view_page($pagina); 
@@ -15370,16 +15392,15 @@ function ImpSolicitud2($idsol){
 
 
 	function verCCC($idm, $cvem){
-		
 		if (isset($_SESSION['user'])){
     		$data = new pegaso;
     		$pagina=$this->load_template('Pedidos');
-    		$html=$this->load_page('app/views/pages/ventas/p.verCCC.php');
+    		$html=$this->load_page('app/views/pages/Maestros/p.verCCC.php');
     		ob_start();
     			$maestro = $data->traeMaestro($idm, $cvem);
     			$ccc=$data->verCCC($idm, $cvem);
     			if (count($maestro)){
-    				include 'app/views/pages/ventas/p.verCCC.php';
+    				include 'app/views/pages/Maestros/p.verCCC.php';
     				$table = ob_get_clean();
     					$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
     			}else{
@@ -15393,17 +15414,16 @@ function ImpSolicitud2($idsol){
 	}
 
 	function nuevo_cc($cvem){
-		
 		if(isset($_SESSION['user'])){
 			$data= new pegaso;
 			$pagina=$this->load_template('Pedidos');
-    		$html=$this->load_page('app/views/pages/ventas/p.nuevoCC.php');
+    		$html=$this->load_page('app/views/pages/Maestros/p.nuevoCC.php');
     		ob_start();
     			$idm = 0;
     			$maestro = $data->traeMaestro($idm, $cvem);
     			$individuales=$data->traeIndividuales($cvem);
     			if (count($maestro)){
-    				include 'app/views/pages/ventas/p.nuevoCC.php';
+    				include 'app/views/pages/Maestros/p.nuevoCC.php';
     				$table = ob_get_clean();
     					$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
     			}else{
@@ -15416,17 +15436,13 @@ function ImpSolicitud2($idsol){
     	}			
 	}
 
-	function creaCC($cvem, $nombre, $contacto, $telefono, $presup, $idm){
-		
+	function creaCC($cvem,$nombre, $contacto, $telefono, $presup, $idm, $plazo, $diasRevision,$diasPago,$cob,$maps,$ln,$pc,$bancoDeposito,$bancoOrigen,$referEdo,$metodoPago){
 		if(isset($_SESSION['user'])){
 			$data= new pegaso;
 			$pagina=$this->load_template('Pedidos'); 
             $html = $this->load_page('app/views/pages/p.redirectform.php');
 			ob_start();
-			$crearCC = $data->creaCC($cvem, $nombre, $contacto, $telefono, $presup, $idm);
-			//editaMaestro($idm, $cc, $cr)
-			//get
-			//break;
+			$crearCC = $data->creaCC($cvem,$nombre, $contacto, $telefono, $presup, $idm, $plazo, $diasRevision,$diasPago,$cob,$maps,$ln,$pc,$bancoDeposito,$bancoOrigen,$referEdo,$metodoPago);
 			$redireccionar="editarMaestro&idm={$idm}";
 			include 'app/views/pages/p.redirectform.php';
 			$this->view_page($pagina);

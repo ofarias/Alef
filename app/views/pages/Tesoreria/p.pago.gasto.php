@@ -42,7 +42,7 @@
                             	</td>
                             	<td>
                                 	<input name="documento" type="hidden" value="<?php echo $data->ID ?>"/>
-                                	<input name="proveedor" type="hidden" value="<?php echo $data->NOMBRE ?>"/>
+                                	<input name="proveedor" type="hidden" value="<?php echo isset($data->NOMBRE)? $data->NOMBRE:$data->PROV?>"/>
                                 	<input name="claveProveedor" type="hidden" value="<?php echo $data->CONCEPTO ?>"/>
                                 	<input name="importe" type="hidden" value="<?php echo $data->MONTO_PAGO ?>" />
                                 	<input name="fechadocumento" type="hidden" value="<?php echo $data->FECHA_CREACION ?>"/>

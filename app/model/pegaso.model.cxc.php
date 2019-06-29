@@ -73,13 +73,12 @@ class pegasoCobranza extends database {
 	}
 
 	function traeMaestro($idm, $cvem){
+        $data=array();
 		$this->query="SELECT M.*, 
 					(SELECT COUNT(ID) FROM MAESTROS_CCC WHERE CVE_MAESTRO = '$cvem') as CCs,
 					(SELECT SUM(PRESUPUESTO_mensual) FROM MAESTROS_CCC WHERE CVE_MAESTRO = '$cvem') as totccs
 					 FROM MAESTROS M WHERE CLAVE = '$cvem'";
 		$rs=$this->QueryObtieneDatosN();
-
-		//echo $this->query;
 		while($tsArray=ibase_fetch_object($rs)){
 			$data[]=$tsArray;
 		}
@@ -972,6 +971,216 @@ class pegasoCobranza extends database {
             $data[]=$tsArray;
         }
         return $data;
+    }
+
+    function verAsociados($cc){
+        $data = array();
+        $this->query="SELECT cl.clave, cl.RFC, cl.nombre, cl.calle, cl.numext, m.nombre as maestro, cc.nombre as ccompra, clib.camplib7, cl.c_compras 
+                     FROM CLIE01 cl
+                     inner join maestros m on m.clave = cl.cve_maestro
+                     inner join maestros_ccc cc on cc.id = cl.c_compras
+                     inner join CLIE_CLIB01 clib on clib.cve_clie =cl.clave
+                      WHERE C_COMPRAS = $cc";
+            //echo $this->query;
+        $rs = $this->EjecutaQuerySimple();
+        while($tsArray=ibase_fetch_object($rs)){
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function traeCC($cc){
+        $this->query="SELECT mc.*, m.nombre as nombre_maestro FROM MAESTROS_CCC mc left join maestros m on m.id=mc.id_maestro where mc.ID =$cc";
+        $rs=$this->EjecutaQuerySimple();
+        return $row = ibase_fetch_object($rs);
+    }
+
+    function traeCliente($val, $cvem){
+        $data=array();
+        if(empty($val)){
+            $this->query="SELECT * FROM CLIE01 WHERE CVE_MAESTRO = '$cvem' and (C_COMPRAS is null or C_COMPRAS=0)";    
+        }else{
+            $this->query="SELECT * FROM CLIE01 WHERE CVE_MAESTRO = '$cvem' and (C_COMPRAS is null or C_COMPRAS = 0) and (clave CONTAINING('$val') or nombre CONTAINING('$val'))";    
+        }
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function asociaClCC($cl, $ccc){
+        $this->query="SELECT * FROM CLIE01 WHERE CLAVE_TRIM = trim('$cl')";
+        $res=$this->EjecutaQuerySimple();
+        $row = ibase_fetch_object($res);
+        if(empty($row->C_COMPRAS)){
+            $this->query="UPDATE CLIE01 SET C_COMPRAS = $ccc where CLAVE_TRIM = trim('$cl')";
+            //echo $this->query;
+            $this->queryActualiza();
+            return array("status"=>'ok', "mensaje"=>'Se ha aignado el cliente al centro de costos');
+        }else{
+            return array("status"=>'no', "mensaje"=>'El cliente ya se asigno a otro Centro de costos anteriormente');
+        }
+    }   
+
+    function cancelaAsociacion($cc, $clie){
+        $this->query="UPDATE CLIE01 SET C_COMPRAS = null where CLAVE='$clie'";
+        $rs=$this->EjecutaQuerySimple();
+        return;
+    }
+
+    function delCss($cvem, $ccc, $opcion){
+        if($opcion=='B'){
+            $this->query="UPDATE MAESTROS_CCC SET CVE_MAESTRO = '' WHERE CVE_MAESTRO='$cvem' and ID = $ccc and (SELECT COUNT(ID) FROM CLIE01 WHERE C_COMPRAS= $ccc) = 0 ";
+            $this->EjecutaQuerySimple();
+            $this->query="SELECT * FROM MAESTROS WHERE CLAVE = '$cvem'";
+            $res=$this->EjecutaQuerySimple();
+            $row=ibase_fetch_object($res);
+            return $row->ID;
+        }
+    }
+
+    function maestrosCartera(){
+        $data=array();
+        $c=trim($_SESSION['user']->CC); ///LETRA
+        $this->query="SELECT m.*, (select count(id) from maestros_ccc mc where m.clave = mc.cve_maestro) as ccredito, coalesce(cast((select list(dias_pago) from cartera where tipo = m.clave and ccc is not null) as varchar(100)),'N') as diasd, coalesce((select count(id) from FTC_RC_DETALLE rd where (select status from ftc_rc r where r.idr = rd.idr)  < 9 and cvem = m.clave group by cvem), 0) AS RUTAS FROM MAESTROS m WHERE m.CARTERA = '$c' and m.status = 'A' order by m.nombre";
+        //echo $this->query;
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)){
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function docVencidos($tipoUsuario, $semana){
+        $model= new pegaso;
+        $data=array();
+        $dia = $semana[(date('N')-1)];
+        $this->query="SELECT (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) ,
+                        FP.*, RC.* FROM FACTURAS_FP FP
+                        LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
+                        WHERE  
+                            FP.C_COBRANZA = '$tipoUsuario' 
+                            and FP.vencimiento >=0
+                            and fp.saldofinal >=2
+                            and (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) = '$dia'
+                            AND RC.STATUS IS NULL";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+
+        $this->query="SELECT (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) ,
+                        FP.*, RC.* FROM FACTURAS FP
+                        LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
+                        WHERE  
+                            FP.C_COBRANZA = '$tipoUsuario' 
+                            and FP.vencimiento >=0
+                            and fp.saldofinal >=2
+                            and (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) = '$dia'
+                            AND RC.STATUS IS NULL";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+
+        $this->creaRutaCobranza($data, $tipoUsuario);
+        return $data;
+    }
+
+    function rutasCobranza($tipoUsuario){
+        $data=array();
+        $this->query="SELECT * FROM FTC_RC WHERE CARTERA = '$tipoUsuario'";
+        $res=$this->EjecutaQuerySimple();
+        while($tsArray=ibase_fetch_object($res)){
+            $data[]=$tsArray;
+        }
+        $a=0;
+        $v=0;
+        foreach ($data as $k){
+            $status = $k->STATUS;
+            if($status == 0){
+                $a++;
+            }elseif($status == 9){
+                $v++;
+            } 
+        }
+        return array("vigentes"=>$a, "vencidas"=>$v, "todas"=>count($data));
+    }
+
+    function verRutasCobranza($tipo, $cartera){
+        $data=array();
+        if($tipo == 'A'){
+            $c = " where status = 0 and cartera ='".$cartera."'";
+        }elseif($tipo == 'H'){
+            $c = " where status = 9 and cartera ='".$cartera."'";
+        }elseif($tipo == 'T'){
+            $c = '';
+        }
+        $this->query="SELECT * FROM FTC_RC $c";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function creaRutaCobranza($data, $tipoUsuario){
+        $model= new pegaso;
+        $usuario= $_SESSION['user']->NOMBRE;
+        $fecha = date('d.m.Y');
+        $nuevafecha = strtotime ( '+7 day' , strtotime ( $fecha ) ) ;
+        $nuevafecha = date ( 'd.m.Y' , $nuevafecha );
+        $monto = 0;
+        $dia = $model->diaMx(date('N'));
+        $d=date('N');
+        echo 'Valor de data: '.count($data);
+        if(count($data)>0){
+            $docs = count($data);
+            foreach ($data as $key) {
+                $monto +=  $key->SALDOFINAL;
+            }
+            $this->query="SELECT count(cve_doc) FROM FACTURAS_FP FP
+                        LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
+                        WHERE 
+                            FP.C_COBRANZA = '$tipoUsuario' 
+                            and FP.vencimiento >=0
+                            and fp.saldofinal >=2
+                            AND RC.STATUS IS NULL
+                            group by cve_clpv";
+            $res=$this->EjecutaQuerySimple();
+            while ($tsArray=ibase_fetch_object($res)) {
+                $dc[]=$tsArray;
+            }
+            $clientes =count($dc); 
+
+            $this->query="SELECT count(cve_doc) FROM FACTURAS_FP FP
+            LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
+            WHERE 
+                FP.C_COBRANZA = '$tipoUsuario' 
+                and FP.vencimiento >=0
+                and fp.saldofinal >=2
+                AND RC.STATUS IS NULL
+                group by clave_maestro";
+            $res=$this->EjecutaQuerySimple();
+            while ($tsArray=ibase_fetch_object($res)) {
+                $dm[]=$tsArray;
+            }
+            $maestros =count($dm);
+
+            $this->query="INSERT INTO FTC_RC (IDR, FECHA_INICIAL, FECHA_FINAL, CARTERA, USUARIO_GENERA, DOCUMENTOS, MAESTROS, CLIENTES, VALOR, COBRADOS, LLAMADAS, VISITAS, CORREOS, GERENCIA, CORTE_CREDITO, STATUS, DIA, Nombre_dia) VALUES (NULL, CURRENT_DATE, '$nuevafecha', '$tipoUsuario', '$usuario', $docs, $maestros, $clientes, $monto, 0,0,0,0,0,0,0,$d, '$dia') RETURNING IDR";
+            $res=$this->grabaBD();
+            $row=ibase_fetch_object($res);
+            $idr = $row->IDR;
+            if(!empty($idr)){
+                foreach ($data as $key) {
+                    $this->query="INSERT INTO FTC_RC_DETALLE (ID, DOCUMENTO, FECHA_INICIAL, FECHA_CIERRE, STATUS, IDR, STATUS_DOCUMENTO, CARTERA, CC, CVEM) 
+                                    VALUES (NULL, '$key->CVE_DOC', CURRENT_DATE, '$nuevafecha', 'P', $idr, 'N', '$tipoUsuario', $key->C_COMPRAS,'$key->CVE_MAESTRO')";
+                    $this->grabaBD();
+                }
+            }
+        }
+        return;
     }
 
 }?>

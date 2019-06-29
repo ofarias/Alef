@@ -388,6 +388,29 @@
             </div>
         </div>
         
+          <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i>Validacion de Costos</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Validaciones de Ordenes de Compra</p>   
+                        <center><a href="index.php?action=verRecepcionDeOrdenes" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/designbolts/seo/64/Pay-Per-Click-icon.png"></a></center>
+                    </div>
+                </div>
+        </div> 
+<div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><i class="fa fa-list-alt"></i>Recepci&oacute;n de Validaciones</h4>
+                </div>
+                <div class="panel-body">
+                    <p>Recibir validaciones Tesoreria</p>
+                    <center><a href="index.php?action=recValConta" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/designbolts/seo/64/Pay-Per-Click-icon.png"></a></center>
+                </div>
+            </div>
+        </div>
+
 
         </div>
     </div>

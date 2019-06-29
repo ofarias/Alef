@@ -116,7 +116,20 @@ if (isset($_POST['cobranza'])){
 	$res=$controller_cxc->actAcr();
 	echo json_encode($res);
 	exit();
-}else{
+}elseif (isset($_POST['traeCliente'])) {
+	$val=$_POST['traeCliente'];
+	$cvem=$_POST['cvem'];
+	$res=$controller_cxc->traeCliente($val, $cvem);
+	echo json_encode($res);
+	exit();
+}elseif (isset($_POST['asociaClCC'])) {
+	$cl=$_POST['asociaClCC'];
+	$ccc = $_POST['cc'];
+	$res=$controller_cxc->asociaClCC($cl, $ccc);
+	echo json_encode($res);
+	exit();
+}
+else{
 	switch ($_GET['action']){
 	case 'cobranza':
 		$controller_cxc->cobranza();
@@ -165,7 +178,27 @@ if (isset($_POST['cobranza'])){
 	case 'edoCliente':
 		$controller_cxc->edoCliente($_GET['cliente'], $_GET['tipo'],$_GET['nombre']);
 		break;
-   default:
+	case 'verAsociados':
+			$cc = $_GET['cc'];
+			if(isset($_GET['cliente'])){
+				$clie=$_GET['cliente'];
+			}else{
+				$clie = '';
+			}
+			if(isset($_GET['cancela'])){
+				$cancela =$_GET['cancela'];
+			}else{
+				$cancela = 0;
+			}
+			$controller_cxc->verAsociados($cc, $cancela, $clie);
+		break;
+	case 'delCss':
+		$cvem=$_GET['cvem'];
+		$ccc=$_GET['ccc'];
+		$opcion =$_GET['opcion'];
+		$controller_cxc->delCss($cvem, $ccc, $opcion);
+		break;
+    default:
 		header('Location: index.php?action=login');
 		break;
 	}

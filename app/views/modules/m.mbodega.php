@@ -10,6 +10,7 @@
                 <p><label><?php echo $_SESSION['empresa']['nombre'].'<br/>'.$_SESSION['rfc']?></label></p>
             </div>
             <br/>
+            
             <div class="col-md-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -21,6 +22,8 @@
                     </div>
                 </div>
             </div>
+
+
            
     </div>
 </div>

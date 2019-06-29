@@ -1180,5 +1180,64 @@ class pegaso_controller_cobranza{
         } 
     }
 
+    function verAsociados($cc, $cancela, $clie){            
+            if (isset($_SESSION['user'])){
+            $data = new pegasoCobranza;
+            $pagina = $this->load_template_popup('Pedidos');
+            $html = $this->load_page('app/views/pages/Maestros/p.verAsociados.php');
+            ob_start();
+            if($cancela == 1){
+                $cancelar = $data->cancelaAsociacion($cc, $clie);
+                $pagina =$this->load_template('pedidos');
+                ob_start();
+                $redireccionar="verAsociados&cc={$cc}";
+                $pagina=$this->load_template('Pedidos');
+                $html = $this->load_page('app/views/pages/p.redirectformCobranza.php');
+                include 'app/views/pages/p.redirectformCobranza.php';
+            }
+            $asociados=$data->verAsociados($cc);
+            $datoscc =$data->traeCC($cc); 
+            include 'app/views/pages/Maestros/p.verAsociados.php';
+            $table = ob_get_clean();         
+            if(count($asociados) > 0){
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);      
+            }else{
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table. '<div class="alert-danger" id="anuncio"><center><h2>EL CENTRO DE COMPRAS NO TIENE NINGUN CLIENTE ASOCIADO.</h2><center></div>', $pagina);
+            }   
+            $this->view_page($pagina);  
+            } else {
+            $e = "Favor de Iniciar Sesión";
+            header('Location: index.php?action=login&e=' . urlencode($e));
+            exit;
+            }       
+    }
+
+    function traeCliente($val, $cvem){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            return $res=$data->traeCliente($val, $cvem);
+        }
+    }
+
+    function asociaClCC($cl, $ccc){
+        if($_SESSION['user']){
+            $data= new pegasoCobranza;
+            return $res=$data->asociaClCC($cl, $ccc);
+        }
+    }
+
+    function delCss($cvem, $ccc, $opcion){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina =$this->load_template('pedidos');
+            ob_start();
+            $borrar=$data->delCss($cvem, $ccc, $opcion); 
+            $redireccionar="verCCC&cvem={$cvem}&idm={$borrar}";
+            $pagina=$this->load_template('Pedidos');
+            $html = $this->load_page('app/views/pages/p.redirectform.php');
+            include 'app/views/pages/p.redirectform.php';
+            $this->view_page($pagina);
+        }
+    }
 }
 ?>

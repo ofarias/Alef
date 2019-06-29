@@ -165,6 +165,39 @@
                     </div>
                 </div>
             </div>
+              <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"> Prefacturas Pendientes</i></h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Facturar Prefacturas</p>
+                        <center><a href="index.php?action=prefacturasPendientes" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+             <div class="col-md-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><i class="fa fa-list-alt"> Imprimir Facturas</i></h4>
+                </div>
+                <div class="panel-body">
+                    <p>Impresion de Facturas</p>
+                    <center><a href="index.php?action=imprimeXML" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Catálogo de requisitos.</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p><br></p>
+                        <center><a href="index.php?action=catalogo_documentos" class="btn btn-default"><img src="app/views/images/Documents-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     

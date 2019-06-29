@@ -35,8 +35,11 @@
                                         <?php 
                                         foreach ($embalaje as $data):
                                             $idcaja = $data->IDCAJA;
+                                            $status=$data->STATUS_LOG;
                                             ?>
+
                                         <tr>
+                                          <!--<tr class="odd gradeX" style='background-color:yellow;' >-->
                                             <td><?php echo $data->ID_PREOC;?></td>
                                             <td><?php echo $data->TIPO_ENVIO;?></td>
                                             <td><?php echo $data->DOCUMENTO;?></td>
@@ -57,14 +60,14 @@
                                             <input name="docf" type="hidden" value="<?php echo $data->DOCUMENTO?>"/>
                                             <input name="idc" type="hidden" value="<?php echo $data->IDCAJA?>" />
                                             <input name="id" type= "hidden" value="<?php echo $data->ID?>"/>
-                                            <input name="idpreoc" type = "hidden" value = "<?php echo $data->ID_PREOC?>" />   
+                                            <input name="idpreoc" type = "hidden" value = "<?php echo $data->ID_PREOC?>" />                                            
+                                            
                                              <select required="required" name="motivoDev">
                                                     <option value="">Motivo</option>
                                                     <option value="cancela">Cancelacion de Pedido</option>
                                                     <option value="noSol">Materla No Solicitado</option>
                                                     <option value="noExis">No Existe Orden de Compra Cliente</option>
                                                     <option value="malSol">Material Mal Solicitado</option>
-                                                    <option value="dañado">Material Dañado</option>
                                             </select>                                            
                                         </td>
                                             <td> 
@@ -129,6 +132,7 @@
                                         foreach ($devuelto as $data):
                                             $idcaja = $data->IDCAJA;
                                             $idDev = $data->FOLIO_DEV;
+                                            $status = $data->STA;
                                             ?>
                                         <tr>
                                           <!--<tr class="odd gradeX" style='background-color:yellow;' >-->
@@ -162,15 +166,13 @@
                             <!-- /.table-responsive -->
                       </div>
                       <div class= "panel-footer" >
-                            <button name = "ImprimirDevolucion" onclick="generaDevolucion()" id="btn2"> Recibir e Imprimir </button>
+                            <button name = "ImprimirDevolucion" onclick="generaDevolucion('<?php echo $status?>')" id="btn2" ><?php echo $status=='BodegaNC'? 'Actualizar':'Finalizar Devolución'?></button>
                       </div>
             </div>
         </div>
-
 </div>
 <br/>
 <?php }?>
-
 <form action="index.php" id="formdevtotal" method="POST">
     <input type="hidden" name="idc" value="<?php echo $idcaja?>" id="idCaja">
     <input type="hidden" name="docf" value="<?php echo $docf?>" id="docF">
@@ -180,7 +182,6 @@
     <input type="hidden" name="idpreoc" value="0">
     <input type="hidden" name="cantr" value="0">
 </form>
-
 <form action="index.php" method="POST" id="formRecMcia">
     <input type="hidden" name="recibirMercancia" >
 </form>
@@ -206,45 +207,64 @@
                 }
             }
         }
-
-        function generaDevolucion(){
+        function generaDevolucion(sta){
             var docf = document.getElementById('docF').value;
             var idc = document.getElementById('idCaja').value;
-            //alert('Generar el archivo');
+            if(sta =='BodegaNC'){
+                 var form = document.getElementById('formRecMcia');
+                form.submit();
+                return false;
+            }   
+            alert('Generar el archivo');
             document.getElementById('btn2').classList.add('hide');
-            $.ajax({
-                url:'index.php',
-                method:'POST',
-                dataType:'json',
-                data:{generaDevolucion:1,docf:docf, idc:idc},
-                success:function(data){
-                   var folio = data.devolucion;
-                   //alert('genera el archivo' + data.devolucion + ' status: ' + data.status);
-                   if(data.status == "ok"){
-                        //alert('entra a crear el archivo');
-                        //var form = document.getElementById('recimp');
-                        $.ajax({
+            $.confirm({
+                content:function(){
+                    var self = this;
+                    self.setContent('Checking callback flow');
+                    return $.ajax({
                             url:'index.php',
                             method:'POST',
                             dataType:'json',
-                            data:{generaPDFdev:1, docf:docf, idc:idc},
+                            data:{generaDevolucion:1,docf:docf, idc:idc},
+                            success:function(data){
+                               var folio = data.devolucion;
+                               //alert('genera el archivo' + data.devolucion + ' status: ' + data.status);
+                               if(data.status == "ok"){
+                                    //alert('entra a crear el archivo');
+                                    //var form = document.getElementById('recimp');
+                                    $.ajax({
+                                        url:'index.php',
+                                        method:'POST',
+                                        dataType:'json',
+                                        data:{generaPDFdev:1, docf:docf, idc:idc},
+                                    });
+                                    $.ajax({
+                                        url:'index.php',
+                                        method:'POST',
+                                        dataType:'json',
+                                        data:{avisoDevMail:1,docf:docf, idc:idc, dev:data.devolucion},
+                                    });
+                                    var form = document.getElementById('formRecMcia');
+                                    form.submit();
+                               }
+                            }
+                        }).done(function(response){
+                            self.setContent('Description: ' + data.devolucion);
+                            self.setContentAppend('<br>Version: ' );
+                            self.setTitle(response.name);
+                        }).fail(function(response){
+                            self.setContent('Algo salio mal!!!!!');
+                        }).always(function(response){
+                            self.setContent('<div>Siempre se Muestra!!!</div>');
                         });
-                        
-                        $.ajax({
-                            url:'index.php',
-                            method:'POST',
-                            dataType:'json',
-                            data:{avisoDevMail:1,docf:docf, idc:idc, dev:data.devolucion},
-                        });
-
-                        var form = document.getElementById('formRecMcia');
-                        form.submit();
-                   }
-
-                }
+                },
+                    contentLoaded: function(data, status, xhr){
+                        self.setContentAppend('<div>Content loaded!</div>');
+                    },
+                    onContentReady: function(){
+                        this.setContentAppend('<div>Content ready!</div>');
+                    }
             });
-
-
         }
 
 </script>

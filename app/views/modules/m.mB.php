@@ -264,7 +264,77 @@
                     </div>
                 </div>
                 </div> 
-                
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Asignar el Material</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Asignar el Material</p>
+                        <center><a href="index.php?action=AMaterial" class="btn btn-default"><img src="app/views/images/boxes-brown-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+
+             <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Embalaje</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Embalar Material</p>
+                        <center><a href="index.php?action=embalar" class="btn btn-default"><img src="app/views/images/Packing-1-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Documentar Cajas</h4> 
+                    </div>
+                    <div class="panel-body">
+                        <p><br></p>
+                        <center><a href="index.php?action=Cajas" class="btn btn-default"><img src="app/views/images/packing-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+             <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"> Prefacturas Pendientes</i></h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Facturar Prefacturas</p>
+                        <center><a href="index.php?action=prefacturasPendientes" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+             <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Inventario de Empaque</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p><br></p>
+                        <center><a href="index.php?action=VerInventarioEmpaque" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading"> 
+                        <h4><i class="fa fa-list-alt"></i> Estado de Pedidos</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p></p>
+                        <center><a href="index.php?action=pedimento" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/martz90/hex/72/car-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+
+
             <!--
             <div class="col-md-4">
                 <div class="panel panel-default">
