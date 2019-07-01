@@ -3701,7 +3701,7 @@ else{switch ($_GET['action']){
 			$controller->verRechazos();
 			break;
 		case 'nuevo_cc':
-			$cvem=$_GET['cvem'];
+			$cvem=$_GET['cvem'];	
 			$controller->nuevo_cc($cvem);
 			break;
 		case 'verCCC':

@@ -48,7 +48,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                            CENTROS DE COMPRA <br/>   
-                            <a class="btn btn-success" href="index.php?action=nuevo_cc&cvem=<?php echo $cvem ?>" class="btn btn-success"> Alta de Centro de Compras <i class="fa fa-plus"></i></a>
+                            <a class="btn btn-success" href="index.php?action=nuevo_cc&cvem=<?php echo urlencode($cvem)?>" class="btn btn-success"> Alta de Centro de Compras <i class="fa fa-plus"></i></a>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">

@@ -16561,8 +16561,6 @@ function Pagos() {
 					(SELECT SUM(PRESUPUESTO_mensual) FROM MAESTROS_CCC WHERE CVE_MAESTRO = '$cvem') as totccs
 					 FROM MAESTROS M WHERE CLAVE = '$cvem'";
 		$rs=$this->QueryObtieneDatosN();
-
-		//echo $this->query;
 		while($tsArray=ibase_fetch_object($rs)){
 			$data[]=$tsArray;
 		}
