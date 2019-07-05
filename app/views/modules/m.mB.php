@@ -309,6 +309,17 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Facturación Parcial</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p><br></p>
+                        <center><a href="index.php?action=PedidosAnticipados" class="btn btn-default"><img src="app/views/images/Order-history-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
              <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading">

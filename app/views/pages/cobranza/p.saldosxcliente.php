@@ -46,7 +46,8 @@ Factura: <input type="text" name="fact"  maxlength="20" minlength="3" id="bfactu
                                 <th>Ln</th>
                                 <th>Sel</th>
                                 <th>Factura</th>
-                                <th>Cliente</th>
+                                <th>Contra Recibo <br/>Evidencia</th>
+                                <th>Cliente<br/>Plazo</th>
                                 <th>Importe</th>
                                 <th>Fecha Documento /<br/> Fecha Cobranza </th>
                                 <th>Vencimiento</th>
@@ -81,9 +82,14 @@ Factura: <input type="text" name="fact"  maxlength="20" minlength="3" id="bfactu
                                             
                                             <a href="index.php?action=imprimeFact&factura=<?php echo $doc->CVE_DOC?>" onclick="alert('Se ha descargado tu factura.')"><img border='0' src='app/views/images/pdf.jpg' width='12' height='15'></a>
                                         </td>
-                                        <td><?php echo '( '.$doc->CVE_CLPV.') '.$doc->NOMBRE?></td>                                    
+                                        <td>
+                                            <?php echo empty($doc->CONTRARECIBO)? 'Sin Contrarecibo':$doc->CONTRARECIBO?>
+                                            <br/>
+                                            <?php echo !empty($doc->ARCHIVOS)? '<a href="index.php?action=verComprobantesRecibo&idc='.$doc->C.'" target="pop-up" '.'>'.$doc->ARCHIVOS.' Archivos</a>':'Sin Archivos'?>
+                                        </td>
+                                        <td><?php echo '( '.$doc->CVE_CLPV.') '.$doc->NOMBRE?><br/><?php echo '<b> Plazo: '.$doc->PLAZO.'<b/> dia(s)'?></td>                                    
                                         <td align="right"><?php echo '$ '.number_format($doc->IMPORTE,2);?></td>
-                                        <td> <?php echo '<font color="purple">'.$doc->FECHA_DOC.'</font><br/> <font color="blue">'.$doc->FECHA_INI_COB.'</font>'?></td>
+                                        <td> <?php echo '<font color="purple">'.$doc->FECHA_DOC.'</font><br/> <font color="blue">'.$doc->FECHA_INI_COB.'</font><br/><font color="red">'.$doc->FECHACOB.'</font>'?></td>
                                        <td align="center"><b><?php echo $doc->VENCIMIENTO?></b></td>
                                         <td align="right"><font color="red"><b><?php echo '$ '.number_format($doc->PAGOS,2,".",",");?></b></font></td>
                                         <td align="right"><font color="red"><b><?php echo '$ '.number_format($doc->IMPORTE_NC,2);?></b></font></td>

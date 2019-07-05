@@ -12163,7 +12163,7 @@ function Pagos() {
    		$data=array();
 		$usuario = $_SESSION['user']->NOMBRE;
 		$rol = $_SESSION['user']->USER_ROL;
-		if($rol != 'bodega' and $rol != 'administracion'){
+		if($rol != 'bodega' or $rol != 'administracion'){
 				$this->query="SELECT ab.*, p.prod, p.NOMPROD, ib.descripcion as descr, ib.producto as produ  FROM ASIGNACION_BODEGA_PREOC ab left join preoc01 p on p.id = ab.preoc 
 					left join ingresobodega ib on ib.id = ab.idingreso 
 					WHERE FECHA_MOV >= '01.01.2018' AND USUARIO_MOV= '$usuario' AND VERSUM IS NULL and ab.status <> 99";
@@ -16256,12 +16256,6 @@ function Pagos() {
 		return;
 	}
 
-
-
-
-
-
-
 	function quitarSum($ida){
 		$rol = $_SESSION['user']->USER_ROL;
 		if($rol == 'bodega2'){
@@ -16270,6 +16264,7 @@ function Pagos() {
 		}else{
 			$this->query="UPDATE ASIGNACION_BODEGA_PREOC SET versum = 0 where id = $ida";
 			$this->EjecutaQuerySimple();
+			echo $this->query;
 		}
 		return ;
 	}
@@ -24062,7 +24057,7 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
             					return;
 							}
 							/// creamos el folder para el movimiento de las facturas a nuestro sistema. 
-				            if($rfce == 'FPE980326GH9'){
+				            if($rfce == 'ATO190509AH5'){
                                     copy($archivo, "C:\\xampp\\htdocs\\Facturas\\facturaPegaso\\".$serie.$folio.".xml");    
                             }else{
                             		if($rfce == $rfcEmpresa){

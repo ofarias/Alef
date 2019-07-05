@@ -16,8 +16,8 @@ require_once('app/model/facturacion.php');
 require_once('app/controller/pegaso.controller.cobranza.php');
 
 class pegaso_controller{
-	var $contexto_local = "http://SERVIDOR:8081/pegasoFTC/app/";
-	var $contexto = "http://SERVIDOR:8081/pegasoFTC/app/";
+	var $contexto_local = "http://SERVIDOR:8081/ftc/app/";
+	var $contexto = "http://SERVIDOR:8081/ftc/app/";
 	
 	function Login(){
 			$pagina = $this->load_templateL('Login');
@@ -17785,7 +17785,6 @@ function ImpSolicitud2($idsol){
 	}
 
 	function quitarSum($ida){
-		
 		if($_SESSION['user']){
 			$data=new pegaso;
 			ob_start();
