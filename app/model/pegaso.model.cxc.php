@@ -1043,7 +1043,15 @@ class pegasoCobranza extends database {
     function maestrosCartera(){
         $data=array();
         $c=trim($_SESSION['user']->CC); ///LETRA
-        $this->query="SELECT m.*, (select count(id) from maestros_ccc mc where m.clave = mc.cve_maestro) as ccredito, coalesce(cast((select list(dias_pago) from cartera where tipo = m.clave and ccc is not null) as varchar(100)),'N') as diasd, coalesce((select count(id) from FTC_RC_DETALLE rd where (select status from ftc_rc r where r.idr = rd.idr)  < 9 and cvem = m.clave group by cvem), 0) AS RUTAS FROM MAESTROS m WHERE m.CARTERA = '$c' and m.status = 'A' order by m.nombre";
+        $this->query="SELECT m.*, 
+                            (select count(id) from maestros_ccc mc where m.clave = mc.cve_maestro) as ccredito, 
+                            coalesce(cast((select list(dias_pago) from cartera where tipo = m.clave and ccc is not null) as varchar(100)),'N') as diasd, 
+                            coalesce((select count(id) from FTC_RC_DETALLE rd where (select status from ftc_rc r where r.idr = rd.idr)  < 9 and cvem = m.clave group by cvem), 0) AS RUTAS 
+                            FROM MAESTROS m 
+                            WHERE   m.CARTERA = '$c' and 
+                                    m.status = 'A' and 
+                                    m.cobranza > 0
+                            order by m.nombre";
         //echo $this->query;
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)){
