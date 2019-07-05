@@ -141,7 +141,7 @@
                 <h3 class="page-header"> Sin dias </h3>
             </div>
 <?php foreach ($maestros as $sd):?>
-<?php if($sd->DIASD=='N'){?>
+<?php if($sd->DIASD=='N' or empty($sd->DIASD)){?>
                 <div class="col-md-3">
                   <div class="panel panel-default">
                       <div class="panel-heading">

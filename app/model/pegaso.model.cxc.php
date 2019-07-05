@@ -1053,6 +1053,7 @@ class pegasoCobranza extends database {
                                     m.cobranza > 0
                             order by m.nombre";
         //echo $this->query;
+
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)){
             $data[]=$tsArray;
