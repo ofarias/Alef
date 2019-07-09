@@ -86,6 +86,8 @@
                                               <option value="9999">Ingreso por Venta (Pago de Factura)</option>
                                               <option value="DC">Devolucion de compra</option>
                                               <option value="DG">Devolucion de Gasto</option>
+                                              <option value="DG">Traspaso de Fondo</option> 
+                                              <option value="DG">Intereses</option>
                                             </select>
                                         </td>
                                         <td>

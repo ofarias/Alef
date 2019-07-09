@@ -68,7 +68,7 @@
 
                                         ?>
 
-                                        <?php if(($data->EMPACADO - $data->DEVUELTO) > 0){ ?>
+                                        <?php if( (($data->EMPACADO - $data->DEVUELTO) > 0) or ($data->RECEPCION - $data->EMPACADO > 0) ){ ?>
                                             
                                        <tr class="odd gradeX" <?php echo $color;?> >
                                             <td><?php echo $data->CONSECUTIVO?></td>

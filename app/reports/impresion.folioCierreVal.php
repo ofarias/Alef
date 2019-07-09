@@ -17,7 +17,7 @@ foreach ($Cabecera as $data):
         $pdf = new FPDF('P','mm','Letter');
         $pdf->AddPage();
         //$pdf->Image('../views/images/headerVacio.jpg',10,15,205,55);
-        $pdf->Image('app/views/images/logos/'.$_SESSION['empresa']['logo'],10,5);
+        $pdf->Image('../views/images/logos/'.$_SESSION['empresa']['logo'],10,5);
         $pdf->SetFont('Courier', 'B', 25);
         $pdf->SetTextColor(255,0,0);
         $pdf->SetXY(110, 28);

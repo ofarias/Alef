@@ -10144,7 +10144,8 @@ function imprimirFacturasAcuse(){
         	$pagina = $this->load_template('Pagos');        	
         	$html = $this->load_page('app/views/pages/p.pagos.ximprimir.php');
         	ob_start();
-        	$exec = $data->listadoPagosImpresion();       	 
+        	$exec = $data->listadoPagosImpresion();    
+        	$error = '';   	 
         	if (count($exec) > 0) {
             	include 'app/views/pages/p.pagos.ximprimir.php';
             	$table = ob_get_clean();
@@ -16469,8 +16470,7 @@ function ImpSolicitud2($idsol){
         }	
     }
 
-    function cerrarValidacion($doco){
-    	
+    function cerrarValidacion($doco){    	
     	if(isset($_SESSION['user'])){
     		$data = new pegaso;
     		ob_start();
