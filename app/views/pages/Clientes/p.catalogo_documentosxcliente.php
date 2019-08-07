@@ -19,10 +19,10 @@
                                 <th>Requisitos asociados</th>
                                 <th>Cartera Cobranza</th>
                                 <th>Cartera Revision</th>
-                                <th>Dias Revision</th>
+                                <!--<th>Dias Revision</th>
                                 <th>Dias Pago</th>
                                 <th>Dos Pasos</th>
-                                <th>Plazo</th>
+                                <th>Plazo</th>-->
                                 <th>Addenda</th>
                                 <th>ADD_PORTAL</th>
                                 <th>ENVIO</th>
@@ -41,10 +41,10 @@
                                 <td><?php echo $row->DOCUMENTOS_ASOCIADOS;?></td>
                                 <td><?php echo $row->CARTERA_COBRANZA;?></td>
                                 <td><?php echo $row->CARTERA_REVISION;?></td>
-                                <td><?php echo $row->DIAS_REVISION;?></td>
+                                <!--<td><?php echo $row->DIAS_REVISION;?></td>
                                 <td><?php echo $row->DIAS_PAGO;?></td>
                                 <td><?php echo $row->REV_DOSPASOS;?></td>
-                                <td><?php echo $row->PLAZO;?></td>
+                                <td><?php echo $row->PLAZO;?></td>-->
                                 <td><?php echo $row->ADDENDA;?></td>
                                 <td><?php echo $row->ADD_PORTAL;?></td>
                                 <td><?php echo $row->ENVIO;?><a href="index.php?action=verDatosEnvio&cliente=<?php echo $row->CLAVE?>" target="popup" onclick="window.open(this.href, this.target, 'width=1200,height=820'); return false;" class="btn btn-info">Ver</a></td>

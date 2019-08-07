@@ -41,6 +41,7 @@
                             </div>
                     </div>
                     -->
+                    <!--
                     <div class="form-group col-lg-12 text-center">
                     <label class="col-lg-2 control-label">Días Revisión: </label>
                         <div class="checkbox-inline">
@@ -115,7 +116,7 @@
                                 </select>
                             </div>
                     </div>
-                    
+                    -->
                     <div class="form-group col-lg-12 text-center">
                     <label for="addenda" class="col-lg-2 control-label">Addenda: </label>
                         <div class="checkbox-inline">
@@ -149,7 +150,7 @@
                                 <input type="text" class="form-control" name="observaciones" id="observaciones" placeholder="Observaciones addenda" required = "required" maxlength="150" readonly="true"/><br>
                             </div>
                     </div>
-                    
+                    <!--
                     <div class="form-group">
                         <label for="lineacred" class="col-lg-2 control-label">Linea de credito: </label>
                             <div class="col-lg-8">
@@ -204,7 +205,7 @@
                             <input type="text" name="referEdo" placeholder="Referencia en Estado de cuenta" value="<?php echo $dat->REFER_EDO?>"" maxlength="35">
                         </div>
                     </div>
-                    
+                    -->
                     <div class="form-group">
                         <label for="portalcob" class="col-lg-2 control-label">Portal Cobranza: </label>
                             <div class="col-lg-8">

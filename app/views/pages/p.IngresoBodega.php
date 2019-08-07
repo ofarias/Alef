@@ -143,7 +143,7 @@
      		var it = parseFloat(document.getElementById('iterador').value);
 			//alert('Faltante: '+ faltante + ' , restante: ' + restante + ' iterador '+ it);
 
-			if((restante - faltante)  >= 0){
+			if((restante - faltante)  >= -0.01){
 				$.ajax({
 	     			type:'POST',
 	     			url:'index.php',

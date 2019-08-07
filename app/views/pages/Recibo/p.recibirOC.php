@@ -139,7 +139,7 @@
                                             }
 
                                             ?>
-                                        <tr title="<?php echo 'Cliente del Pedido: '.$data->CLIENTE.' de la cotizacion '.$data->COTIZACION.' con Fecha del '.$data->FECHASOL.' Cantidad Original Ventas :'.$data->CANT_ORIG ?>" class="odd gradeX" <?php echo $color;?> id="ln<?php echo $data->IDPREOC?>">
+                                        <tr title="<?php echo 'Cliente del Pedido: '.$data->CLIENTE.' de la cotizacion '.$data->COTIZACION.' con Fecha del '.$data->FECHASOL.' Cantidad Original Ventas :'.$data->CANT_ORIG ?>" class="odd gradeX" <?php echo $color;?> id="ln<?php echo ($data->IDPREOC==0)? $data->PARTIDA:$data->IDPREOC ?>">
                                             <td align="center">
                                                     <?php echo $data->PARTIDA;?> <br/> 
                                             </td>
@@ -158,7 +158,7 @@
                                             <td><a href="index.php?action=historiaIDPREOC&id=<?php echo $data->IDPREOC?>" target="popup" onclick="window.open(this.href, this.target, 'width=1200,height=820'); return false;"> <?php echo $data->IDPREOC?></a></td>
                                             <form action="index.php" method="post">
                                             <td>
-                                                <input type="number" name="cantidad" step="any" max="<?php echo $data->PXR?>" value="<?php echo $pxr2?>" required="required" min="0" onkeypress="return pulsar(event)" id="numero_<?php echo $data->IDPREOC?>" onchange="valida(<?php echo $data->IDPREOC?>, this.value, <?php echo $data->PXR?>)"">
+                                                <input type="number" name="cantidad" step="any" max="<?php echo $data->PXR?>" value="<?php echo $pxr2?>" required="required" min="0" onkeypress="return pulsar(event)" id="numero_<?php echo $data->IDPREOC?>" onchange="valida(<?php echo $data->IDPREOC?>, this.value, <?php echo $data->PXR?>, <?php echo $data->PARTIDA?>)">
                                             </td> 
                                             <td>
                                                 <input type="hidden" name="idp" value="<?php echo $data->IDPREOC?>">
@@ -226,9 +226,12 @@
         document.getElementById('val').classList.add('hide');
     }
     
-    function valida (ids, cantn, canto){
+    function valida (ids, cantn, canto, p){
         var doco = document.getElementById("doco_"+ids).value;
         var par = document.getElementById("par_"+ids).value;
+        if(ids == 0){
+          par = p
+        }
         $.ajax({
             url:'index.php',
             type:'post',
@@ -237,10 +240,14 @@
             success:function(data){
                 //alert("status" + data.status);
                 if(data.status == "ok"){
+                    if(ids == 0){
+                      ids=p
+                    }
                     document.getElementById('ln'+ids).style.background='#b3ffb3';
                 }else if (data.status == "cant"){
                     alert('No se puede ingresar mas de los solicitado o menos que 0');    
                     document.getElementById('ln'+ids).style.background='#b3ffb3';
+
                     document.getElementById('numero_'+ids).value = 0;
                }
             }

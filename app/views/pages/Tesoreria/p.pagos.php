@@ -43,7 +43,7 @@
                                 <td>
                                     <input name="docu" type="hidden" value="<?php echo $data->CVE_DOC ?>"/>
                                     <input name="nomprov" type="hidden" value="<?php echo $data->NOMBRE ?>"/>
-                                    <input name="cveprov" type="hidden" value="<?php echo $data->CVE_CLPV ?>"/>
+                                    <input name="cveprov" type="hidden" value="<?php echo isset($data->CVE_CLPV)? $data->CVE_CLPV:$data->PROVEEDOR ?>"/>
                                     <input name="importe" type="hidden" value="<?php echo $data->IMPORTE ?>" />
                                     <input name="fechadoc" type="hidden" value="<?php echo $data->FECHAELAB ?>"/>
                                     <select name="tipopago" required="required">

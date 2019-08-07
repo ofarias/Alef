@@ -1580,7 +1580,7 @@ class pegaso_ventas extends database{
         $data=array();
         $prod = explode(":", $prod);
         $producto = $prod[0];
-        $this->query="SELECT * FROM PREOC01 WHERE STATUS ='N' AND rec_faltante > 0 AND PROD = trim(UPPER('$producto')) and rest >=1 ";
+        $this->query="SELECT * FROM PREOC01 WHERE STATUS ='N' AND rec_faltante >= 0.01 AND PROD = trim(UPPER('$producto')) and rest >= 0.01 ";
         $res=$this->EjecutaQuerySimple();
         while ($tsarray=ibase_fetch_object($res)) {
             $data[]=$tsarray;
@@ -1802,7 +1802,7 @@ WHERE CVE_DOC_COMPPAGO IS NULL AND (NUM_CPTO = 22 OR NUM_CPTO = 11 OR NUM_CPTO =
     function realizaNCBonificacion($docf, $monto, $concepto, $obs, $caja){
         $data=array();
         $folio = $this->creaFolioNCB();
-        $docd = 'NCB'.$folio;
+        $docd = 'NC'.$folio;
         $sub = $monto/1.16;
         $iva = $monto - ($monto /1.16);
         $imp = $monto;
@@ -1840,10 +1840,10 @@ WHERE CVE_DOC_COMPPAGO IS NULL AND (NUM_CPTO = 22 OR NUM_CPTO = 11 OR NUM_CPTO =
     }
 
     function creaFolioNCB(){
-        $this->query="SELECT FOLIO FROM FTC_CTRL_FACTURAS WHERE SERIE = 'NCB' AND STATUS = 1";
+        $this->query="SELECT FOLIO FROM FTC_CTRL_FACTURAS WHERE SERIE = 'NC' AND STATUS = 1";
         $rs=$this->EjecutaQuerySimple();
         $row=ibase_fetch_object($rs);
-        $this->query="UPDATE FTC_CTRL_FACTURAS SET FOLIO = ($row->FOLIO +1) WHERE SERIE='NCB' AND STATUS = 1 ";
+        $this->query="UPDATE FTC_CTRL_FACTURAS SET FOLIO = ($row->FOLIO +1) WHERE SERIE='NC' AND STATUS = 1 ";
         $this->queryActualiza();
         return $row->FOLIO+1;
     }
@@ -1890,12 +1890,12 @@ WHERE CVE_DOC_COMPPAGO IS NULL AND (NUM_CPTO = 22 OR NUM_CPTO = 11 OR NUM_CPTO =
                 //$this->query="UPDATE CAJAS SET STATUS_LOG = 'NC', status_recepcion = iif(status_recepcion >=5, status_recepcion, 5) WHERE ID = $idc";
                 //        $res=$this->queryActualiza();
                 $this->query="EXECUTE PROCEDURE SP_LIB_X_NC ($idc)";
-                $res=$this->queryActualiza();
+                $res=$this->EjecutaQuerySimple();
         
-                if($res == 1){
+                if($res==1){
                     return array("status"=>'ok');
                 }else{
-                    return array("status"=>'no');
+                    return array("status"=>'ok');
                 }            
         }else{
             return array("status"=>'no', "mensaje"=>'El Saldo de la Factura'.$row->FACTURA.' asociada a la caja '.$idc.', es de $ '.number_format($sf,2).' la cual es menor a $ 5.00 pesos' );

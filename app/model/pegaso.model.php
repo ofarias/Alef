@@ -467,7 +467,7 @@ class pegaso extends database{
 			$this->query="UPDATE compo01
 					  SET TP_TES = '$tipop', PAGO_TES = $monto, FECHA_PAGO = '$HOY', STATUS_PAGO = 'PP'
 					  WHERE Trim(CVE_DOC) = trim('$docu')";
-		}elseif(substr($docu,0,2) == 'OP' or strlen($docu < 6)){
+		}elseif(substr($docu,0,2) == 'OP' ){ ///or strlen($docu < 6)
 			//echo 'Entra a actualizar FTC_POC<br/>';
 			$this->query="UPDATE FTC_POC_DETALLE set status_real = 'LOGISTICA 1' where OC = '$docu'";
 			$this->EjecutaQuerySimple();
@@ -476,8 +476,8 @@ class pegaso extends database{
 					  SET TP_TES = '$tipop', PAGO_TES = $monto, FECHA_PAGO = '$HOY', STATUS = 'PAGADA'
 					  WHERE Trim(OC) = trim('$docu')";
 			//echo $this->query;
-		}elseif(substr($docu, 0,1 !='O')){
-			echo 'El pago es de una solicitud';
+		}elseif(substr($docu, 0,1) !='O'){
+			//echo 'El pago es de una solicitud';
 			$this->query="UPDATE SOLICITUD_PAGO
 						SET TP_TES_FINAL='$tipop' , MONTO_FINAL=$monto, BANCO_FINAL = '$cuentaban', fecha_reg_pago_final = current_date, fecha_pago = current_timestamp, status = 'Pagado', usuario_pago = '$usuario'
 						where idsol =$docu";
@@ -617,7 +617,7 @@ class pegaso extends database{
 	function detallePago($documento){
 		$data=array();	
 		if(substr($documento, 0,1) != 'O'){
-				$this->query=" SELECT s.idsol as cve_doc, p.nombre, s.monto as importe, s.fechaelab, s.fecha as fecha_doc, 'Contrarecibos' as Recepcion, 'NA' as enlazado, s.tipo as TipoPagoR, 'NA' as FER, 'NA' as TE, usuario as Confirmado, s.tipo as PagoTesoreria, 'NA' as pago_tes
+				$this->query=" SELECT s.idsol as cve_doc, p.nombre, s.monto as importe, s.fechaelab, s.fecha as fecha_doc, 'Contrarecibos' as Recepcion, 'NA' as enlazado, s.tipo as TipoPagoR, 'NA' as FER, 'NA' as TE, usuario as Confirmado, s.tipo as PagoTesoreria, 'NA' as pago_tes, s.proveedor as cve_clpv
 								from SOLICITUD_PAGO s
 								left join prov01 p on s.proveedor = p.clave
 								where idsol = $documento";
@@ -634,8 +634,7 @@ class pegaso extends database{
         			from FTC_POC ftcpoc 
    				    left join prov01 p on p.clave = ftcpoc.cve_prov
     			    where oc='$documento'";
-        			//echo $this->query;
-		}
+        }
 		$result = $this->QueryObtieneDatosN();
 			while ( $tsArray = ibase_fetch_object($result)){ 
 					$data[] = $tsArray;				
@@ -6730,9 +6729,9 @@ function ReEnrutar($id_preoc, $pxr, $doco){
         function salvarCambiosCobranza($cliente,$carteraCob,$carteraRev,$diasRevision,$diasPago,$dosPasos,$plazo,$addenda,$portal,$usuario,$contrasena,$observaciones,$envio,$cp,$maps,$tipo,$ln,$pc, $bancoDeposito, $bancoOrigen, $referEdo, $metodoPago){
             $revision = implode(",",$diasRevision);
             $pago = implode(",",$diasPago);
-            $this->query="EXECUTE PROCEDURE sp_actualiza_datacobranza('$cliente','$carteraCob','$carteraRev','$revision','$pago','$dosPasos',$plazo,'$addenda','$portal','$usuario','$contrasena','$observaciones','$envio',$cp,'$maps','$tipo',$ln,'$pc','$bancoDeposito', '$bancoOrigen', '$referEdo', '$metodoPago')";
+            $ln = 0;
+            $this->query="EXECUTE PROCEDURE sp_actualiza_datacobranza('$cliente','$carteraCob','$carteraRev','$revision','$pago','$dosPasos',0,'$addenda','$portal','$usuario','$contrasena','$observaciones','$envio',$cp,'$maps','$tipo',$ln,'$pc','$bancoDeposito', '$bancoOrigen', '$referEdo', '$metodoPago')";
             $result=$this->EjecutaQuerySimple();
-
             return $result;
         }
 
@@ -9841,6 +9840,7 @@ function insertaDetalleNC($folsig, $tablad, $termino, $docNCD, $docf, $usuario, 
         UM,
         CANT_ORIG,
         REST,
+        REC_FALTANTE,
         (cant_orig - recepcion) as Restante,
         RECEPCION,
         EMPACADO,
@@ -10952,7 +10952,7 @@ function Pagos() {
     		$data[]=$tsArray;
     	}
   */  	
-    	$this->query="SELECT  4 as s, iif(fecha_EDO_CTA is null, fecha_doc, fecha_EDO_CTA) as sort, 'Gasto' AS TIPO, pg.ID AS CONSECUTIVO, iif(fecha_edo_cta is null, FECHA_DOC, fecha_edo_cta) AS FECHAMOV, 0 AS ABONO, g.MONTO_PAGO AS CARGO, 0 AS SALDO, pg.CUENTA_BANCARIA AS BANCO, pg.USUARIO_REGISTRA AS USUARIO, pg.FOLIO_PAGO as TP, ('GTR'||g.id) as identificador, '' as registro, '' as FA, iif(g.fecha_edo_cta is null, iif(fecha_edo_cta is null, FECHA_DOC, fecha_edo_cta), g.fecha_edo_cta) as fe, FECHA_EDO_CTA_OK as comprobado, contabilizado , SELECCIONADO, '' AS CEP, '' AS ARCHIVO_CEP, referencia as obs
+    	$this->query="SELECT  4 as s, iif(fecha_EDO_CTA is null, fecha_doc, fecha_EDO_CTA) as sort, 'Gasto' AS TIPO, pg.ID AS CONSECUTIVO, iif(fecha_edo_cta is null, FECHA_DOC, fecha_edo_cta) AS FECHAMOV, 0 AS ABONO, g.MONTO_PAGO AS CARGO, 0 AS SALDO, pg.CUENTA_BANCARIA AS BANCO, pg.USUARIO_REGISTRA AS USUARIO, pg.FOLIO_PAGO as TP, ('GTR'||g.id) as identificador, '' as registro, '' as FA, iif(g.fecha_edo_cta is null, iif(fecha_edo_cta is null, FECHA_DOC, fecha_edo_cta), g.fecha_edo_cta) as fe, FECHA_EDO_CTA_OK as comprobado, contabilizado , SELECCIONADO, tipopago as tp_tes, '' AS CEP, '' AS ARCHIVO_CEP, referencia as obs
     			FROM GASTOS g
     			left join pago_gasto pg on pg.idgasto = g.id
     			WHERE pg.CUENTA_BANCARIA = ('$banco'||' - '||'$cuenta') and iif(fecha_edo_cta is null,extract(month from g.FECHA_DOC), extract(month from fecha_edo_cta)) = $mes and iif(fecha_edo_cta is null, extract(year from g.FECHA_DOC), extract(year from fecha_edo_cta)) = $anio and g.status = 'V'  and (seleccionado = 2 ) ";
@@ -11004,7 +11004,7 @@ function Pagos() {
     	while($tsArray=ibase_fetch_object($rs)){
     		$data[]=$tsArray;
     	}
-		$this->query="SELECT 7 as s, fecha_edo_cta as sort , 'Compra a Credito' as TIPO, ('SOL-'||idsol) as consecutivo, fecha_edo_cta as fechamov, 0 as abono, monto_final as cargo, 0 as saldo, '$banco' as BANCO, usuario_pago as usuario, 'Compra' as TP, ('SOL-'||idsol) as identificador, registro as registro, 'FA' as FA, fecha_edo_cta as fe, FECHA_EDO_CTA_OK as comprobado , contabilizado, SELECCIONADO, '' AS CEP, '' AS ARCHIVO_CEP, '' as obs
+		$this->query="SELECT 7 as s, fecha_edo_cta as sort , 'Compra a Credito' as TIPO, ('SOL-'||idsol) as consecutivo, fecha_edo_cta as fechamov, 0 as abono, monto_final as cargo, 0 as saldo, '$banco' as BANCO, usuario_pago as usuario, 'Compra' as TP, ('SOL-'||idsol) as identificador, registro as registro, 'FA' as FA, fecha_edo_cta as fe, FECHA_EDO_CTA_OK as comprobado , contabilizado, SELECCIONADO, tp_tes_final as tp_tes, '' AS CEP, '' AS ARCHIVO_CEP, '' as obs
 			FROM SOLICITUD_PAGO
 			WHERE EXTRACT(month from fecha_edo_cta) = $mes and extract(year from fecha_edo_cta) = $anio and banco_final=('$banco'||' - '||'$cuenta')  and (seleccionado = 2 ) order by fecha_edo_cta asc";
     	//echo $this->query;
@@ -12150,7 +12150,7 @@ function Pagos() {
 
     function asignacionBodega(){
     	$data = array();
-    	$this->query="SELECT A.*, I.*, A.asignado as Asig FROM ASIGNACION_BODEGA_PREOC A LEFT JOIN INGRESOBODEGA I ON I.ID = A.IDINGRESO where A.status = 7";
+    	$this->query="SELECT A.*, I.*, A.asignado as Asig FROM ASIGNACION_BODEGA_PREOC A LEFT JOIN INGRESOBODEGA I ON I.ID = A.IDINGRESO where A.status = 7 or A.status = 0 ";
     	$rs=$this->EjecutaQuerySimple();
 	    	while ($tsArray=ibase_fetch_object($rs)){
 	    		$data[]=$tsArray;
@@ -12184,7 +12184,7 @@ function Pagos() {
     function revisarNuevoIngreso($desc){
     	$data= array();
     	$prod = $desc;
-    	$this->query="SELECT * FROM PREOC01 WHERE PROD = '$prod' and rest >= 1 and STATUS = 'N' and rec_faltante >= 1";
+    	$this->query="SELECT * FROM PREOC01 WHERE PROD = '$prod' and rest >= 0.01 and STATUS = 'N' and rec_faltante >= 0.01";
     	$rs=$this->EjecutaQuerySimple();
     	while($tsArray=ibase_fetch_object($rs)){
     		$data[]=$tsArray;
@@ -13470,6 +13470,7 @@ function Pagos() {
     				  WHERE extract(month from fecha_edo_cta) = $mes
     				  and extract(year from fecha_edo_cta) = $anio
     				  and banco = '$banco' 
+    				  and cuenta = '$cuenta'
     				  and (seleccionado = 1 or seleccionado = 2) and guardado = 1
     				  --and fecha_edo_cta_ok='1'
     				  ";
@@ -14309,7 +14310,7 @@ function Pagos() {
 
     function verMaestros($cartera){
     	$data=array();
-    	$this->query="SELECT m.*, (SELECT coalesce(SUM(LINEA_CRED),0) from cartera where tipo = m.clave ) as lineaOtorgada FROM MAESTROS m where m.status is null or m.status= 'A'";
+    	$this->query="SELECT m.*, (select coalesce(sum(c.linea_cred), 0) from maestros_ccc mc left join cartera c on c.ccc = mc.id where  cve_maestro = m.clave) as lineaOtorgada FROM MAESTROS m where m.status is null or m.status= 'A'";
     	$rs=$this->EjecutaQuerySimple();
     	while($tsArray=ibase_fetch_object($rs)){
     		$data[]=$tsArray;
@@ -15603,6 +15604,7 @@ function Pagos() {
                         left join clie01 cl on cl.clave = p.cve_clpv 
                         WHERE CVE_DOC = '$idp'";
 
+
     	$rs=$this->EjecutaQuerySimple();
     	$row=ibase_fetch_object($rs);
     	$cveclie = $row->CVE_CLPV;
@@ -15612,6 +15614,10 @@ function Pagos() {
     	$finalizaCorte = $row->FINALIZA_CORTE;
     	$saldoCobranza =$row->SALDO_MONTO_COBRANZA;
     	$importe = $row->IMPORTE;
+
+
+        $limite = 300000;
+
     	/// traemos el saldo de facturas pendientes de pago del cliente
     	$this->query="SELECT iif(SUM(SALDOFINAL) is null, 0 , sum(saldofinal)) as SF FROM FACTURAS WHERE CVE_CLPV = '$cveclie'";
     	$rs=$this->EjecutaQuerySimple();
@@ -18089,11 +18095,11 @@ function cerrarRecepcion($doco){
 			    		$this->query="UPDATE FTC_POC_DETALLE SET PXR = PXR - $key->CANT_RECIBIDA, status_val = null, status_real = 'Recibido' where OC = '$doco' and partida = $key->PARTIDA";
 			    		$RA=$this->queryActualiza();
 			    		///// Revisar y validar la actualizacion ... 
-				    		if($rol == 'bodega2'){ ///INGRESO A BODEGA.
+				    		if($rol == 'bodega2' or substr($doco,0,3) == 'OPI'){ ///INGRESO A BODEGA.
 				    			//echo 'Ingreso a bodega';
 				    			$equipo=gethostname();
-			    						$this->query="INSERT INTO INGRESOBODEGA (ID, DESCRIPCION, CANT, FECHA, MARCA, PROVEEDOR, COSTO, UNIDAD, PRODUCTO, RESTANTE, ASIGNADO, USUARIO, RECIBIDO, ORIGEN, documento)
-			    						  VALUES (NULL, (SELECT NOMBRE FROM PRODUCTO_FTC WHERE CLAVE = '$key->ART'), $key->CANT_RECIBIDA, CURRENT_TIMESTAMP, (SELECT MARCA FROM PRODUCTO_FTC WHERE CLAVE = '$key->ART'), (SELECT CVE_PROV FROM FTC_POC WHERE OC = '$doco'), $key->COSTO,  '$key->UM','$key->ART', 0,0, (substring('$usuario' from 1 for 49)||' ('||substring('$equipo' from 1 for 18)||')'), 0, 'Orden Interna', '$doco')";
+			    						$this->query="INSERT INTO INGRESOBODEGA (ID, DESCRIPCION, CANT, FECHA, MARCA, PROVEEDOR, COSTO, UNIDAD, PRODUCTO, RESTANTE, ASIGNADO, USUARIO, RECIBIDO, ORIGEN, documento, partida)
+			    						  VALUES (NULL, (SELECT NOMBRE FROM PRODUCTO_FTC WHERE CLAVE = '$key->ART'), $key->CANT_RECIBIDA, CURRENT_TIMESTAMP, (SELECT MARCA FROM PRODUCTO_FTC WHERE CLAVE = '$key->ART'), (SELECT CVE_PROV FROM FTC_POC WHERE OC = '$doco'), $key->COSTO,  '$key->UM','$key->ART', $key->CANT_RECIBIDA,0, (substring('$usuario' from 1 for 49)||' ('||substring('$equipo' from 1 for 18)||')'), 0, 'Orden Interna', '$doco', $key->PARTIDA)";
 			    						$this->grabaBD();
 			    						//echo $this->query;
 			    						//// No se carga en FTC_DETALLE_RECEPCIONES POR QUE SE CREARIA UNA DOBLE ENTRADA AL INVENTARIO.
@@ -18110,7 +18116,7 @@ function cerrarRecepcion($doco){
 						    			}
 			    			}
 			    			echo 'Lineas Afectadas: '.$RA.'<br/>';
-			    		if($RA == 1){
+			    		if($RA == 1 and substr($doco,0,3)!='OPI'){
 			    				echo 'Entra a para mover a tesoreria, creacion del deudor. <br/> Ajusta Preoc01';
 			    				$this->query="UPDATE PREOC01 SET RECEPCION = RECEPCION + $key->CANT_RECIBIDA, REC_FALTANTE = REC_FALTANTE - $key->CANT_RECIBIDA WHERE id = $key->IDPREOC";
 					    		$ra=$this->queryActualiza();
@@ -18195,6 +18201,7 @@ function cerrarRecepcion($doco){
     	//exit('revisar resultado');
     	return;
     }
+
 
 
     function controlOC($doco){
@@ -18398,14 +18405,16 @@ function cerrarRecepcion($doco){
     function detalleFTCRecep($doco, $docr){
     	if(substr($doco,0,2)== 'OP'){
     		if(substr($doco, 0,3)== 'OPI'){
-    			$this->query="SELECT ftc.*, ib.*, ftc.cant_recibida as cantidad_rec, ftc.art as prod, (select nombre from producto_ftc where clave = ftc.art) as nomprod, 0 as impresion, 9999 as id_recepcion, ftc.costo as cost
+    			$this->query="SELECT ftc.*, ib.*, ftc.cant_recibida as cantidad_rec, ftc.cant_recibida as cantidad_oc, ftc.art as prod, (select nombre from producto_ftc where clave = ftc.art) as nomprod, 0 as impresion, 9999 as id_recepcion, ftc.costo as cost
     						  from ingresobodega ib
-    						  left join FTC_POC_DETALLE ftc on ftc.oc = ib.documento
+    						  left join FTC_POC_DETALLE ftc on ftc.oc = ib.documento and ftc.partida = ib.partida
     						  where documento ='$doco' ";
+
     			$rs=$this->EjecutaQuerySimple();
     			while ($tsArray=ibase_fetch_object($rs)){
     				$data[]=$tsArray;
     			}
+    			return $data;
     		}
 
     		if($docr > 0){	
@@ -19665,33 +19674,33 @@ function cerrarRecepcion($doco){
 			$docf = trim($docf);
 			$docf = strtoupper($docf);
 
-			$this->query="SELECT * FROM FACTF01 WHERE CVE_DOC = upper(trim('$docf'))";
-		  	$rs=$this->EjecutaQuerySimple();
-		  	$row =ibase_fetch_object($rs);
-		  	if(empty($row)){
-			  	$this->query="SELECT * FROM FACTR01 WHERE CVE_DOC = upper(trim('$docf'))";
-			  	$rs=$this->EjecutaQuerySimple();
-			  	$row =ibase_fetch_object($rs);
-		  	}
+			//$this->query="SELECT * FROM FACTF01 WHERE CVE_DOC = upper(trim('$docf'))";
+		  	//$rs=$this->EjecutaQuerySimple();
+		  	//$row =ibase_fetch_object($rs);
+		  	//if(empty($row)){
+			//  	$this->query="SELECT * FROM FACTR01 WHERE CVE_DOC = upper(trim('$docf'))";
+			//  	$rs=$this->EjecutaQuerySimple();
+			//  	$row =ibase_fetch_object($rs);
+		  	//}
 
-			if(empty($row)){
+			//if(empty($row)){
 			  	$this->query="SELECT * FROM FACTURAS_FP WHERE CVE_DOC = upper(trim('$docf'))";
 			  	$rs=$this->EjecutaQuerySimple();
 			  	$row =ibase_fetch_object($rs);
-		  	}
+		  	//}
 		  	//// obtenemos los datos fiscales actuales:
 		  		$satcfdi= '';
 		  		$satmp ='';
 		  		$satfp = '';
-		  		if(substr($row->CVE_DOC,0,2)  == 'FA' ){
-		  			$satcfdi = $row->USO_CFDI; 
-		  			$satmp = $row->METODODEPAGO;
-		  			$satfp = $row->FORMADEPAGOSAT;
-		  		}elseif(substr($row->CVE_DOC,0,2)=='FP'){
+		  		//if(substr($row->CVE_DOC,0,2)  == 'FA' ){
+		  		//	$satcfdi = $row->USO_CFDI; 
+		  		//	$satmp = $row->METODODEPAGO;
+		  		//	$satfp = $row->FORMADEPAGOSAT;
+		  		//}elseif(substr($row->CVE_DOC,0,2)=='FP'){
 		  			$satcfdi = $row->SAT_USO; 
 		  			$satmp = $row->SAT_MP;
 		  			$satfp = $row->SAT_FP;
-		  		}
+		  		//}
 		  	$this->query="SELECT MIN(STATUS_SOLICITUD) AS VALIDACION FROM REFACTURACION WHERE FACT_ORIGINAL = '$docf'";
 		  	$res=$this->EjecutaQuerySimple();
 		  	$row2=ibase_fetch_object($res);
@@ -19705,7 +19714,7 @@ function cerrarRecepcion($doco){
 				  						VALUES ( (SELECT MAX(ID) FROM REFACTURACION), '$nf', '$obs', '$satcfdi', '$satmp', '$satfp', TRIM('$row->CVE_CLPV'),TRIM('$row->RFC'))";
 				  		$this->grabaBD();
 
-			  		}elseif($opcion == 2){
+			  		}elseif($opcion == 2){ /// Cambio de cliente
 				  		$this->query="INSERT INTO REFACTURACION (ID, FACT_ORIGINAL, USUARIO_SOLICITUD, FECHA_SOLICITUD, STATUS_SOLICITUD, TIPO_SOLICITUD, NUEVO_CLIENTE, observaciones, NUEVA_FECHA , CAJA) VALUES (NULL, '$docf', '$usuario', current_timestamp, 0, 'CAMBIO CLIENTE',TRIM('$nf'), '$obs', current_date, (SELECT ID FROM CAJAS WHERE FACTURA CONTAINING ('$docf')) )";
 				  		$this->grabaBD();
 				  		
@@ -19769,19 +19778,19 @@ function cerrarRecepcion($doco){
     function refacturarSAT($docf, $satUso, $satFP, $satMP, $obs, $opcion){
     	$usuario = $_SESSION['user']->NOMBRE;
     		$docf=strtoupper($docf);
-    		$this->query="SELECT * FROM FACTF01 WHERE CVE_DOC = upper(trim('$docf'))";
-		  	$rs=$this->EjecutaQuerySimple();
-		  	$row =ibase_fetch_object($rs);
-		  	if(empty($row)){
-			  	$this->query="SELECT * FROM FACTR01 WHERE CVE_DOC = upper(trim('$docf'))";
-			  	$rs=$this->EjecutaQuerySimple();
-			  	$row =ibase_fetch_object($rs);
-		  	}
-		  	if(empty($row)){
+    		//$this->query="SELECT * FROM FACTF01 WHERE CVE_DOC = upper(trim('$docf'))";
+		  	//$rs=$this->EjecutaQuerySimple();
+		  	//$row =ibase_fetch_object($rs);
+		  	//if(empty($row)){
+			// 	$this->query="SELECT * FROM FACTR01 WHERE CVE_DOC = upper(trim('$docf'))";
+			//  	$rs=$this->EjecutaQuerySimple();
+			//  	$row =ibase_fetch_object($rs);
+		  	//}
+		  	//if(empty($row)){
 			  	$this->query="SELECT * FROM FACTURAS_FP WHERE CVE_DOC = upper(trim('$docf'))";
 			  	$rs=$this->EjecutaQuerySimple();
 			  	$row =ibase_fetch_object($rs);
-		  	}
+		  	//}
 			$this->query="SELECT MIN(STATUS_SOLICITUD) AS VALIDACION FROM REFACTURACION WHERE FACT_ORIGINAL = '$docf'";
 		  	$res=$this->EjecutaQuerySimple();
 		  	$row2=ibase_fetch_object($res);
@@ -19789,7 +19798,7 @@ function cerrarRecepcion($doco){
 			  		if($opcion == 3 ){
 				  		$this->query="INSERT INTO REFACTURACION (ID, FACT_ORIGINAL, USUARIO_SOLICITUD, FECHA_SOLICITUD, STATUS_SOLICITUD, TIPO_SOLICITUD, NUEVA_FECHA, observaciones, CAJA ) VALUES (NULL, '$docf', '$usuario', current_timestamp, 1, 'CAMBIO SAT',current_timestamp, '$obs', (SELECT first 1 ID FROM CAJAS WHERE FACTURA CONTAINING ('$docf') order by id desc))";
 				  		$this->grabaBD();
-				  	  	if(substr($row->CVE_DOC,0,2) == 'FP' or substr($row->CVE_DOC,0,3) == 'RFP'){
+				  	  	//if(substr($row->CVE_DOC,0,2) == 'FP' or substr($row->CVE_DOC,0,3) == 'RFP'){
 				  			$this->query="INSERT INTO REFACTURACION_DETALLE (ID_REFAC, SAT_USO_ACTUAL, SAT_FP_ACTUAL, SAT_MP_ACTUAL, SAT_USO_NUEVO, SAT_FP_NUEVO, SAT_MP_NUEVO, OBSERVACIONES, CLIENTE_ACTUAL, RFC_ACTUAL) 
 				  				VALUES ( (SELECT MAX(ID) FROM REFACTURACION), 
 					  			(select SAT_USO FROM FACTURAS_FP WHERE CVE_DOC = '$docf'),
@@ -19802,7 +19811,7 @@ function cerrarRecepcion($doco){
 					  			TRIM('$row->CVE_CLPV'),
 					  			TRIM('$row->RFC') )";
 					  		$this->grabaBD();	
-				  		}elseif(substr($row->CVE_DOC,0,3) == 'FAA' or substr($row->CVE_DOC,0,2) == 'RF'){
+				  		/*}elseif(substr($row->CVE_DOC,0,3) == 'FAA' or substr($row->CVE_DOC,0,2) == 'RF'){
 				  			$this->query="INSERT INTO REFACTURACION_DETALLE (ID_REFAC, SAT_USO_ACTUAL, SAT_FP_ACTUAL, SAT_MP_ACTUAL,  SAT_USO_NUEVO, SAT_FP_NUEVO, SAT_MP_NUEVO, OBSERVACIONES, CLIENTE_ACTUAL, RFC_ACTUAL) 
 				  				VALUES ( (SELECT MAX(ID) FROM REFACTURACION), 
 					  			(select SAT_USO FROM FACTURAS WHERE CVE_DOC = '$docf'),
@@ -19815,7 +19824,7 @@ function cerrarRecepcion($doco){
 					  			TRIM('$row->CVE_CLPV'),
 					  			TRIM('$row->RFC') )";
 					  		$this->grabaBD();
-				  		}
+				  		}*/
 					}
 		  		}	
 		return;
@@ -20010,7 +20019,7 @@ function ejecutarRecepcion($ida, $cantRec, $cantOr ){
 		$doa = new idpegaso;
 		$val = $doa->revisaDuplicado($row->PREOC);
 
-		if($row->STATUS == 7){
+		if($row->STATUS == 7 or $row->STATUS  == 0){
 			if($cantRec == $cantOr){
 			$this->query="INSERT INTO FTC_DETALLE_RECEPCIONES (ID, ORDEN, IDPREOC, CANTIDAD_OC, CANTIDAD_REC, PARTIDA, USUARIO, FECHA, STATUS, ID_RECEPCION, IMPRESION, FOLIO_IMP_BODEGA) VALUES(NULL, '$ida',$row->PREOC, $row->ASIGNADO, $row->ASIGNADO, 1, '$usuario', current_timestamp, 0, (select max(id_recepcion) from ftc_detalle_recepciones)+1, 0, ('I-'||$row->FOLIO_IMP))";
 			$res= $this->grabaBD();

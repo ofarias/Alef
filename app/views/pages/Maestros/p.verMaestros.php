@@ -16,15 +16,15 @@
                                             <th>Sucursales</th>
                                             <th>Linea de Credito <br/> Otorgada </th>
                                             <th>Linea de Credito <br/> Comprometida </th>
-                                            <th>Acreedores</th>
-                                            <th>Deuda Estimada</th>
-                                            <th>Pedidos Pendientes</th>
+                                            <th>Disponible</th>
+                                            
+                                            
                                             <th>Facturas / Remisiones <br/> En Transito </th>   <!-- En Logistica  -->
                                             <th>Facturas / Remisiones <br/> Por Revisionar </th> <!-- En Revision -->
                                             <th>Facturas en CxC </th>  <!-- En Cobranza -->
                                             <th>Editar</th>
                                             <th>CCC</th>
-                                            <th>Detalle</th>
+                                            <!--<th>Detalle</th>-->
                                             <th>Baja</th>
                                         </tr>
                                     </thead>                                   
@@ -36,6 +36,7 @@
                                             }else{
                                                 $color = '';
                                             }
+                                            $disponible = $data->LINEAOTORGADA - ($data->REVISION + $data->COBRANZA + $data->LOGISTICA);
                                         ?>
                                         <tr class="odd gradeX" <?php echo $color?> id="marca_<?php echo $data->ID?>" >
                                             <td><?php echo $data->NOMBRE.'<br/>'.$data->CLAVE;?></td>
@@ -43,9 +44,8 @@
                                             <td><?php echo $data->SUCURSALES;?></td>
                                             <td align="right" style="font-size:15px "><b><?php echo '$ '.number_format($data->LINEAOTORGADA,2);?></b></td>
                                             <td align="right"><?php echo '$ '.number_format(($data->REVISION + $data->COBRANZA + $data->LOGISTICA),2)?></td>
-                                            <td align="right"><font color="blue"><?php echo '$ '.number_format($data->ACREEDOR,2)?></font></td>
-                                            <td align="right" style="font-size:15px"><b><?php echo '$ '.number_format(($data->REVISION + $data->COBRANZA + $data->LOGISTICA)-$data->ACREEDOR,2)?></b></td>
-                                            <td> Pedidos Pendientes </td>
+                                            <td align="right"><font color="blue"><?php echo '$ '.number_format($disponible,2)?></font></td>
+                                            
                                             <td align="right"><?php echo '$ '.number_format($data->LOGISTICA,2);?></td>  <!-- En Logistica -->
                                             <td align="right"><?php echo '$ '.number_format($data->REVISION,2);?></td>  <!-- En Revision -->
                                             <td align="right"><font color="#58FA58"><?php echo '$ '.number_format($data->COBRANZA,2);?></font></td> <!-- En Cobranza -->
@@ -58,9 +58,9 @@
                                             <td>
                                                 <button type="submit" value="enviar" name="verCCC" class="btn btn-success"> CCC </button>
                                             </td>
-                                            <td>
+                                            <!--<td>
                                                 <button type="submit" values="enviar" name="detalleMaestro" class="btn btn-info"> ver Detalle</button>
-                                            </td>
+                                            </td>-->
                                             <td>
                                                 <input type="button" onclick="baja('<?php echo $data->NOMBRE?>', '<?php echo $data->ID?>', '<?php echo $data->CLAVE?>')" class="btn-small btn-danger" value="Baja" id="boton_<?php echo $data->ID?>"></td>
                                             </td>

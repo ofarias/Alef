@@ -22,7 +22,7 @@
                     <div class="panel-heading">
                         <h5><?php echo substr($data->NOMBRE,0,20)?> </h4>
                         <h6><?php echo $data->CLAVE?></h3>
-                        <p>Plazo: <?php echo $data->PLAZO?></p>
+                        <!--<p>Plazo: <?php echo $data->PLAZO?></p>-->
                     </div>
                     <div class="panel-body">
                         <p>Linea Otorgada <font color="blue"><?php echo '$ '.number_format($data->LINEACRED_CALCULADA,2)?></font></p>
@@ -35,7 +35,7 @@
                         <p>Remisiones: <font color=""><?php echo '$ '.number_format($data->REMISIONES,2)?></font></p>
                         <p>Revision: <font color=""><?php echo '$ '.number_format($data->REVISION,2)?></font></p>
                         <p>Cobranza: <font color=""><?php echo '$ '.number_format($data->COBRANZA,2)?></font></p>
-                        <center><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo $data->CLAVE;?>&tipo=t&maestro=<?php echo $data->ID?>" target="popup" class="btn btn-warning" onclick="window.open(this.href, this.target, 'width=1200,height=1320'); return false;">Detalles Clientes:<?php echo $data->SUCURSALES?></a></center>
+                        <center><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo urlencode($data->CLAVE);?>&tipo=t&maestro=<?php echo $data->ID?>" target="popup" class="btn btn-warning" onclick="window.open(this.href, this.target, 'width=1200,height=1320'); return false;">Detalles Clientes:<?php echo $data->SUCURSALES?></a></center>
                         <?php if($data->ID < 353){?>
                         <!--<center><a class="btn btn-danger" href="index.cobranza.php?action=migraMaestro&cvemo=<?php echo $data->CLAVE?>" target="popup" onclick="window.open(this.href, this.target, 'width=800,height=320'); return false;">Migrar</a></center>-->
                         <?php }?>

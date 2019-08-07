@@ -10775,8 +10775,7 @@ function imprimirFacturasAcuse(){
     }
 
 
-    function estado_de_cuenta_mes_docs($mes, $banco, $cuenta, $anio, $nvaFechComp){
-    	
+    function estado_de_cuenta_mes_docs($mes, $banco, $cuenta, $anio, $nvaFechComp){   	
     	if (isset($_SESSION['user'])) {
         	$data = new pegaso;
         	$pagina = $this->load_template('Pagos');        	
@@ -16135,7 +16134,7 @@ function ImpSolicitud2($idsol){
     		$html=$this->load_page('app/views/pages/p.redirectform.php');
     		ob_start();
     			$recibir=$data->cerrarRecepcion($doco);
-    			if($_SESSION['user']->USER_ROL == 'bodega2'){
+    			if($_SESSION['user']->USER_ROL == 'bodega2' or substr($doco,0,3) =='OPI'){
     				$redireccionar = "recepcionOCBdg";
     				if(substr($doco,0,3) == 'OPI'){
     					//$this->impresionOCI($doco);
@@ -17555,7 +17554,6 @@ function ImpSolicitud2($idsol){
 	}
 
 	function verDetSolNC($id, $tipo, $factura){
-		
 		if($_SESSION['user']){
 			$data= new pegaso;
 			$pagina=$this->load_template('Pedidos');

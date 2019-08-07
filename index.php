@@ -134,12 +134,7 @@ if(!empty($_POST['seleccion'])) {
 	$nomprov = $_POST['nomprov'];
 	$cveclpv = $_POST['cveprov'];
 	$fechadoc = $_POST['fechadoc'];
-	//$entregadoa = $_POST['entregadoa'];
-	//if($monto !== $importe){
-	//	$controller->PagoW();
-	//}else{
-		$controller->PagoCorrecto($cuentaban, $docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc);
-	//}
+	$controller->PagoCorrecto($cuentaban, $docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc);
 }elseif(isset($_POST['formpago_gasto'])){
 	$cuentabanco = $_POST['cuentabanco'];
 	$documento = $_POST['documento'];
@@ -749,21 +744,23 @@ if(!empty($_POST['seleccion'])) {
     $controller->formDataCobranzaC($idCliente);
 }elseif(isset($_POST['salvarDatoCobranza'])){   //28062016
     $cliente = $_POST['cliente'];
-    $carteraCob = $_POST['carteracobranza'];
-    $carteraRev = $_POST['carterarevision'];
-    for($i = 1; $i <= 7; $i++){
-        if(count($_POST[('rev'.$i)])>0){
-            $diasRevision[] = $_POST[('rev'.$i)];
-        }
-    }
-    for($c = 1; $c <= 7; $c++){
-        if(count($_POST[('pag'.$c)])>0){
-            $diasPago[] = $_POST[('pag'.$c)];
-        }
-    }
-    $dosPasos = $_POST['dospasos'];
-    $plazo = $_POST['plazo'];
-    $addenda = empty($_POST['addenda']) ? "N":"S";
+    $carteraCob = isset($_POST['carteracobranza'])? $_POST['carteracobranza']:'';
+    $carteraRev = isset($_POST['carterarevision'])? $_POST['carterarevision']:'';
+    $diasRevision='';
+    $diasPago = '';
+    //for($i = 1; $i <= 7; $i++){
+    //    if(count($_POST[('rev'.$i)])>0){
+    //        $diasRevision[] = $_POST[('rev'.$i)];
+    //    }
+    //}
+    //for($c = 1; $c <= 7; $c++){
+    //    if(count($_POST[('pag'.$c)])>0){
+    //       $diasPago[] = $_POST[('pag'.$c)];
+    //    }
+    //}
+    $dosPasos = isset($_POST['dospasos'])? $_POST['dospasos']:'';
+    $plazo = isset($_POST['plazo'])? $_POST['plazo']:'';
+    $addenda = empty($_POST['addenda'])? "N":"S";
     $portal = $_POST['portal'];
     $usuario = $_POST['add_usuario'];
     $contrasena = $_POST['contrasena'];
@@ -772,12 +769,12 @@ if(!empty($_POST['seleccion'])) {
     $cp = $_POST['cp'];
     $maps = $_POST['maps'];
     $tipo = $_POST['tipo'];
-    $ln = $_POST['lincred'];
+    $ln = isset($_POST['lincred'])? $_POST['lincred']:'';
     $pc = $_POST['portalcob'];
-    $bancoDeposito = $_POST['bancoDeposito'];
-    $bancoOrigen = $_POST['bancoOrigen'];
-    $referEdo = $_POST['referEdo'];
-    $metodoPago = $_POST['metodoPago'];
+    $bancoDeposito = isset($_POST['bancoDeposito'])? $_POST['bancoDeposito']:'';
+    $bancoOrigen = isset($_POST['bancoOrigen'])? $_POST['bancoOrigen']:'';
+    $referEdo = isset($_POST['referEdo'])? $_POST['referEdo']:'';
+    $metodoPago = isset($_POST['metodoPago'])? $_POST['metodoPago']:'';
     $controller->salvaDatosCob($cliente,$carteraCob,$carteraRev,$diasRevision,$diasPago,$dosPasos,$plazo,$addenda,$portal,$usuario,$contrasena,$observaciones,$envio,$cp,$maps,$tipo,$ln,$pc, $bancoDeposito, $bancoOrigen, $referEdo, $metodoPago);
 }elseif(isset($_POST['salvaCambiosDatoCobranza'])){     //28062016
     $cliente = $_POST['cliente'];

@@ -63,13 +63,14 @@
                                                 $color="style='background-color:#F78181;'";
                                             }
                                             if(($data->EMPACADO - $data->DEVUELTO) > 0){
-                                                $totalCosto = $totalCosto + ($data->COSTO_REAL * $data->BODEGA);
+                                                //$totalCosto = $totalCosto + ($data->COSTO_REAL * $data->BODEGA);
+                                                //$totalCosto = $totalCosto + ($data->BODEGA * $data->COSTO_REAL);
                                             }
+                                            $totalCosto = $totalCosto + ($data->BODEGA * $data->COSTO_REAL);
+
 
                                         ?>
-
-                                        <?php if( (($data->EMPACADO - $data->DEVUELTO) > 0) or ($data->RECEPCION - $data->EMPACADO > 0) ){ ?>
-                                            
+                                        <?php if( (($data->EMPACADO - $data->DEVUELTO) > 0) or ( ($data->RECEPCION - $data->EMPACADO) > 0) or ($data->REC_FALTANTE > 0) ){ ?>                                            
                                        <tr class="odd gradeX" <?php echo $color;?> >
                                             <td><?php echo $data->CONSECUTIVO?></td>
                                             <td><?php echo $data->CAJA_PEGASO.'<br/>'.$data->FECHA_LIBERACION;?></td>

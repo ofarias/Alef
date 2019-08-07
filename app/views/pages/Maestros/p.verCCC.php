@@ -59,8 +59,9 @@
                                             <th>Nombre</th>
                                             <th>Contacto</th>
                                             <th>Telefono</th>
-                                            <th>Presupuesto</th>
+                                            <!--<th>Presupuesto</th>-->
                                             <th>Linea Credito</th>
+                                            <th>Disponible</th>
                                             <th>Plazo</th>
                                             <th>Eliminar</th>
                                         </tr>
@@ -74,10 +75,14 @@
                                             </td>
                                             <td><?php echo $data->COMPRADOR;?></td>
                                             <td><?php echo $data->TELEFONO;?></td>
-                                            <td align="right"><?php echo '$ '.number_format($data->PRESUPUESTO_MENSUAL,2);?></td>
+                                            <!--<td align="right"><?php echo '$ '.number_format($data->PRESUPUESTO_MENSUAL,2);?></td>-->
                                             <td align="right"><?php echo '$ '.number_format($data->LINEA_CRED,2);?></td>
+                                            <td>0.00</td>
                                             <td><?php echo $data->PLAZO== 0? 'Contado':$data->PLAZO?></td>
-                                            <td title="<?php echo $data->CLIENTES > 0? 'El Centro no debe de tener clientes asociados para poder eliminarlo':''?>"><a href="index.cobranza.php?action=delCss&cvem=<?php echo $data->CVE_MAESTRO?>&ccc=<?php echo $data->ID?>&opcion=B" class="btn btn-danger" <?php echo ($data->CLIENTES == 0 or empty($data->CLIENTES))? '':'disabled' ?> >Eliminar</a></td>
+                                            <td title="<?php echo $data->CLIENTES > 0? 'El Centro no debe de tener clientes asociados para poder eliminarlo':''?>">
+                                                <a href="index.cobranza.php?action=delCss&cvem=<?php echo $data->CVE_MAESTRO?>&ccc=<?php echo $data->ID?>&opcion=B" class="btn btn-danger" <?php echo ($data->CLIENTES == 0 or empty($data->CLIENTES))? '':'disabled' ?> >Eliminar</a>
+                                                <a class="btn btn-info">Editar</a>
+                                            </td>
                                         </tr>
                                         <?php endforeach;?>
                                  </tbody>
