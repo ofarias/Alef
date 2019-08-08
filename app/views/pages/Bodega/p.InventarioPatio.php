@@ -26,11 +26,7 @@
                                             <th>EMPACADO</th>
                                             <th>FACTURADO</th>
                                             <th>REMISIONADO</th>
-                                            <th>FACTURAS</th>
-                                            <th>FECHA</th>
-                                            <th>REMISIONES</th>
-                                            <th>FECHA</th>
-                                            <th>STATUS LOGISTICA</th>
+                                            
                                             <th>EN PATIO</th>
                                             <th>PRESUPUESTO COMPRA</th>
                                             <th>COSTO REAL</th>
@@ -85,11 +81,7 @@
                                             <td><font color = "red"><big><b><?php echo $data->EMPACADO;?></b></big></font></td>
                                             <td><?php echo $data->FACTURADO;?></td>
                                             <td><?php echo $data->REMISIONADO;?></td>
-                                            <td><?php echo $data->FACTURAS;?></td>
-                                            <td><?php echo $data->FFAC;?></td>
-                                            <td><?php echo $data->REMISIONES;?></td>
-                                            <td><?php echo $data->FREM;?></td>
-                                            <td><?php echo $data->STATUS_LOG;?></td>
+                                            
                                             <td><font color ="blue"><big><b> <?php echo $data->BODEGA;?></b></big> </font></td>
                                             <td align="right"><?php echo '$ '.number_format($data->PPTO_COMPRA,2);?></td>
                                             <td align="right"> <font color="blue"><?php echo '$ '.number_format($data->COSTO_REAL,2)?></font></td>
