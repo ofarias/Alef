@@ -37,7 +37,6 @@
                                             $idcaja = $data->IDCAJA;
                                             $status=$data->STATUS_LOG;
                                             ?>
-
                                         <tr>
                                           <!--<tr class="odd gradeX" style='background-color:yellow;' >-->
                                             <td><?php echo $data->ID_PREOC;?></td>
