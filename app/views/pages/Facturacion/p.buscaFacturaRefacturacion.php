@@ -492,7 +492,7 @@
                         return false;
                     }
                     else{
-                        $.alert('Se creara la Solicitud de alta del cliente ' + clienteC);
+                        //$.alert('Se creara la Solicitud de alta del cliente ' + clienteC);
                         $.ajax({
                             url:'index.v.php',
                             type:'post',

@@ -28,18 +28,16 @@ class factura extends database {
 		$valRefacturacion=ibase_fetch_object($res);
 		$validacion = $valRefacturacion->PAR_FACTURADAS; 
 		$statusOriginal=$valRefacturacion->STATUS;
-		if($validacion ==  0 and $valRefacturacion->STATUS !='CFDI' and $valRefacturacion->STATUS != 'PENDIENTE'){
+		if($validacion==0 and $valRefacturacion->STATUS !='CFDI' and $valRefacturacion->STATUS != 'PENDIENTE'){
 			$this->query="UPDATE CAJAS SET STATUS = 'PENDIENTE' WHERE ID = $idc";
 			$this->queryActualiza();
-
-			$cliente = 'Liverpool';
+			$cliente='Liverpool';
 			if($valRefacturacion->DET == 1){
 				$det=$this->addendaLiverpool($idc, $uso, $tpago, $mpago, $cp, $rel, $ocdet, $entdet);
 				return $det;
 			}
-
 			if($idc < 9999999){
-			$this->query ="SELECT p.descripcion|| coalesce((select coalesce((select cast(ANEXO_DESCRIPCION as varchar(1000))
+			$this->query ="SELECT p.descripcion|| coalesce((select first 1 coalesce((select first 1 cast(ANEXO_DESCRIPCION as varchar(1000))
                       from FTC_ANEXO_DESCR
                       where CAJA = $idc and
                             PARTIDA = P.PARTIDA and
@@ -57,7 +55,7 @@ class factura extends database {
 		                ) AS DESCUENTO,
 		                (SELECT CVE_CLIENTE FROM FTC_COTIZACION WHERE CVE_COTIZACION = DOCUMENTO) AS CLIENTE 
 		                FROM PAQUETES P WHERE IDCAJA = $idc and cantidad > devuelto";
-		}else{
+			}else{
 				$this->query="SELECT trim(f.CVE_CLPV) AS CLIENTE, 
 							p.cant as cantidad, 
 							p.prec as precio, 
@@ -70,46 +68,46 @@ class factura extends database {
 							FROM PAR_FACTV01 p 
 							left join factv01 f on f.cve_doc = p.cve_doc 
 							WHERE f.CVE_DOC = '$cp'";
-		}
+			}
 
-		$rs=$this->EjecutaQuerySimple();
-		while ($tsArray = ibase_fetch_object($rs)){
-			$data[]=$tsArray;
-		}
-		$totalDescuento= 0; 
-		$subTotal= 0;
-		$totalImp1=0;
-		$IEPS=0;
-		$desc2=0;
-		$descf=0;
-		$caja = $idc;
-		foreach ($data as $key) {  /// Calcula los totales pata pegarlos en la cabecera
-			$cliente=trim($key->CLIENTE);
-			/// Bases
-			$pPt = $this->truncarNumero($key->PRECIO, $dec, $dect); /// Precio Partida truncado; // $pPt
-			$pP=number_format($key->PRECIO, $dec,".",""); /// Precio redondeado // $pP
-			$pC=$key->CANTIDAD-$key->DEVUELTO;
-			$pDp=$key->DESCUENTO;/// Porcentaje de descuento por Partida.
-			// Calcualos para las operaciones;
-			$pS=$pP*$pC;
-			$pDi=(($key->DESCUENTO/100 * ($pP*$pC)));/// Descuento por el precio por la cantidad
-			$pImp1 = ($pS - $pDi)*$imp1; /// Importe del Impuesto1 imp1 
-			/// Totales para DocumentoSS
-			$totalDescuento =$totalDescuento + $pDi;
-			$subTotal =$subTotal+$pS;
-			$totalImp1=$totalImp1+$pImp1;
-			$totalDoc= $subTotal - $totalDescuento + $totalImp1;
-			/// Datos Sat
-			$subSat = $this->truncarNumero($subTotal,$dec,$dect);
-			//$totSat = $this->truncarNumero($totalDoc,$dec, $dect);
-			$totImp1Sat=number_format($totalImp1,2,".","");
-			//echo 'Descuento: '.$pDp.', Precio '.$pP.' Cantidad'.$pC.'<br/>';
-			//echo('Precio Truncado a '.$dect.' decimales'.$pPt.', Precio redondeado a '.$dec.' decimales'.$pP).'<br/>';
-		}			
-		//echo 'SubTotal:'.$this->truncarNumero($subTotal, $dec, $dect).'<br/>';
-		//echo 'Descuento:'.$this->truncarNumero($totalDescuento,$dec,$dect).'<br/>';
-		//echo 'IVA:'.$this->truncarNumero($totalImp1,$dec, $dect).'<br/>';
-		//echo 'Total:'.$this->truncarNumero($totalDoc,$dec,$dect).'<br/>';
+			$rs=$this->EjecutaQuerySimple();
+			while ($tsArray = ibase_fetch_object($rs)){
+				$data[]=$tsArray;
+			}
+			$totalDescuento= 0; 
+			$subTotal= 0;
+			$totalImp1=0;
+			$IEPS=0;
+			$desc2=0;
+			$descf=0;
+			$caja = $idc;
+			foreach ($data as $key) {  /// Calcula los totales pata pegarlos en la cabecera
+				$cliente=trim($key->CLIENTE);
+				/// Bases
+				$pPt = $this->truncarNumero($key->PRECIO, $dec, $dect); /// Precio Partida truncado; // $pPt
+				$pP=number_format($key->PRECIO, $dec,".",""); /// Precio redondeado // $pP
+				$pC=$key->CANTIDAD-$key->DEVUELTO;
+				$pDp=$key->DESCUENTO;/// Porcentaje de descuento por Partida.
+				// Calcualos para las operaciones;
+				$pS=$pP*$pC;
+				$pDi=(($key->DESCUENTO/100 * ($pP*$pC)));/// Descuento por el precio por la cantidad
+				$pImp1 = ($pS - $pDi)*$imp1; /// Importe del Impuesto1 imp1 
+				/// Totales para DocumentoSS
+				$totalDescuento =$totalDescuento + $pDi;
+				$subTotal =$subTotal+$pS;
+				$totalImp1=$totalImp1+$pImp1;
+				$totalDoc= $subTotal - $totalDescuento + $totalImp1;
+				/// Datos Sat
+				$subSat = $this->truncarNumero($subTotal,$dec,$dect);
+				//$totSat = $this->truncarNumero($totalDoc,$dec, $dect);
+				$totImp1Sat=number_format($totalImp1,2,".","");
+				//echo 'Descuento: '.$pDp.', Precio '.$pP.' Cantidad'.$pC.'<br/>';
+				//echo('Precio Truncado a '.$dect.' decimales'.$pPt.', Precio redondeado a '.$dec.' decimales'.$pP).'<br/>';
+			}			
+			//echo 'SubTotal:'.$this->truncarNumero($subTotal, $dec, $dect).'<br/>';
+			//echo 'Descuento:'.$this->truncarNumero($totalDescuento,$dec,$dect).'<br/>';
+			//echo 'IVA:'.$this->truncarNumero($totalImp1,$dec, $dect).'<br/>';
+			//echo 'Total:'.$this->truncarNumero($totalDoc,$dec,$dect).'<br/>';
 			$this->query="SELECT * FROM CAJAS WHERE ID = $idc";
 			$res =$this->EjecutaQuerySimple();
 			$row = ibase_fetch_object($res);
@@ -124,6 +122,7 @@ class factura extends database {
 			$rs = $this->queryActualiza();
 			if($rs ==1 ){
 					$this->query="SELECT * FROM CLIE01 WHERE TRIM(CLAVE)='$cliente'";
+					echo $this->query;
 					$res=$this->EjecutaQuerySimple();
 					$cl=ibase_fetch_object($res);
 					$this->query="INSERT INTO FTC_FACTURAS (IDF, DOCUMENTO, SERIE, FOLIO, FORMADEPAGOSAT, VERSION, TIPO_CAMBIO, METODO_PAGO, REGIMEN_FISCAL, LUGAR_EXPEDICION, MONEDA, TIPO_COMPROBANTE, CONDICIONES_PAGO, SUBTOTAL, IVA, IEPS, DESC1, DESC2, DESCF, TOTAL, SALDO_FINAL, ID_PAGOS, ID_APLICACIONES, NOTAS_CREDITO, MONTO_NC, MONTO_PAGOS, MONTO_APLICACIONES, CLIENTE, USO_CFDI, STATUS, USUARIO, FECHA_DOC, FECHAELAB, IDCAJA) 
@@ -1088,7 +1087,7 @@ class factura extends database {
 		$dect=2; //decimales Truncados.
 		$imp1=0.16;
 			
-			$this->query="SELECT * FROM CLIE01 WHERE CLAVE_TRIM= (SELECT TRIM(CLIENTE) FROM FTC_NC WHERE DOCUMENTO='$docf')";
+			$this->query="SELECT * FROM CLIE01 WHERE CLAVE_TRIM=(SELECT TRIM(CLIENTE) FROM FTC_NC WHERE DOCUMENTO='$docf')";	
     		$rs=$this->EjecutaQuerySimple();
     		$rowc=ibase_fetch_object($rs);
     		$cliente=$rowc->CLAVE_TRIM;
