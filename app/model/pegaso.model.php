@@ -2507,11 +2507,12 @@ cast((select list(documento||'—-'|| round( cantidad)) from ftc_facturas_detall
 		if($tipo == 'total'){
 			$this->query="SELECT ORDEN, MAX(ID_RECEPCION) AS RECEPCION, sum(cantidad_rec) as recibido, sum(cantidad_oc) as cant_ord 
 						FROM FTC_DETALLE_RECEPCIONES 
-						WHERE STATUS = 0 AND FECHA >= '01.11.2018' AND ORDEN CONTAINING('OP') GROUP BY ORDEN, CAST(FECHA  AS DATE)";
+						WHERE STATUS = 0 AND FECHA >= '01.11.2018' AND ORDEN CONTAINING('OP') and impresion = 0 GROUP BY ORDEN, CAST(FECHA  AS DATE)";
 			$rs=$this->EjecutaQuerySimple();
 			while ($tsArray=ibase_fetch_object($rs)) {
 				$data2[]=$tsArray;
 			}
+
 			foreach ($data2 as $key) {
 				$this->query="SELECT ftc.oc as cve_doc, ftc.fecha_oc as fecha_doc, ftc.cve_prov as cve_clpv, datediff(day, ftc.fecha_oc, current_date) as dias, p.nombre, ftc.vueltas, 
             				p.estado, p.codigo, ftc.fecha_oc as fechaelab, ftc.unidad, ftc.fecha_pago, ftc.tp_tes, ftc.pago_tes, ftc.costo_total as importe, ftc.idu, p.clave as prov, p.estado as estadoprov, ftc.secuencia, current_date as hoy, ftc.horai, ftc.horaf, $key->RECEPCION AS RECEPCION, $key->RECIBIDO AS RECIBIDO, $key->CANT_ORD AS CANT_ORD 
@@ -15798,7 +15799,7 @@ function Pagos() {
 			$this->query="SELECT f.idu, count(f.id) as documentos, max(U.NUMERO) as numero , MAX(U.MARCA) as marca, MAX(U.PLACAS) as placas, MAX(U.OPERADOR) as operador, max(U.modelo) as modelo, max(U.coordinador) as coordinador 
 					FROM FTC_POC f
 					left join unidades u on u.idu = f.idu 
-					WHERE OC in (SELECT ORDEN FROM FTC_DETALLE_RECEPCIONES WHERE STATUS = 0 AND FECHA >= '01.11.2018' AND ORDEN CONTAINING('OP') GROUP BY ORDEN, CAST(FECHA  AS DATE))
+					WHERE OC in (SELECT ORDEN FROM FTC_DETALLE_RECEPCIONES WHERE STATUS = 0 AND FECHA >= '01.11.2018' AND ORDEN CONTAINING('OP') and impresion = 0 GROUP BY ORDEN, CAST(FECHA  AS DATE))
 					group by f.idu";
 			$rs=$this->EjecutaQuerySimple();
 
@@ -18451,7 +18452,8 @@ function cerrarRecepcion($doco){
     function verRecepcionDeOrdenes(){
     	$this->query="SELECT ftc.ORDEN, SUM(ftc.CANTIDAD_OC) AS ORIGINAL, SUM(ftc.CANTIDAD_REC) AS RECIBIDA, iif(SUM(ftc.CANTIDAD_OC) - SUM(ftc.CANTIDAD_REC) = 0, 'Completa', 'Parcial') as status,
     					max(p.nombre) as nombre , iif(max(oc.fechaelab) is null, max(ftcpoc.fecha_elab), max(oc.fechaelab)) as fechaelab, 
-    					iif(max(oc.cve_clpv) is null, max(ftcpoc.cve_prov), max(oc.cve_clpv)) as cve_prov, max(p.rfc) as rfc, max(status_validacion) as status_validacion, max(ftc.status) as sta, min(fecha_costo) as fecha_costo
+    					iif(max(oc.cve_clpv) is null, max(ftcpoc.cve_prov), max(oc.cve_clpv)) as cve_prov, max(p.rfc) as rfc, max(status_validacion) as status_validacion, max(ftc.status) as sta, min(fecha_costo) as fecha_costo,
+    					avg(ftc.impresion) as impresion
     					from FTC_DETALLE_RECEPCIONES ftc
     					LEFT JOIN COMPO01 oc on oc.cve_doc  = ftc.orden
     					LEFT JOIN FTC_POC ftcpoc on ftcpoc.oc = ftc.orden

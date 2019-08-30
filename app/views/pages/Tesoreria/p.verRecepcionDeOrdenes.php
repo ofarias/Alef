@@ -28,17 +28,18 @@
                                         foreach ($recepciones as $data):
                                             $color = '';
                                             $status = 'Validar';
-                                            $boton = "class='btn btn-info'";
+                                            $boton = "class='btn btn-info val'";
+                                            $boton2 = "class='btn btn-danger val'";
                                             if($data->STATUS == 'Completa'){
                                                 $color = "style='background-color:#00C399;'";
                                             }
                                             if($data->STA == 7){
                                                 $color = "style='background-color:#E6E0F8'";
                                                 $status = "Autotizacion de Costos";
-                                                $boton = "class='btn btn-warning'";
+                                                $boton = "class='btn btn-warning' val";
                                             }
                                         ?>
-                                        <tr class="odd gradeX" <?php echo $color;?> >
+                                        <tr class="odd gradeX" <?php echo $color;?> title="<?php echo $data->IMPRESION==0? 'Debe de imprimir primero la Recepcion de la orden de compra en el boton de Filanizar Orde de Compra en el Modulo de Logistica Recoleccion':''?>">
                                             <td><?php echo $data->ORDEN;?></td>
                                             <td><?php echo $data->FECHAELAB?></td>
                                             <td><?php echo '('.$data->CVE_PROV.') '.$data->NOMBRE?></td>
@@ -47,19 +48,17 @@
                                             <td><?php echo $data->RECIBIDA;?></td>  
                                             <td><?php echo $data->STATUS?></td> 
                                                 <form action="index.php" method="post">
-                                            <td>
+                                            <td class="val" v="<?php echo $data->IMPRESION?>">
                                                 <input type="hidden" name="doco" value="<?php echo $data->ORDEN?>">
-                                                <button name="valRecepcion" value="enviar" type="submit" <?php echo $data->STATUS_VALIDACION == 9? "class='btn btn-danger'":$boton?> <?php echo $data->STATUS_VALIDACION == 9? "disabled='disabled'":""?>  > <?php echo ($data->STATUS_VALIDACION == 9)? 'En Proceso':$status ?> </button>
+                                                <button name="valRecepcion" value="enviar" type="submit" <?php echo $data->STATUS_VALIDACION == 9? $boton2:$boton?> <?php echo ($data->STATUS_VALIDACION==9 or $data->IMPRESION==0)? "disabled='disabled'":""?> v="<?php echo $data->IMPRESION?>"> <?php echo ($data->STATUS_VALIDACION == 9)? 'En Proceso':$status ?> </button>
                                                 <br/> <?php echo !empty($data->FECHA_COSTO)? "Desde:$data->FECHA_COSTO":"" ?>
                                             </td>     
                                             </form>                                        
                                         </tr>
                                  </tbody>
-                          
                                  <?php endforeach; ?>
                                 </table>
                             </div>
-                            <!-- /.table-responsive -->
                       </div>
             </div>
         </div>
@@ -88,6 +87,14 @@
     function validador(){
         document.getElementById('val').classList.add('hide');
     }
+
+    $(".val").mouseover(function(){
+        var i = $(this).attr('v')
+        if(i==0){
+            $.alert('Debe de imprimir primero la Recepcion de la orden de compra en el boton de "Filanizar Orde de Compra en el Modulo de Logistica Recoleccion"')
+        }
+    })
+        
     
     function rechazar(ids, desc){
         //var recWindow = window.open("index.php?action=verSolProdVentas","Mensaje","width=200,height=100")
