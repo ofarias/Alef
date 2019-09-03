@@ -20574,8 +20574,8 @@ function ejecutarRecepcion($ida, $cantRec, $cantOr ){
 					$this->query = "UPDATE TBLCONTROL01 SET ULT_CVE  = $folioOC where id_TABLA = 81";
 					$this->grabaBD();
 
-				$this->query="INSERT INTO FTC_POC (ID, CVE_DOC, CVE_PROV, FECHA_DOC, TP_TES, USUARIO, COSTO, DESCUENTO, PRECIO, IVA, STATUS, TOTAL_IVA, COSTO_TOTAL, URGENCIA, FECHA_ELAB, OC, FECHA_OC, USUARIO_OC, TP_TES_REQ, FECHA_ENTREGA, CONFIRMADO) 
-				VALUES (NULL, ('OCI-'||$idoci), '$row->PROVEEDOR', '$row->FECHA_OCI', NULL, '$usuario', $row->COSTO, 0, 0, 0, 'ORDEN', 0, $row->COSTO * 1.16, 0, current_timestamp, ('OPI'||$folioOC), current_timestamp, '$usuario', 'Cr', current_date, 'Directo Bodega')";
+				$this->query="INSERT INTO FTC_POC (ID, CVE_DOC, CVE_PROV, FECHA_DOC, TP_TES, USUARIO, COSTO, DESCUENTO, PRECIO, IVA, STATUS, TOTAL_IVA, COSTO_TOTAL, URGENCIA, FECHA_ELAB, OC, FECHA_OC, USUARIO_OC, TP_TES_REQ, FECHA_ENTREGA, CONFIRMADO, status_log) 
+				VALUES (NULL, ('OCI-'||$idoci), '$row->PROVEEDOR', '$row->FECHA_OCI', NULL, '$usuario', $row->COSTO, 0, 0, 0, 'ORDEN', 0, $row->COSTO * 1.16, 0, current_timestamp, ('OPI'||$folioOC), current_timestamp, '$usuario', 'Cr', current_date, 'Directo Bodega', 'Nuevo')";
 				$this->grabaBD();
 
 				$this->query="SELECT * FROM FTC_OCI WHERE OCI = $idoci";

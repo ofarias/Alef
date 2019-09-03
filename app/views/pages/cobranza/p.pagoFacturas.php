@@ -80,12 +80,6 @@
                                             <th>Monto Aplicado</th>
                                             <th>Saldo Pago</th>
                                             <th>Usuario</th>
-                                            <?php if($rol == 'cxcc'){?>
-                                            <th></th>
-                                            <?php }else{?>
-                                            <th>Contabilizar</th>
-                                            <?php }?>
-                                           
                                         </tr>
                                     </thead>                                   
                                   <tbody>
@@ -104,16 +98,6 @@
                                             <td><?php echo '$ '.number_format($data->MONTO_APLICADO,2);?></td>
                                             <td><?php echo '$ '.number_format($data->SALDO_PAGO,2)?></td>
                                             <td><?php echo $data->USUARIO?></td>
-                                            <form action="index.php" method="post">
-                                            <?php if($rol== 'cxcc'){?>
-                                            <td>
-                                            
-                                            </td>
-                                            <?php }else{?>
-                                            <td>
-                                                <button type ="submit" value="enviar" name="contVenta" <?php echo ($data->CONTABILIZADO == 'OK')? "class='btn btn-success'":"class='btn btn-info'"?> <?php echo ($data->CONTABILIZADO == 'OK')? "disabled = 'disabled'":"" ?> > <?php echo ($data->CONTABILIZADO == 'OK')? 'Contabilizado':'Contabilizar' ?> </button>
-                                            </td>
-                                            <?php }?>
                                                  
                                             </form>
                                         </tr>
