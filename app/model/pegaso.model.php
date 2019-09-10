@@ -13499,12 +13499,19 @@ function Pagos() {
 
     function totalCredito($mes, $banco, $anio, $cuenta){
     	$this->query="SELECT iif(sum(monto_final) is null,0, sum(monto_final)) as totalcredito from SOLICITUD_PAGO 
-    				where extract(month from fecha_edo_cta) = $mes 
-    				and extract(year from fecha_edo_cta) = $anio
+    				where iif(
+    					extract(month from fecha_edo_cta) is null, extract(month from fecha),
+    					extract(month from fecha_edo_cta)
+    					)= $mes 
+    				and iif(
+    					extract(year from fecha_edo_cta) is null,
+    					extract(year from fecha),extract(year from fecha_edo_cta)
+    				) = $anio
     				--and fecha_edo_cta_ok = '1'
     				and banco_final = ('$banco'||' - '||'$cuenta')
     				and (seleccionado = 1 or seleccionado = 2) and guardado = 1";
     	$rs=$this->QueryObtieneDatosN();
+    	//echo $this->query;
     	$row = ibase_fetch_object($rs);
     	$totCr = $row->TOTALCREDITO;
 

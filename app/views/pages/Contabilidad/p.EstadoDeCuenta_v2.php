@@ -305,7 +305,7 @@
                                                 $desc = 'Pago de Factura';
                                               }elseif($tipo == 'Compra'){
                                                $desc = 'Compra'; 
-                                              }elseif (substr($tipo,0,3)== 'GTR'){
+                                              }elseif (substr($tipo,0,3)== 'GTR' or (substr($tipo,0,3))== 'GEF' or (substr($tipo,0,3)== 'GCH')){
                                                 $desc = $tipo;
                                                 $desc1 = 'gasto';
                                               }elseif ($tipo == 'Deudor') {
