@@ -9296,14 +9296,14 @@ function VerCobranzaC($cc){
     	$v=ibase_fetch_object($res);
     	$va=$v->ID;
 	    	##### Este codigo es el inicio de una devolucion completa y refactura lo pendiente, ya que crea una caja nueva... (hay que eliminar)
-	    	if($va > 0 and ($row->FACTURA != '' or !empty($row->FACTURA)) ){
+	    	/*if($va > 0 and ($row->FACTURA != '' or !empty($row->FACTURA)) ){
 	    		$this->query="INSERT INTO CAJAS (ID ) VALUES (NULL) returning ID";
 		    	$res=$this->grabaBD();
 	    		$ridcn=ibase_fetch_object($res);
 	    		$idcn = $ridcn->ID;
 	    		$this->query="EXECUTE PROCEDURE SP_COPIA_PAQUETES_DEV('$usuario', $idc, $idcn)";
 	    		$res=$this->EjecutaQuerySimple();
-	    	}
+	    	}*/
 	    	
     	/// Este codigo se ulitizaba para controlar en Aspel SAE la Devolucion la condicionaba con el Ingreso a la Bodega, pero no funciona correctamente.
     	//$this->query="UPDATE FACTF01 SET VALIDACION = ('DNC'||'$folsigstr') where cve_doc =(select factura from cajas where id = $idc)";
@@ -10986,7 +10986,7 @@ function Pagos() {
     	}
     	$this->query="SELECT 3 as s, fecha_edo_cta as sort, 'Compra' as TIPO, (id||'-'||factura) as consecutivo, fecha_edo_cta as fechamov, 0 as abono, importe as CARGO, 0 as saldo,  ('$banco'||' - '||'$cuenta') as BANCO, usuario as usuario, 'Compra' as TP, ('CD-'||id) as identificador,registro as registro, 'FA' as FA , fecha_edo_cta as fe, FECHA_EDO_CTA_OK as comprobado, contabilizado, seleccionado, tp_tes, '' AS CEP, '' AS ARCHIVO_CEP,  referencia as obs
     		FROM CR_DIRECTO
-    		where BANCO = '$banco' and cuenta = '$cuenta' and extract(month from fecha_EDO_CTA) = $mes and extract(year from fecha_edo_cta) = $anio and tipo = 'compra' or tipo='Anticipo'  or tipo='otro' and (seleccionado = 2 ) order by fecha_edo_cta asc ";
+    		where BANCO = '$banco' and cuenta = '$cuenta' and extract(month from fecha_EDO_CTA) = $mes and extract(year from fecha_edo_cta) = $anio and (tipo = 'compra' or tipo='Anticipo'  or tipo='otro') and (seleccionado = 2 ) order by fecha_edo_cta asc ";
     	//echo 'Esta es de tipo compra(CR): '.$this->query;
     	$rs=$this->QueryObtieneDatosN();
     	while($tsArray = ibase_fetch_object($rs)){

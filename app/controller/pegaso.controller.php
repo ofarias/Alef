@@ -9294,12 +9294,14 @@ function imprimirFacturasAcuse(){
         	$registro=$factura->moverNCSUB($nc=$docf, $rfc=$timbraNC);
         	$actpaquete["archivo"]=$registro['archivo'];
         	$_SESSION['archivoDev']=$registro['archivo'];
+        	/* Codigo para refacturar lo que no se devolvio, ya queda obsoleto.
         	if($val > 0 ){
         		$dnf=$data->traeDatosFactura($idc);
 	        	$nuevaFactura=$factura->nuevaFactura($idca=$actpaquete['nvaCaja'], $uso=$dnf['uso'], $tpago=$dnf['mpago'], $mpago=$dnf['tpago'], $cp=$dnf['cp'], $rel='', $ocdet='', $entdet='');
 	        	###mover la factura y cargarla
 	        	$actualizaCaja=$data->actCaja($idc, $idcn=$actpaquete['nvaCaja'], $factura=$nuevaFactura['factura']);
         	}
+        	*/
         }
         return $actpaquete;
    	}
