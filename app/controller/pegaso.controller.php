@@ -9278,6 +9278,7 @@ function imprimirFacturasAcuse(){
    	function generaDevolucion($idc, $docf){
    	 	$data = new pegaso;
    	 	$factura = new factura;
+   	 	//echo 'Caja: '.$idc." Documento".$docf; //Caja: 341 DocumentoG360
    	 	$actcaja = $data->cajabodeganc($idc, $docf); #Actualiza la caja para que deje de aparecer en la lista.
         $actpaquete = $data->paquetedevolucion($idc, $docf); #Actualiza el paquete con lo devuelto e impreso, crea folio de Devolucion de paquetes.
         $docf=$actpaquete['nc'];
