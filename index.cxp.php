@@ -1,9 +1,8 @@
 <?php
 session_start();
 date_default_timezone_set('America/Mexico_City');
-require_once('app/controller/pegaso.controller.php');
 require_once('app/controller/controller.cxp.php');
-$controller = new controller_xml;
+$controller = new controller_CxP;
 if(isset($_GET['action'])){
 $action = $_GET['action'];
 }else{
@@ -21,11 +20,8 @@ else{switch ($_GET['action']){
 	case 'login':
 		$controller->Login();
 		break;
-	case 'cargaMetaDatos':
-		$controller->cargaMetaDatos();
-		break;
-	case 'verMetaDatos':
-		$controller->verMetaDatos();
+	case 'edoCtaProv':
+		$controller->edoCtaProv($_GET['prov']);
 		break;
 	default: 
 		header('Location: index.php?action=login');

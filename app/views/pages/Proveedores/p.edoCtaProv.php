@@ -1,22 +1,3 @@
-<br /><br />
-
-<?php if($lay['BBVA'] >= 0 ){?>
-    <a href="app/LayoutBBVA/Alta/archivo_bbva.txt" download="app/LayoutBBVA/Alta/archivo_bbva.txt" class="btn btn-info"> Descargar BBVA <a/>
-<?php }?>
-<?php if($lay['Clabe'] >= 0 ){?>
-    <a href="app/LayoutBBVA/Alta/archivo_clabe.txt" download="app/LayoutBBVA/Alta/archivo_clabe.txt" class="btn btn-success" > Descargar BBVA <a/>
-<?php }?>
-
-<br/>
-<br/>
-<form action="upload_Cuentas_bbva.php" method="POST" enctype="multipart/form-data">
-        <input type="file" name="fileToUpload" id="fileToUpload" required="required">
-        <input type="submit" value="Subir Respuesta BBVA" name="submit">
-</form>
-<br/>
-<br/>
-    <a href="index.php?action=formProveedor"  target="popup" onclick="window.open(this.href, this.target, 'width=1200,height=820'); return false;" class="btn btn-success">Alta de proveedor</a>
-<br/>
 <br/>
 <div class="row">
                 <div class="col-lg-12">
@@ -32,24 +13,23 @@
                                         <tr>
                                             <!--<th>Todos: <input type="checkbox" name="marcarTodo" id="marcarTodo" /></th>-->
                                             <th>CLAVE / NOMBRE</th>
-                                            <th>CERTIFICADO</th>
+                                            <th>CERT</th>
                                             <th>DIRECCION</th>
-                                            <th>ENVIO/RECOLECCION</th>
+                                            <th>ENVIO<br/>RECOLECCION</th>
                                             <th>TIPOS PAGO</th>
-                                            <th>RESPONSABLE COMPRA</th>
-                                            <th>FECHA CERTIFICACION</th>
+                                            <th>RESPONSABLE <br/>COMPRA</th>
+                                            <th>FECHA <br/>CERTIFICACION</th>
                                             <th>FALLOS</th>
-                                            <th>ULTIMO FALLO</th>
-                                            <th>CUENTA</th>
+                                            <th>ULTIMO <br/>FALLO</th>
                                             <th>CORREOS </th>
-                                            <th>STATUS BBVA</th>
+                                            <th>Banco Deposito</th>
                                             <th>RESULTADO</th>
                                             <th>EDITAR</th>
                                         </tr>
                                     </thead>
                                   <tbody>
                                         <?php
-                                        foreach ($proveedores as $data):
+                                        foreach ($generales as $data):
                                             if($data->ENVIO == 1){
                                                 $envio = 'Si';
                                             }else{
@@ -88,7 +68,7 @@
                                             }
                                         ?>
                                        <tr class="odd gradeX" <?php echo $color;?> >
-                                            <td><a href="index.cxp.php?action=edoCtaProv&prov=<?php echo $data->CLAVE?>"><?php echo '('.$data->CLAVE.')'.$data->NOMBRE;?></a></td>
+                                            <td><a href="index.cxp.php?action=''"><?php echo '('.$data->CLAVE.')'.$data->NOMBRE;?></a></td>
                                             <td><?php echo $data->CERTIFICADO?></td>
                                             <td><?php echo $data->CALLE.' '.$data->NUMEXT.' '.$data->COLONIA.' '.$data->ESTADO;?></td>
                                             <td><?php echo $envio.' / '.$rec;?></td>
@@ -97,7 +77,6 @@
                                             <td><?php echo $data->FECHA_CERT;?></td>
                                             <td><?php echo $data->FALLOS?></td>
                                             <td><?php echo $data->FECHA_ULT_FALLO?></td>
-                                            <td><?php echo $data->CUENTA?></td>
                                             <td><?php echo $data->EMAILPRED?> <br/> <?php echo $data->EMAIL2?> <br/> <?php echo $data->EMAIL2?></td>
                                             <td><?php echo $data->BANCOSAT.'<br/>'.$data->BBVA_ALTA?></td>
                                             <td><?php echo $data->ULTIMO_STATUS?></td>
@@ -109,6 +88,76 @@
                                             </button>
                                              </td> 
                                             </form>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                 </tbody>
+                                 </table>
+                            <!-- /.table-responsive -->
+                      </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                                Catalogo de Proveedores.
+                        </div>
+                        <!-- /.panel-heading -->
+                           <div class="panel-body">
+                            <div class="table-responsive">                            
+                                <table class="table table-striped table-bordered table-hover" id="dataTables-documentosCompra">
+                                    <thead>
+                                        <tr>
+                                            <!--<th>Todos: <input type="checkbox" name="marcarTodo" id="marcarTodo" /></th>-->
+                                            <th>Ln</th>
+                                            <th>Status</th>
+                                            <th>PreOrden<br/>OC</th>
+                                            <th>Fecha de<br/> Elaboracion</th>
+                                            <th>Fecha entrega <br/> recoleccion Estimada</th>
+                                            <th>Usuario</th>
+                                            <th>Costo</th>
+                                            <th>Descuento</th>
+                                            <th>iva</th>
+                                            <th>Total</th>
+                                            <th>Pago</th>
+                                            <th>Folio <br/>Pago</th>
+                                            <th>Confirmado</th>
+                                            <th>Tipo</th>
+                                            <th>Status 2</th>
+                                            <th>Usuario Recibe</th>
+                                            <th>Banco Pago</th>
+                                            <th>Fecha de Pago</th>
+                                        </tr>
+                                    </thead>
+                                  <tbody>
+                                        <?php
+                                        $ln=0;
+                                        foreach ($documentos as $key):
+                                            $ln++;
+                                            $color ='';
+                                        ?>
+                                        <tr class="odd gradeX" <?php echo $color;?> >
+                                            <td><?php echo $ln?></td>
+                                            <td><?php echo $key->STATUS?></td>
+                                            <td><?php echo $key->CVE_DOC.'<br/>'.$key->OC?></td>
+                                            <td><?php echo $key->FECHA_ELAB?></td>
+                                            <td><?php echo $key->FECHA_ENTREGA?></td>
+                                            <td><?php echo $key->USUARIO?></td>
+                                            <td align="right"><?php echo '$ '.number_format($key->COSTO,2)?></td>
+                                            <td align="right"><?php echo '$ '.number_format($key->DESCUENTO,2)?></td>
+                                            <td align="right"><?php echo '$ '.number_format($key->TOTAL_IVA,2)?></td>
+                                            <td align="right"><?php echo '$ '.number_format($key->COSTO_TOTAL,2)?></td>
+                                            <td align="right"><?php echo '$ '.number_format($key->PAGO_TES,2)?></td>
+                                            <td><?php echo $key->TP_TES?></td>
+                                            <td><?php echo $key->CONFIRMADO?></td>
+                                            <td><?php echo $key->TIPO?></td>
+                                            <td><?php echo $key->STATUS_LOG?></td>
+                                            <td><?php echo $key->USUARIO_RECIBE?></td>
+                                            <td><?php echo $key->BANCO?></td>
+                                            <td><?php echo $key->EDOCTA_FECHA?></td>
                                         </tr> 
                                         <?php endforeach; ?>
                                  </tbody>
