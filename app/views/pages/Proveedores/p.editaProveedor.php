@@ -25,8 +25,6 @@
                                     <label><?php echo $data->CALLE.', '.$data->NUMEXT.', '.$data->COLONIA?></label>
                                 </div>
                             </div>
-                            
-
                              <div class="form-group">
                                 <label for="categoria" class="col-lg-2 control-label">Urgencia </label>
                                 <div class="col-lg-10">
@@ -46,7 +44,7 @@
                                 <label for="categoria" class="col-lg-2 control-label">Credito : </label>
                                 <div class="col-lg-10">
                                         <input type="checkbox" name="credito" value="Si" <?php echo ($data->TP_CREDITO == 'Si')? "checked='checked'":"";?> onClick="cr1()"> Credito 
-                                        <input type="number" min = "0" name="plazo" class="text text-right text-muted" placeholder="plazo" value="<?php echo $data->DIASCRED;?>"> 
+                                        &nbsp;&nbsp;&nbsp;Plazo :&nbsp;<input type="number" min = "0" name="plazo" class="text text-right text-muted" placeholder="plazo" value="<?php echo $data->DIASCRED;?>"> &nbsp;&nbsp;&nbsp;
                                 </div>
                             </div>
 

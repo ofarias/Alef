@@ -111,13 +111,20 @@
     <input type="hidden" name="defineHoraFin" id="action" value="defineHoraFin" />
 </form>
 
-<form action="index.php" method="POST" id="formulario">
+<form action="index.php" method="POST" id="formulario" onsubmit="myFunction()">
     <input type="hidden" name="doco" value="" id="doco">
     <input type="hidden" name="idr" value="" id="folioImp">
     <input type="hidden" name="tipo" value="d">
     <input type="hidden" name="imprimeRecep" >
 </form>
-<script>
+
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<script type="text/javascript">
     function inicio(documento){
         document.getElementById('documento_inicio').value = documento;
         frm = document.getElementById("hora_inicio");
@@ -134,8 +141,18 @@
         if(confirm('Se imprimiran todos la recepcion del folio de impresion' + idr + ' de la orden de compra ' + doco)){
             var form = document.getElementById('formulario');
             form.submit();
-        }  
-
+            if(confirm('Se descargo?')){
+              window.location.reload()        
+            }
+        }   
     }
 
+    function sleep(milliseconds) {
+      var start = new Date().getTime();
+      for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds){
+          break;
+        }
+      }
+    }
 </script>

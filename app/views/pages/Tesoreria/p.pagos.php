@@ -26,6 +26,30 @@
                         </thead>   
                         <tbody>
                             <?php foreach ($exec as $data):
+                                $pl='';
+                                switch (trim($data->TIPOPAGOR)){
+                                    case 'tr':
+                                        $tpp='tr';
+                                        $tppdesc='Transferencia';
+                                        break;
+                                    case 'ch':
+                                        $tpp='ch';
+                                        $tppdesc='Cheque';
+                                        break;
+                                    case 'cr':
+                                        $tpp='cr';
+                                        $tppdesc='Credito';
+                                        $pl=$data->DIASCRED.' Dias';
+                                        break;
+                                    case 'e':
+                                        $tpp='e';
+                                        $tppdesc='Efectivo';
+                                        break;
+                                    default:
+                                        $tpp='';
+                                        $tppdesc='Seleccione una forma de pago!!!';
+                                        break;
+                                }
                                 ?>
                                 <tr class="odd gradeX">                                                                                      
                                     <td><a href="index.php?action=documentodet&doc=<?php echo $data->CVE_DOC ?>"><?php echo $data->CVE_DOC; ?></a></td>
@@ -34,7 +58,7 @@
                             <form action="index.php" method="post">
                                 <td>
                                     <select name="cuentabanco" required="required">
-                                        <option value="">--Selecciona la Cuenta Banco--</option>
+                                        <!--<option value="">--Selecciona la Cuenta Banco--</option>-->
                                         <<?php foreach ($cuentab as $ban): ?>
                                             <option value="<?php echo $ban->BANCO; ?>"><?php echo $ban->BANCO; ?></option>
                                         <?php endforeach; ?>
@@ -47,18 +71,19 @@
                                     <input name="importe" type="hidden" value="<?php echo $data->IMPORTE ?>" />
                                     <input name="fechadoc" type="hidden" value="<?php echo $data->FECHAELAB ?>"/>
                                     <select name="tipopago" required="required">
-                                        <option value="">--Elige tipo de pago--</option>
+                                        <option value="<?php echo $tpp?>"><?php echo $tppdesc?></option>
                                         <option value="tr">Transferencia</option>
                                         <<?php echo (substr($data->CVE_DOC, 0, 1) == 'O')? 'option value="cr">Crédito</option>':''?>
-                                        <option value="e">Efectivo</option>>
+                                        <option value="e">Efectivo</option>
                                         <option value="ch">Cheque</option>
                                         <option value="sf">Saldo a Favor</option>
                                     </select>
+                                    <br/><?php echo 'Pago Predeterminado Proveedor: <b>'.$tppdesc.' '.$pl.'</b>'?>
                                 </td>
                                 <td><?php echo "$ " . number_format($data->IMPORTE, 2, '.', ','); ?></td>
-                                <td><input name="monto" type="number" step="any" required="required" max="<?php echo ($data->IMPORTE + 1) ?>"/></td>
+                                <td><input name="monto" type="number" step="any" required="required" max="<?php echo ($data->IMPORTE + 1) ?>" value="<?php echo number_format($data->IMPORTE,2,".","")?>" readonly /> </td>
                                 <td>
-                                    <button name="formpago" type="submit" value="enviar" class="btn btn-warning">Pagar! <i class="fa fa-floppy-o"></i></button></td>
+                                    <button name="formpago" type="submit" value="enviar" class="btn btn-warning">Pagar <i class="fa fa-floppy-o"></i></button></td>
                             </form>
                             </tr>
                         <?php endforeach; ?>

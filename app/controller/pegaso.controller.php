@@ -2564,9 +2564,6 @@ class pegaso_controller{
 			 $pdf->Cell(20,7,'');
 			 $pdf->Cell(20,7,'Total',1);
 			 $pdf->Cell(25,7,'$ '.number_format($subtotal * 1.16,2),1,0,'R');
-
-
-
 			foreach($cabecera as $t1){
 			$pdf->Output('Transferencia'.$t1->CVE_DOC.'.pdf', 'i'); 
 			}
@@ -2580,7 +2577,6 @@ class pegaso_controller{
 		$datostrans = $data->ObtieneDatosTrans($id);
 		$cabecera = $data->OCL($doc);
         $detalle = $data->detalleOC_Imp($doc);
-
         $banco = $datostrans->BANCO;
         if($baco = 0){
         	$banco = 'No Registrado';
@@ -2603,10 +2599,7 @@ class pegaso_controller{
         }elseif($banco = 127){
         	$banco = 'Azteca';
         }
-
-
 		$pdf = new FPDF('P', 'mm', 'Letter');
-
 			$pdf->AddPage();
 			$pdf->SetFont('Arial', 'B', 15);
 			$pdf->SetTextColor(198,23,23);
@@ -2655,7 +2648,6 @@ class pegaso_controller{
 			$pdf->Ln(70);
 			}
 			foreach($cabecera as $t){
-
 				$tipo=$t->CAMPLIB2;
 				if($tipo =='E'){
 					$tipo='Entrega';
@@ -2664,7 +2656,6 @@ class pegaso_controller{
 				}else{
 					$tipo='No reconocido';
 				}
-
 			$pdf->Cell(60,10,"Fecha: ");
 			$pdf->Cell(60,10,$t->FECHAELAB);
 			$pdf->Ln(12);
@@ -2691,12 +2682,9 @@ class pegaso_controller{
 			$pdf->Ln(8);
 			$pdf->Cell(60,10,"Fecha De Entrega: ");
 			$pdf->Cell(60,10,$t->CAMPLIB3);
-
 			$pdf->Ln(12);
 			}
-
 			$pdf->SetFont('Times','I',9);
-
 			$pdf->Cell(15,7,'Partida',1);
 			$pdf->Cell(16,7, 'Pedido',1);			
 			$pdf->Cell(18,7,'Articulo',1);
@@ -2720,25 +2708,19 @@ class pegaso_controller{
 			    $pdf->Cell(20,7,'','L,B,R');
 			    $pdf->Ln();					    
 			  }
-			
+			ob_get_clean();
 			foreach($cabecera as $t1){
-			$pdf->Output('Transferencia'.$t1->CVE_DOC.'.pdf', 'i'); 
+				$pdf->Output('Transferencia'.$t1->CVE_DOC.'.pdf', 'i'); 
 			}
-	
-
-
-		
 	}
 
-
-		function ImprimeEfectivo($id, $doc){
+	function ImprimeEfectivo($id, $doc){
 		$data = new pegaso;
 		$actstatus = $data->ActStatusImpresoEfectivo($id);
 		$actruta = $data->ActRuta($id, $doc);
 		$datostrans = $data->ObtieneDatosEfectivo($id);
 		$cabecera = $data->OCL($doc);
         $detalle = $data->detalleOC_Imp($doc);
-
 		$pdf = new FPDF('P', 'mm', 'Letter');
 			$pdf->AddPage();
 			$pdf->SetFont('Arial', 'B', 15);
@@ -2775,7 +2757,6 @@ class pegaso_controller{
 			$pdf->Cell(60,10,"_______________________          _______________________                              __________________");
 			$pdf->Ln(5);
 			$pdf->Cell(60,10,"Nombre de quien Recibe                  Firma de Recibido                                                  Fecha de Recibo ");
-			
 			//$pdf->Output('Transferencia '.$datostrans->DOCUMENTO .'.pdf', 'i'); 
 			/*Falta crear consulta que traiga el número de folio generado*/
 			$pdf->AddPage();
@@ -2819,9 +2800,7 @@ class pegaso_controller{
 			$pdf->Cell(60,10,$tipo);
 			$pdf->Ln(12);
 			}
-
 			$pdf->SetFont('Times','I',9);
-
 			$pdf->Cell(15,7,'Partida',1);
 			$pdf->Cell(16,7, 'Pedido',1);			
 			$pdf->Cell(18,7,'Articulo',1);
@@ -2845,13 +2824,9 @@ class pegaso_controller{
 			    $pdf->Cell(20,7,'','L,B,R');
 			    $pdf->Ln();					    
 			  }
-			
 			foreach($cabecera as $t1){
 			$pdf->Output('Transferencia'.$t1->CVE_DOC.'.pdf', 'i'); 
-			}
-
-
-		
+			}	
 	}
 
 	function ImprimeCheque($id, $doc){
@@ -2861,7 +2836,6 @@ class pegaso_controller{
 		$datostrans = $data->ObtieneDatosCheque($id);
 		$cabecera = $data->OCL($doc);
         $detalle = $data->detalleOC_Imp($doc);
-
 		$pdf = new FPDF('P', 'mm', 'Letter');
 			$pdf->AddPage();
 			$pdf->SetFont('Arial', 'B', 15);
@@ -2898,7 +2872,6 @@ class pegaso_controller{
 			$pdf->Cell(60,10,"_______________________          _______________________                              __________________");
 			$pdf->Ln(5);
 			$pdf->Cell(60,10,"Nombre de quien Recibe                  Firma de Recibido                                                  Fecha de Recibo ");
-			
 			//$pdf->Output('Transferencia '.$datostrans->DOCUMENTO .'.pdf', 'i'); 
 			/*Falta crear consulta que traiga el número de folio generado*/
 			$pdf->AddPage();
@@ -2943,9 +2916,7 @@ class pegaso_controller{
 			$pdf->Cell(60,10,$tipo);
 			$pdf->Ln(12);
 			}
-
 			$pdf->SetFont('Times','I',9);
-
 			$pdf->Cell(15,7,'Partida',1);
 			$pdf->Cell(16,7, 'Pedido',1);			
 			$pdf->Cell(18,7,'Articulo',1);
@@ -2969,14 +2940,11 @@ class pegaso_controller{
 			    $pdf->Cell(20,7,'','L,B,R');
 			    $pdf->Ln();					    
 			  }
-			
 			foreach($cabecera as $t1){
 			$pdf->Output('Transferencia'.$t1->CVE_DOC.'.pdf', 'i'); 
 			}
-
-
-		
 	}
+
 	function ImprimeCredito($id, $doc){
 		$data = new pegaso;
 		$actstatus = $data->ActStatusImpresoCredito($id);
@@ -2984,7 +2952,6 @@ class pegaso_controller{
 		$datostrans = $data->ObtieneDatosCredito($id);
 		$cabecera = $data->OCL($doc);
         $detalle = $data->detalleOC_Imp($doc);
-
 		$pdf = new FPDF('P', 'mm', 'Letter');
 			$pdf->AddPage();
 			$pdf->SetFont('Arial', 'B', 15);
@@ -3022,16 +2989,13 @@ class pegaso_controller{
 			$pdf->Cell(60,10,"_______________________          _______________________                              __________________");
 			$pdf->Ln(5);
 			$pdf->Cell(60,10,"Nombre de quien Recibe                  Firma de Recibido                                                  Fecha de Recibo ");
-			
 			//$pdf->Output('Transferencia '.$datostrans->DOCUMENTO .'.pdf', 'i'); 
-
 			/*Falta crear consulta que traiga el número de folio generado*/	
 			$pdf->AddPage();
 			$pdf->Image('app/views/images/logos/'.$_SESSION['empresa']['logo'],10,5);
 			$pdf->SetFont('Arial', 'I', 12);
 			$pdf->Ln(70);
 			foreach($cabecera as $t){
-
 				$tipo=$t->CAMPLIB2;
 				if($tipo =='E'){
 					$tipo='Entrega';
@@ -3068,9 +3032,7 @@ class pegaso_controller{
 			$pdf->Cell(60,10,$tipo);
 			$pdf->Ln(12);
 			}
-
 			$pdf->SetFont('Times','I',9);
-
 			$pdf->Cell(15,7,'Partida',1);
 			$pdf->Cell(16,7, 'Pedido',1);			
 			$pdf->Cell(18,7,'Articulo',1);
@@ -3094,7 +3056,6 @@ class pegaso_controller{
 			    $pdf->Cell(20,7,'','L,B,R');
 			    $pdf->Ln();					    
 			  }
-			
 			foreach($cabecera as $t1){
 			$pdf->Output('Transferencia'.$t1->CVE_DOC.'.pdf', 'i'); 
 			}	
@@ -9958,15 +9919,45 @@ function imprimirFacturasAcuse(){
         	$error = "Datos guardados correctamente";
        		$guarda = $data->GuardaPagoCorrecto($cuentabanco, $documento, $tipopago, $monto, $proveedor, $claveProveedor, $fechadocumento);
         	$exec = $data->Pagos();
-        	include 'app/views/pages/Tesoreria/p.pagos.listado.php';
-            $table = ob_get_clean();	
+        	$gastos = $data->listadoGastos();
+        	switch ($tipopago){
+       			case 'tr':
+       				$ruta="index.php?action=imprimeTrans&id=".$guarda->ID."&doc=".$documento;
+       				echo '<script>window.open("'.$ruta.'", "_blank")</script>';
+       				break;
+       			case 'cr':
+       				$ruta="index.php?action=imprimeCredito&id=".$guarda->ID."&doc=".$documento;
+       				echo '<script>window.open("'.$ruta.'", "_blank")</script>';
+       				break;
+       			case 'e':
+       				$ruta="index.php?action=imprimeEfectivo&id=".$guarda->ID."&doc=".$documento;
+       				echo '<script>window.open("'.$ruta.'", "_blank")</script>';
+       				break;
+       			case 'ch':
+       				$ruta="index.php?action=imprimeCheque&id=".$guarda->ID."&doc=".$documento;
+       				echo '<script>window.open("'.$ruta.'", "_blank")</script>';
+       				break;
+       			default:
+       				# code...
+       				break;
+       		}
+        	//include 'app/views/pages/Tesoreria/p.pagos.listado.php';
+            //$table = ob_get_clean();	
         	if (isset($guarda)) {
-                $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
-            	$pagina.="<script>alert('$error');</script>";
+                $redireccionar="pagos";
+                $pagina=$this->load_template('Pedidos');
+        		$html = $this->load_page('app/views/pages/p.redirectform.php');
+            	include 'app/views/pages/p.redirectform.php';
+        		$this->view_page($pagina); 
+                //$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
+            	//$pagina.="<script>alert('$error');</script>";
+
         	} else {
             	$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table . '<div class="alert-danger"><center><h2>No existen mas pagos pendientes.</h2><center></div>', $pagina);
         	}
         	$this->view_page($pagina);
+        	///IMPRESION DEL PAGO PARA QUITAR MULTIPAGOS.
+       		
     	} else {
         	$e = "Favor de Iniciar Sesión";
         	header('Location: index.php?action=login&e=' . urlencode($e));
@@ -14893,7 +14884,6 @@ function ImpSolicitud2($idsol){
     }
 
     function editaProveedor($idprov){
-    	
     	if($_SESSION['user']){
     		$data = new pegaso;
     		$pagina=$this->load_template('Pedidos');
@@ -16237,7 +16227,7 @@ function ImpSolicitud2($idsol){
         foreach ($Cabecera as $data){
         $pdf->SetFont('Arial', 'B', 7);
   		//$pdf->Write(6,'Cotizacion No:'.$data->IDSOL.utf8_decode(' Folio Pago Crédito CR-').strtoupper($data->TP_TES_FINAL).'-'.$data->FOLIO);
-  		$folio = $data->CVE_DOC;
+  		$folio = $data->OC;
   		$pdf->Write(6,'Orden de Compra No:'.$data->CVE_DOC.' / '. $data->OC);
   		$pdf->Ln();
   		$pdf->Write(6,'Fecha de Elaboracion OC: '.$data->FECHAELAB);
@@ -16369,9 +16359,8 @@ function ImpSolicitud2($idsol){
         	$pdf->Cell(18,6,'$ '.number_format($subtotal * 1.16,2),1);
         	$pdf->Cell(10,6,"",0);
         	$pdf->Cell(20,6,"",0);
-        	$pdf->Ln();
-        	
-        $pdf->Output('Recepcion_No.'.$folio.'_.pdf',$tipo);
+        	$pdf->Ln();	
+        $pdf->Output('Recepcion de Orden '.$folio.'_.pdf',$tipo);
 
     }
 

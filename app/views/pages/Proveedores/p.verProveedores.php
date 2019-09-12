@@ -88,7 +88,7 @@
                                             }
                                         ?>
                                        <tr class="odd gradeX" <?php echo $color;?> >
-                                            <td><?php echo '('.$data->CLAVE.')'.$data->NOMBRE;?></td>
+                                            <td><a href="index.cxp.php"><?php echo '('.$data->CLAVE.')'.$data->NOMBRE;?></a></td>
                                             <td><?php echo $data->CERTIFICADO?></td>
                                             <td><?php echo $data->CALLE.' '.$data->NUMEXT.' '.$data->COLONIA.' '.$data->ESTADO;?></td>
                                             <td><?php echo $envio.' / '.$rec;?></td>

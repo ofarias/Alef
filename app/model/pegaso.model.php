@@ -495,9 +495,10 @@ class pegaso extends database{
 					  WHERE Trim(CVE_DOC) = trim('$docu')";
 		}
 		$rs = $this->EjecutaQuerySimple();
-		$rs+= $this->ActPagoParOC($docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $cuentaban);
-		$rs += $this->GuardaCuentaBan($docu, $cuentaban);
-		return $rs;
+		$r = $this->ActPagoParOC($docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $cuentaban);
+		$rs+= $this->GuardaCuentaBan($docu, $cuentaban);
+		//exit();
+		return $r;
 	}
 
 	function GuardaCuentaBan($docu, $cuentaban){
@@ -517,90 +518,93 @@ class pegaso extends database{
 
 		//echo 'Tipo: '.$tipop.'<p>';
 		if($tipop == 'ch'){
-		$query="INSERT INTO P_CHEQUES (TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, CHEQUE, USUARIO_PAGO, BANCO) VALUES (";
-		$query .=" '".$tipop."',";
-		$query .=" '".$fechadoc."',";
-		$query .=" '".$monto."',";
-		$query .=" '".$nomprov."',";
-		$query .=" '".$iva."',";
-		$query .=" '".$docu."',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$cveclpv."',";
-		$query .=" 'N',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$HOY."',";
-		$query .=" '0',";
-		$query .=" '$usuario',";
-		$query .=" '$cuentaban'";
-		$query .=")"; 
-		//echo $query;
-		$this->query =$query;
-		$rs = $this->EjecutaQuerySimple();
-
+			$query="INSERT INTO P_CHEQUES (ID, TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, CHEQUE, USUARIO_PAGO, BANCO) VALUES (";
+			$query .=" NULL,";
+			$query .=" '".$tipop."',";
+			$query .=" '".$fechadoc."',";
+			$query .=" '".$monto."',";
+			$query .=" '".$nomprov."',";
+			$query .=" '".$iva."',";
+			$query .=" '".$docu."',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$cveclpv."',";
+			$query .=" 'N',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$HOY."',";
+			$query .=" '0',";
+			$query .=" '$usuario',";
+			$query .=" '$cuentaban'";
+			$query .=") returning ID"; 
+			//echo $query;
+			$this->query =$query;
+			$rs = $this->EjecutaQuerySimple();
 		}elseif ($tipop == 'tr') {
-		
-		//echo 'Es de transfer: <p>';
-
-		$query="INSERT INTO P_TRANS (TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, TRANS, USUARIO_PAGO, BANCO) VALUES (";
-		$query .=" '".$tipop."',";
-		$query .=" '".$fechadoc."',";
-		$query .=" '".$monto."',";
-		$query .=" '".$nomprov."',";
-		$query .=" '".$iva."',";
-		$query .=" '".$docu."',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$cveclpv."',";
-		$query .=" 'N',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$HOY."',";
-		$query .=" '0',";
-		$query .=" '$usuario',";
-		$query .=" '$cuentaban'";
-		$query .=")";
-		//echo $query; 
-		$this->query =$query;
-		//echo 'Consulta para ingresar la nueva transfer:'.$this->query.'<p>';
-		//break;
-		$rs = $this->EjecutaQuerySimple();	
+			//echo 'Es de transfer: <p>';
+			$query="INSERT INTO P_TRANS (ID, TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, TRANS, USUARIO_PAGO, BANCO) VALUES (";
+			$query .=" NULL,";
+			$query .=" '".$tipop."',";
+			$query .=" '".$fechadoc."',";
+			$query .=" '".$monto."',";
+			$query .=" '".$nomprov."',";
+			$query .=" '".$iva."',";
+			$query .=" '".$docu."',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$cveclpv."',";
+			$query .=" 'N',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$HOY."',";
+			$query .=" '0',";
+			$query .=" '$usuario',";
+			$query .=" '$cuentaban'";
+			$query .=") returning ID";
+			//echo $query; 
+			$this->query =$query;
+			//echo 'Consulta para ingresar la nueva transfer:'.$this->query.'<p>';
+			//break;
+			$rs = $this->EjecutaQuerySimple();	
 		}elseif($tipop == 'cr'){
-		$query="INSERT INTO P_CREDITO (TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, CREDITO) VALUES (";
-		$query .=" '".$tipop."',";
-		$query .=" '".$fechadoc."',";
-		$query .=" '".$monto."',";
-		$query .=" '".$nomprov."',";
-		$query .=" '".$iva."',";
-		$query .=" '".$docu."',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$cveclpv."',";
-		$query .=" 'N',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$HOY."',";
-		$query .=" '0'";
-		$query .=")";
-		//echo $query; 
-		$this->query =$query;
-		$rs = $this->EjecutaQuerySimple();
+			$query="INSERT INTO P_CREDITO (ID, TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, CREDITO) VALUES (";
+			$query .=" NULL,";
+			$query .=" '".$tipop."',";
+			$query .=" '".$fechadoc."',";
+			$query .=" '".$monto."',";
+			$query .=" '".$nomprov."',";
+			$query .=" '".$iva."',";
+			$query .=" '".$docu."',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$cveclpv."',";
+			$query .=" 'N',";
+			$query .=" '".$HOY."',";
+			$query .=" DATEADD(DAY,(SELECT COALESCE(DIASCRED,0) FROM PROV01 WHERE trim(CLAVE) = trim('".$cveclpv."')), CURRENT_DATE),";
+			$query .=" '0'";
+			$query .=") returning ID";
+			//echo $query; 
+			$this->query =$query;
+			$rs = $this->EjecutaQuerySimple();
 		}elseif($tipop == 'e'){
-		$query="INSERT INTO P_EFECTIVO (TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, EFECTIVO, USUARIO_PAGO, BANCO) VALUES (";
-		$query .=" '".$tipop."',";
-		$query .=" '".$fechadoc."',";
-		$query .=" '".$monto."',";
-		$query .=" '".$nomprov."',";
-		$query .=" '".$iva."',";
-		$query .=" '".$docu."',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$cveclpv."',";
-		$query .=" 'N',";
-		$query .=" '".$HOY."',";
-		$query .=" '".$HOY."',";
-		$query .=" '0',";
-		$query .=" '$usuario',";
-		$query .=" '$cuentaban'";
-		$query .=")";
-		//Secho $query; 
-		$this->query =$query;
-		$rs = $this->EjecutaQuerySimple();
+			$query="INSERT INTO P_EFECTIVO (ID, TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, EFECTIVO, USUARIO_PAGO, BANCO) VALUES (";
+			$query .=" NULL,";
+			$query .=" '".$tipop."',";
+			$query .=" '".$fechadoc."',";
+			$query .=" '".$monto."',";
+			$query .=" '".$nomprov."',";
+			$query .=" '".$iva."',";
+			$query .=" '".$docu."',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$cveclpv."',";
+			$query .=" 'N',";
+			$query .=" '".$HOY."',";
+			$query .=" '".$HOY."',";
+			$query .=" '0',";
+			$query .=" '$usuario',";
+			$query .=" '$cuentaban'";
+			$query .=") returning ID";
+			//Secho $query; 
+			$this->query =$query;
+			$rs= $this->EjecutaQuerySimple();
 		}
+		$row = ibase_fetch_object($rs);
+		return $row;
 	}
 
 	function TraeUnidades(){
@@ -629,7 +633,16 @@ class pegaso extends database{
 						LEFT JOIN compo_clib01 c on a.cve_doc = c.clave_doc
 						where cve_doc = '$documento'";
 		}else{
-				$this->query="SELECT ftcpoc.OC AS CVE_DOC, p.nombre, ftcpoc.costo_total as importe, ftcpoc.fecha_oc as fechaelab, 'Ver Documentos' as Recepcion, 'NA' as enlazado, 'p.tipo_pago' as tipopagoR, 'NA' as fer, 'NA' as TE, ftcpoc.usuario_oc as confirmado, 'Tipo' as PagoTesoreria, 'NA' as pago_entregado, 'NA' as camplib6, ftcpoc.cve_prov as cve_clpv, 'NA' as urgente, 'NA' as DIAS, 
+				$this->query="SELECT ftcpoc.OC AS CVE_DOC, p.nombre, ftcpoc.costo_total as importe, ftcpoc.fecha_oc as fechaelab, 'Ver Documentos' as Recepcion, 'NA' as enlazado, 
+					iif(TP_CREDITO = 'Si', 'cr', 
+						iif(TP_TRANSFERENCIA ='Si', 'tr', 
+							iif(TP_CHEQUE = 'Si', 'ch', 
+								iif(TP_EFECTIVO = 'Si', 'e','Sin Forma de Pago')
+							)
+						)
+					) as tipopagoR,
+					P.DIASCRED,
+					 'NA' as fer, 'NA' as TE, ftcpoc.usuario_oc as confirmado, 'Tipo' as PagoTesoreria, 'NA' as pago_entregado, 'NA' as camplib6, ftcpoc.cve_prov as cve_clpv, 'NA' as urgente, 'NA' as DIAS, 
 		        	(select iif(sum(lp.cantidad * poc.cost )is null, 0 , sum(lp.cantidad * poc.cost)) FROM LIB_PARTIDAS lp left join par_compo01 poc on poc.cve_doc = lp.oc and poc.num_par = lp.partida_oc WHERE PROVEEDOR = p.clave group by Proveedor) as saldoprov    	
         			from FTC_POC ftcpoc 
    				    left join prov01 p on p.clave = ftcpoc.cve_prov
@@ -15837,7 +15850,7 @@ function Pagos() {
     	$data=array();
     	$gerencia = $_SESSION['user']->LETRA;
     	echo 'Usuario: '.$user.$gerencia;
-    	if($user =='Gerencia de Compras' or $gerencia == 'G'){
+    	if($gerencia == 'G'){
     		$this->query="SELECT pv.clave, pv.nombre, count(p.id) as productos, 
     				(SELECT resp_compra FROM PROV01 WHERE clave = pv.clave) as responsable
 		            FROM PREOC01 p
