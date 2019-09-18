@@ -29,7 +29,7 @@
                     </div>
                 </div>
             </div>
-              <!--<div class="col-md-4">
+              <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4><i class="fa fa-list-alt"></i> MULTIPAGOS</h4>
@@ -39,7 +39,7 @@
                         <center><a href="index.php?action=multipagos" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
                     </div>
                 </div>
-            </div>-->
+            </div>
             <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading">
