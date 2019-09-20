@@ -43,6 +43,35 @@ class controller_CxP{
   			$this->view_page($pagina);
 		}
 	}
+
+	function verCxP(){
+		if($_SESSION['user']){
+			$pagina = $this->load_template();
+			$html=$this->load_page('app/views/pages/Proveedores/p.verCxP.php');
+  			ob_start();
+			$data = new pegasoCxP;
+			$prov=$data->verCxP();
+			include 'app/views/pages/Proveedores/p.verCxP.php';
+  			$table = ob_get_clean();
+  			$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table, $pagina);
+  			$this->view_page($pagina);	
+		}
+	}
+
+	function verDetCxP($prov){
+		if($_SESSION['user']){
+			$pagina = $this->load_template();
+			$html=$this->load_page('app/views/pages/Proveedores/p.verDetCxP.php');
+  			ob_start();
+			$data = new pegasoCxP;
+			$exec=$data->verDetCxP($prov);
+			$sol =$data->varSolPen($prov);
+			include 'app/views/pages/Proveedores/p.verDetCxP.php';
+  			$table = ob_get_clean();
+  			$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table, $pagina);
+  			$this->view_page($pagina);		
+		}
+	}
 	
 }
 ?>

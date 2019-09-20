@@ -51,7 +51,17 @@
                     </div>
                 </div>
             </div>
-               
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Cuentas por Pagar</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p></p>
+                        <center><a href="index.cxp.php?action=verCxP" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>   
 <!--
              <div class="col-md-4">
                 <div class="panel panel-default">

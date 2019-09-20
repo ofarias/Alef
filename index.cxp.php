@@ -23,6 +23,12 @@ else{switch ($_GET['action']){
 	case 'edoCtaProv':
 		$controller->edoCtaProv($_GET['prov']);
 		break;
+	case 'verCxP':
+		$controller->verCxP();
+		break;
+	case 'verDetCxP':
+		$controller->verDetCxP($_GET['prov']);
+		break;
 	default: 
 		header('Location: index.php?action=login');
 		break;

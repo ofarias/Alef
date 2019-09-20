@@ -11271,30 +11271,19 @@ function Pagos() {
 	}
 
 	function listarPagosCredito(){
-       //SELECT ID, BENEFICIARIO, MONTO, DOCUMENTO, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM GASTOS_PAGOS_CREDITO;
-       //SELECT ID, BENEFICIARIO, MONTO, DOCUMENTO, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM OC_PAGOS_CREDITO;
-       $this->query = "SELECT 'RECEPCION' AS TIPO, ID, BENEFICIARIO, MONTO, OC, RECEPCION, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM OC_PAGOS_CREDITO where STATUS_CREDITO = 1 ";
-       //$this->query.= " UNION ";
-      // $this->query.= "SELECT 'GASTO' AS TIPO, ID, BENEFICIARIO, MONTO, DOCUMENTO, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM GASTOS_PAGOS_CREDITO;";
-       
-       $result = $this->QueryObtieneDatosN();
-       while ($tsArray = (ibase_fetch_object($result))) {
+		$data=array();
+        $this->query = "SELECT 'RECEPCION' AS TIPO, ID, BENEFICIARIO, MONTO, OC, RECEPCION, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM OC_PAGOS_CREDITO where STATUS_CREDITO = 1 "; 
+        $result = $this->QueryObtieneDatosN();
+        while ($tsArray = (ibase_fetch_object($result))) {
            $data[] = $tsArray;
-       }
+        }
 
-       $this->query="SELECT 'RECEPCION_PEGASO' AS TIPO, ID, BENEFICIARIO, MONTO, OC, RECEPCION, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM OC_PAGOS_CREDITO_RECIBO where status_credito is null";
-
-       $result = $this->QueryObtieneDatosN();
-       while ($tsArray = (ibase_fetch_object($result))) {
+        $this->query="SELECT 'RECEPCION_PEGASO' AS TIPO, ID, BENEFICIARIO, MONTO, OC, RECEPCION, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM OC_PAGOS_CREDITO_RECIBO where status_credito is null";
+        $result = $this->QueryObtieneDatosN();
+        while ($tsArray = (ibase_fetch_object($result))) {
            $data[] = $tsArray;
-       }
-       //echo 'Esta es la consulta';
- //        $this->query = "SELECT 'GASTO' AS TIPO, ID, BENEFICIARIO, MONTO, DOCUMENTO, FECHA_DOC, DIASCRED, VENCIMIENTO, PROMESA_PAGO FROM GASTOS_PAGOS_CREDITO ORDER BY PROMESA_PAGO;";
- //        $result = $this->QueryObtieneDatosN();
- //        while ($tsArray = (ibase_fetch_object($result))) {
- //            $data[] = $tsArray;
- //        }
-       return @$data;     
+        }
+        return $data;     
    }
 
 
@@ -11313,26 +11302,21 @@ function Pagos() {
              $data[] = $tsArray;
          }
          return @$data;              
-   }
-
+    }
    
     function actualizarRecepcion($identificador){
-    	
     	//echo 'identificador: '.$identificador.'<p>';
-    	//break;
     	if(substr($identificador, 10,1 == 0)){
     		$this->query="UPDATE COMPR01 SET STATUS_CREDITO = 2 WHERE TRIM(CVE_DOC) = TRIM('$identificador')";
         }else{
-        	$this->query="UPDATE FTC_DETALLE_RECEPCIONES SET STATUS_CREDITO = 2 WHERE TRIM(orden ) = TRIM('$identificador')";
+        	$this->query="UPDATE FTC_DETALLE_RECEPCIONES SET STATUS_CREDITO = 2 WHERE TRIM(orden) = TRIM('$identificador')";
         }
-        $act=$this->EjecutaQuerySimple();
         //echo 'Actualiza Recepcion: '.$this->query.'<p>';
-        return $act;
+        $this->queryActualiza();
+        return;
     }
- 
 
-
-   function actualizaPagoCreditoContrarecibo($tipo, $identificador){
+    function actualizaPagoCreditoContrarecibo($tipo, $identificador){
         if($tipo == "GASTO"){
             $this->query = "UPDATE GASTOS SET STATUS = 'I' WHERE ID = $identificador;";
         }  elseif($tipo =="RECEPCION") {
@@ -11928,7 +11912,6 @@ function Pagos() {
       	foreach($data as $row):
             $folio = $row->FOLIO+1;
         endforeach;
-
         if($tipo=="GASTO"){
             $id = $identificador;
         } elseif($tipo=="RECEPCION") {
@@ -11936,24 +11919,17 @@ function Pagos() {
         }elseif($tipo=='RECEPCION_PEGASO'){
        		$id = "(SELECT RECEPCION FROM OC_PAGOS_CREDITO_RECIBO WHERE ID = '$identificador')";  	
         }
-
         $this->query = "INSERT INTO OC_CREDITO_CONTRARECIBO VALUES ($folio,'$HOY','$tipo',$recepcion,'$usuario','PD');";        
         $respuesta = $this->EjecutaQuerySimple();
         //echo 'Valor de respuesta:'.$respuesta.'<p>';
-        
         if($tipo =='RECEPCION'){
         	$this->query= "UPDATE COMPR01 SET MONTO_REAL = $montor, FACT_PROV = '$facturap' where TRIM(CVE_DOC) = TRIM('$identificador')";	
         }elseif($tipo =='RECEPCION_PEGASO'){
         	$this->query= "UPDATE  ftc_detalle_recepciones SET MONTO_REAL = $montor, FACT_PROV = '$facturap' where TRIM(orden) = TRIM('$identificador') and id_recepcion = $recepcion";
         }
-
-        //echo $this->query;
-        //break;
-
         $rs=$this->EjecutaQuerySimple();
         return $respuesta>=1?$folio:-1;
     }
-
 
     function actualizarFolioContrarecibo($folio){
         $this->query = "UPDATE OC_CREDITO_CONTRARECIBO SET STATUS = 'IM' WHERE FOLIO = $folio";
@@ -11974,7 +11950,6 @@ function Pagos() {
       	while($tsArray=ibase_fetch_object($rs)){
       		$data[]=$tsArray;
       	}
-
       	$this->query="SELECT A.FOLIO, A.FECHA_IMPRESION, B.PROMESA_PAGO, A.TIPO, A.IDENTIFICADOR, A.USUARIO, B.RECEPCION, B.OC, B.FACTURA, B.MONTOR, B.BENEFICIARIO 
                           FROM OC_CREDITO_CONTRARECIBO A 
                           INNER JOIN OC_PAGOS_CREDITO_RECIBO B ON A.IDENTIFICADOR = cast(B.RECEPCION as varchar(10))
@@ -11987,13 +11962,11 @@ function Pagos() {
       	while($tsArray=ibase_fetch_object($rs)){
       		$data[]=$tsArray;
       	}
-
         return $data;
     }
 
      function pagarOCContrarecibos($folios){
 		$data = array();
-        
         $this->query = "SELECT A.FOLIO, A.FECHA_IMPRESION, B.PROMESA_PAGO, A.TIPO, B.RECEPCION, B.OC, B.FACTURA , B.MONTOR, B.BENEFICIARIO 
                           FROM OC_CREDITO_CONTRARECIBO A INNER JOIN OC_PAGOS_CREDITO B ON A.IDENTIFICADOR = B.RECEPCION 
                          WHERE STATUS = 'IM' AND A.FOLIO IN ($folios)

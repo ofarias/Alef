@@ -24,15 +24,13 @@
                              </tr>
                          </thead>   
                          <tbody>
-                             <?php
-                             foreach ($exec as $data):
-                                 ?>
+                             <?php foreach ($exec as $data):?>
                              <form id="FORM_ACTION_PAGOS_CREDITO" method="POST" action="index.php">
-                                 <tr  onmousemove="this.style.fontWeight = 'bold';">
+                                 <tr onmousemove="this.style.fontWeight='bold';">
                                      <td>
-                                         <input type="hidden" name="identificador" value="<?php echo "$data->ID";?>" />
-                                         <input type="hidden" name="tipo" value="<?php echo trim($data->TIPO);?>" />
-                                         <?php echo $data->TIPO; ?></td>
+                                        <input type="hidden" name="identificador" value="<?php echo "$data->ID";?>" />
+                                        <input type="hidden" name="tipo" value="<?php echo trim($data->TIPO);?>" />
+                                        <?php echo $data->TIPO; ?></td>
                                      <td><?php echo $data->BENEFICIARIO; ?></td>
                                      <td align="right"><?php echo '$ '.number_format($data->MONTO, 2, '.', ','); ?></td>
                                      <td><?php echo $data->RECEPCION; ?></td>
@@ -49,9 +47,7 @@
                                      </td>
                                      <td><input type="submit" name="FORM_ACTION_PAGO_CREDITO_CONTRARECIBO_IMPRIMIR" value="Imprimir" /></td>                                    
                                  </tr>
-
                              </form>
-
                          <?php endforeach; ?>
 
                          </tbody>

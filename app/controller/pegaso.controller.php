@@ -17,8 +17,8 @@ require_once('app/controller/pegaso.controller.cobranza.php');
 
 class pegaso_controller{
 	var $contexto_local = "http://SERVIDOR:8081/ftc/app/";
-	var $contexto = "http://SERVIDOR:8081/ftc/app/";
-	
+	//var $contexto = "http://SERVIDOR:8081/ftc/app/";
+	var $contexto ="http://ofa.dyndns.org:8888/P/ftc/app/";
 	function Login(){
 			$pagina = $this->load_templateL('Login');
 			$html = $this->load_page('app/views/modules/m.login.php');
@@ -10988,15 +10988,14 @@ function imprimirFacturasAcuse(){
 	}
 
 	function verListadoPagosCredito(){
-         
      	if (isset($_SESSION['user'])) {
              $data = new pegaso;
              $pagina = $this->load_template('Pagos');        	
-             $html = $this->load_page('app/views/pages/p.pagos.credito.php');
+             $html = $this->load_page('app/views/pages/Proveedores/p.pagos.credito.php');
              ob_start();
              $exec=$data->listarPagosCredito();
              if (count($exec)){
-                 include 'app/views/pages/p.pagos.credito.php';
+                 include 'app/views/pages/Proveedores/p.pagos.credito.php';
                  $table = ob_get_clean();
                 $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
              } else {
@@ -11011,30 +11010,28 @@ function imprimirFacturasAcuse(){
      }
 
     function detallePagoCreditoContrarecibo($tipo, $identificador){
-         
      	if (isset($_SESSION['user'])) {
-             $data = new pegaso;
-             $pagina = $this->load_template('Pagos');        	
-             $html = $this->load_page('app/views/pages/p.pago.credito.contrarecibo.php');
-             ob_start();
-             $exec=$data->detallePagoCredito($tipo, $identificador);
-             if (count($exec)){
-                 include 'app/views/pages/p.pago.credito.contrarecibo.php';
-                 $table = ob_get_clean();
-                 $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
-             } else {
-                 $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $html . '<div class="alert-danger"><center><h2>Hubo un error al mostrar los pagos para imprimir</h2><center></div>', $pagina);
-             }
-             $this->view_page($pagina);
-     	} else {
-             $e = "Favor de Iniciar Sesión";
-             header('Location: index.php?action=login&e=' . urlencode($e));
-             exit;
+            $data = new pegaso;
+            $pagina = $this->load_template('Pagos');        	
+            $html = $this->load_page('app/views/pages/Proveedores/p.pago.credito.contrarecibo.php');
+            ob_start();
+            $exec=$data->detallePagoCredito($tipo, $identificador);
+            if (count($exec)){
+                include 'app/views/pages/Proveedores/p.pago.credito.contrarecibo.php';
+                $table = ob_get_clean();
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
+            } else {
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $html . '<div class="alert-danger"><center><h2>Hubo un error al mostrar los pagospara imprimir</h2><center></div>', $pagina);
+            }
+            $this->view_page($pagina);
+     	}else{
+            $e = "Favor de Iniciar Sesión";
+            header('Location: index.php?action=login&e=' . urlencode($e));
+            exit;
      	}
      }
-
      
-      function detallePagoCreditoContrareciboImprime($tipo, $identificador, $montor, $facturap, $recepcion){
+    function detallePagoCreditoContrareciboImprime($tipo, $identificador, $montor, $facturap, $recepcion){
         $dao=new pegaso;
         $folio = $dao->almacenarFolioContrarecibo($tipo, $identificador, $montor, $facturap, $recepcion);        
         $exec = $dao->detallePagoCredito($tipo, $identificador);
@@ -11046,9 +11043,12 @@ function imprimirFacturasAcuse(){
         $act=$dao->actualizaPagoCreditoContrarecibo($tipo, $identificador);
         $act+=$dao->actualizarFolioContrarecibo($folio);
         $act+=$dao->actualizarRecepcion($identificador);
-        //echo "Registro actualizado:$act";
-        $this->verListadoPagosCredito();
-     }
+        $redireccionar='listadoCredito';
+        $pagina=$this->load_template('Pedidos');
+	   	$html = $this->load_page('app/views/pages/p.redirectform.php');
+	    include 'app/views/pages/p.redirectform.php';
+	    $this->view_page($pagina);
+    }
 
     
 
@@ -11910,19 +11910,19 @@ function fallarOC($doco){
 
     function listarOCContrarecibos(){
      	if (isset($_SESSION['user'])) {            
-             $data = new pegaso;
-             $pagina = $this->load_template('Pagos');        	            
-             ob_start();            
-             $exec=$data->listarOCContrarecibos();
-             if (count($exec)){
-                 include 'app/views/pages/p.oc.listado.contrarecibos.php';
-                 $table = ob_get_clean();
-                 $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
-             } else {                 
-                 echo "<script>alert('No se han localizado resultados.');</script>";
-                 $this->MenuTesoreria();
-             }
-             $this->view_page($pagina);
+            $data = new pegaso;
+            $pagina = $this->load_template('Pagos');        	            
+            ob_start();            
+            $exec=$data->listarOCContrarecibos();
+            if (count($exec)){
+                include 'app/views/pages/Proveedores/p.oc.listado.contrarecibos.php';
+                $table = ob_get_clean();
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
+            }else{                 
+               echo "<script>alert('No se han localizado resultados.');</script>";
+                $this->MenuTesoreria();
+            }
+            $this->view_page($pagina);
      	} else {
              $e = "Favor de Iniciar Sesión";
              header('Location: index.php?action=login&e=' . urlencode($e));
@@ -11930,7 +11930,7 @@ function fallarOC($doco){
      	}
     }
  
- function pagarOCContrarecibos($cantidad, $folios, $monto){
+ function pagarOCContrarecibos($cantidad, $folios, $monto, $r){
                 
      	if (isset($_SESSION['user'])) {            
              $data = new pegaso;

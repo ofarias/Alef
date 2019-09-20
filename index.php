@@ -1178,10 +1178,9 @@ elseif(isset($_POST['cambiarStatus'])){
 	$tptes =$_POST['tptes'];
 	$controller->regCompEdoCta($fecha, $docc, $mes, $pago,$banco, $tptes);
 }elseif (isset ($_POST['FORM_ACTION_PAGO_CREDITO_CONTRARECIBO'])) {
-      $identificador = $_POST['identificador'];
-      $tipo = $_POST['tipo'];
-      //echo "TIPO: -$tipo-";
-     $controller->detallePagoCreditoContrarecibo($tipo, $identificador);
+    $identificador = $_POST['identificador'];
+    $tipo = $_POST['tipo'];
+    $controller->detallePagoCreditoContrarecibo($tipo, $identificador);
  } elseif (isset ($_POST['FORM_ACTION_PAGO_CREDITO_CONTRARECIBO_IMPRIMIR'])) {
      $identificador = $_POST['identificador'];
      $tipo = $_POST['tipo'];  
@@ -1283,7 +1282,7 @@ elseif(isset($_POST['cambiarStatus'])){
     $folios = $_POST["items"];
     $cantidad = $_POST["seleccion_cr"];
     $monto = $_POST["total"];
-    $controller->pagarOCContrarecibos($cantidad, $folios, $monto);
+    $controller->pagarOCContrarecibos($cantidad, $folios, $monto,(isset($_GET['r'])? 'n':'close') );
 } elseif(isset ($_POST['FORM_ACTION_CR_PAGO_APLICAR'])){
     $medio = $_POST['medio'];
     $cuentaBancaria = $_POST['cuentabanco'];
