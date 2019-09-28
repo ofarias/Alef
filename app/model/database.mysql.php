@@ -1,7 +1,7 @@
 <?php
 
 class databasemysql {
-    private $DBServer = "ofa.dyndns.org:3306";
+    private $DBServer = "localhost:3306";
     private $DBUser="ftc";
     private $DBPaswd="elPaso01+";
     private $DBName="pegaso";

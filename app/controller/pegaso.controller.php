@@ -17,8 +17,8 @@ require_once('app/controller/pegaso.controller.cobranza.php');
 
 class pegaso_controller{
 	var $contexto_local = "http://SERVIDOR:8081/ftc/app/";
-	//var $contexto = "http://SERVIDOR:8081/ftc/app/";
-	var $contexto ="http://ofa.dyndns.org:8888/P/ftc/app/";
+	var $contexto = "http://SERVIDOR:8081/ftc/app/";
+	//var $contexto ="http://ofa.dyndns.org:8888/P/ftc/app/";
 	function Login(){
 			$pagina = $this->load_templateL('Login');
 			$html = $this->load_page('app/views/modules/m.login.php');

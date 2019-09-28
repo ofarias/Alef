@@ -6,6 +6,14 @@
                     <!--<img src="app/views/images/logob.jpg">-->
                 </h3>
             </div>
+
+            <form action="index.php" method="post">
+            <p>Documento:<input type="text" name="docf"></p>
+            <p>Caja: <input type="text" name="caja"></p>
+            <button name="generaJson" value="Enviar" type="submit">Facturar</button>
+            </form>
+            
+            
         <div class="col-md-4">
             <div class="panel panel-default">
                 <div class="panel-heading">

@@ -1,21 +1,20 @@
 <?php
 
 class ftcws {
-    private $DBServer="ofa.dyndns.org:3306";
-    private $DBUser="ftc";
-    private $DBPaswd="elPaso01+";
+    private $DBServer="localhost:3306";
+    private $DBUser="ftc";//"ftc";
+    private $DBPaswd="elPaso01+";//"elPaso01+";
     private $DBName="ftc_ws";
     private $cnx;
     protected $query;
     private function AbreCnx() {
     	$this->cnx = mysqli_connect($this->DBServer, $this->DBUser, $this->DBPaswd);
-        //$this->cnx = mysqli_connect('192.168.100.33:3308', 'ftc3', 'elPaso01+');
         if (!$this->cnx) {
             die('no se pudo conectar 1 al host: '.$DBServer.' con el usuario: '.$DBUser.''. mysqli_error());
         }
-        $sdb = mysqli_select_db($this->cnx, $this->DBName);
+        $sdb=mysqli_select_db($this->cnx, $this->DBName);
         if (!$sdb) {
-            die('no se pudo conectar 2 ' . mysqli_error($sdb));
+            die('no se pudo conectar 2 '.mysqli_error($sdb));
         }
     }
     private function CierraCnx() {
