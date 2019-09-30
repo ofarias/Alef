@@ -26,7 +26,6 @@
                                         </tr>
                                     </thead>
                                   <tbody>
-
                                 <?php $i=0;
                                 foreach ($secuenciaDetalle as $oc): $i++;?>
                                 <tr>
@@ -57,10 +56,9 @@
                                             <input name="uni" type="hidden" value="<?php echo $oc->UNIDAD?>"/>
                                             <input name="fecha" type="hidden" value="<?php echo $oc->FECHAELAB?>"/>
                                             <input name="idu" type="hidden" value="<?php echo $oc->IDU?>" /> 
-                                            <input type="hidden" name="doco" value = "<?php echo $oc->CVE_DOC?>" />                          
+                                            <input type="hidden" name="doco" value = "<?php echo $oc->CVE_DOC?>" />
                                     <td>    
-                                        <input type="checkbox" name="sel" class="docos" value="<?php echo $oc->CVE_DOC?>">                                         
-                                           <!-- <button name="SecUnidad2" type="submit" value="enviar" class="btn btn-warning" id="btn_<?php echo $i?>"> Asignar <i class="fa fa-cog fa-spin"></i></button>-->
+                                        <input type="checkbox" name="sel" class="docos" value="<?php echo $oc->CVE_DOC?>" id="btn_<?php echo $i?>">
                                     </td>
                                     </form>
                                 </tr>
@@ -69,7 +67,6 @@
                                  </table>
                       </div>
             </div>
-
             <div class="panel-footer" id="impresion">
                 <div class="text-right">
                     <form action="index.php" method="post">
