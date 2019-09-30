@@ -5072,7 +5072,6 @@ function ValRecepNo($docr, $doco, $cantn, $coston, $cantorig, $costoorig, $idpre
 
 
 	function UnidadEntrega($idcaja, $docf,  $estado, $unidad){
-		
 		if(isset($_SESSION['user'])){
 			$data = new pegaso;				
 			$pagina=$this->load_template('Pagos');				
@@ -5084,7 +5083,7 @@ function ValRecepNo($docr, $doco, $cantn, $coston, $cantorig, $costoorig, $idpre
 					$entrega = $data->ARutaEntrega();
 					//$exec = $data->ARuta();  //// estas son las rutas de recoleccion.
 					$unidad = $data->TraeUnidades();
-					if(count($exec) > 0 or count($entrega) > 0 ){
+					if(count($entrega) > 0 ){
 						include 'app/views/pages/Reparto/p.arutaReparto.php';
 						$table = ob_get_clean(); 
 							$pagina = $this->replace_content('/\#CONTENIDO\#/ms' ,$table , $pagina);

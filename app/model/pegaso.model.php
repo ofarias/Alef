@@ -33,24 +33,25 @@ class pegaso extends database{
 	}
 
 	function creaPeriodo(){
-		$mes = date('n');
+		$ma = date("m");
 		$anio = date('Y');
-		if($mes == 12){
-			$mes = 1;
-			$anio = $anio + 1;
-		}
-		$this->query="SELECT * FROM PERIODOS_2016 WHERE numero=$mes AND ANHIO = $anio";
-		$rs=$this->EjecutaQuerySimple();
-		$row=ibase_fetch_object($rs);
-		if(empty($row)){
+		$this->query="SELECT COALESCE(max(numero),0) as mes FROM PERIODOS_2016 WHERE anHio = $anio";
+		$res=$this->EjecutaQuerySimple();
+		$row = ibase_fetch_object($res);
+		if($row->MES != $ma){
+		$mes= $row->MES + 1;
+		$n1=$this->mesMx($mes);
+		$n2=$this->mesMx($mes+1);
+		$ultimo = date("d",(mktime(0,0,0,$mes+1,1,$anio)-1));
+		$fi = '01.'.$mes.'.'.$anio;
+		$ff = $ultimo.'.'.$mes.'.'.$anio;
 			$this->query="INSERT INTO PERIODOS_2016 (id, nombre, numero, fecha_ini, fecha_fin, anhio, siguiente) 
-							values (null, (SELECT MAX(NOMBRE) FROM PERIODOS_2016 WHERE numero = ($mes + 1)), $mes +1, (SELECT MAX(fecha_ini) FROM PERIODOS_2016 WHERE numero = ($mes + 1)), (SELECT MAX(fecha_fin) FROM PERIODOS_2016 WHERE numero = ($mes + 1)), $anio, (SELECT MAX(SIGUIENTE) FROM PERIODOS_2016 WHERE numero = ($mes + 1)))";
+							values (null,upper('$n1'),$mes,'$fi','$ff',$anio,upper('$n2'))";
 			$this->grabaBD();
 		}
 		return;
 	}
 
-	
 	function registroLogin(){
 		$usuario =$_SESSION['user']->USER_LOGIN;
 		$nombre = $_SESSION['user']->NOMBRE;
@@ -21863,12 +21864,12 @@ function invAunaFecha($fecha, $tipo){
 
 	function RutaEntregaSecuencia($idcaja, $docf,  $estado, $unidad){
    		$user =$_SESSION['user']->NOMBRE;
+		$data=array();
 		$this->query="SELECT * FROM CAJAS WHERE (STATUS_RECEPCION = 0 or STATUS_RECEPCION IS NULL) and u_logistica = '$user' and ruta = 'N' and unidad <> '' and unidad is not null";
 		$rs=$this->EjecutaQuerySimple();
 		while($tsArray=ibase_fetch_object($rs)){
 			$data[]=$tsArray;
 		}
-
 		foreach ($data as $key) {
 			$this->query="UPDATE cajas
 					  SET RUTA = 'A', fecha_secuencia = current_timestamp, STATUS_LOG = 'secuencia', STATUS_MER = '', DOCS = 'No', STATUS_RECEPCION = 1
@@ -26533,6 +26534,8 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
 			$n = 'Noviembre';
 		}elseif ($n==12) {
 			$n = 'Dieciembre';
+		}elseif ($n==13){
+			$n = 'Enero';
 		}
 		return $n;	
 	}

@@ -1819,10 +1819,10 @@ WHERE CVE_DOC_COMPPAGO IS NULL AND (NUM_CPTO = 22 OR NUM_CPTO = 11 OR NUM_CPTO =
                    $data[]=$tsArray;
             }
             if(count($data)==0){
-                $this->query="UPDATE CAJAS SET FACTURA = '', status='cerrado', remision = ('PF'||id) WHERE FACTURA ='$docf'";
-                $this->EjecutaQuerySimple();
-                $this->query="EXECUTE PROCEDURE SP_LIB_X_NC ($caja)";
-                $res=$this->queryActualiza();    
+                //$this->query="UPDATE CAJAS SET FACTURA = '', status='cerrado', remision = ('PF'||id) WHERE FACTURA ='$docf'";
+                //$this->EjecutaQuerySimple();
+                //$this->query="EXECUTE PROCEDURE SP_LIB_X_NC ($caja)";
+                //$res=$this->queryActualiza();    
             }
         }else{
 

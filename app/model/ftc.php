@@ -1,7 +1,8 @@
 <?php
 
 class ftcws {
-    private $DBServer="localhost:3306";
+    //private $DBServer="localhost:3306";
+    private $DBServer="ofa.dyndns.org:3306";
     private $DBUser="ftc";//"ftc";
     private $DBPaswd="elPaso01+";//"elPaso01+";
     private $DBName="ftc_ws";
