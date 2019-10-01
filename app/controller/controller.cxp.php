@@ -51,6 +51,7 @@ class controller_CxP{
   			ob_start();
 			$data = new pegasoCxP;
 			$prov=$data->verCxP();
+			$provCh=$data->verCxpChP($prov);
 			include 'app/views/pages/Proveedores/p.verCxP.php';
   			$table = ob_get_clean();
   			$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table, $pagina);

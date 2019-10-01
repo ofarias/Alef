@@ -48,6 +48,21 @@ class pegasoCxP extends database {
 		return $data;
 	}
 
+    function verCxpChP($prov){
+            $data=array();
+            $pr='';
+            foreach ($prov as $p){
+                $pr.= ", '".trim($p->CVE_PROV)."'";
+            }
+            $pr=substr($pr,1);
+            $this->query="SELECT CH.BENEFICIARIO, CH.CVE_PROV, SUM(CH.MONTO) AS MONTO, COUNT(CH.ID) AS CHQS FROM P_CHEQUES CH LEFT JOIN FTC_POC O ON O.OC = CH.DOCUMENTO LEFT JOIN PROV01 P ON P.CLAVE = CH.CVE_PROV WHERE (O.GUARDADO = 0 OR GUARDADO IS NULL) AND trim(CH.CVE_PROV) NOT IN ($pr) GROUP BY CH.BENEFICIARIO, CH.CVE_PROV";
+            $res=$this->EjecutaQuerySimple();
+            while ($tsArray=ibase_fetch_object($res)) {
+                $data[]=$tsArray;
+            }
+        return $data; 
+    }
+
 	function verDetCxP($prov){
 		$data=array();
 		$this->query="SELECT A.FOLIO, A.FECHA_IMPRESION, B.PROMESA_PAGO, A.TIPO, A.IDENTIFICADOR, A.USUARIO, B.RECEPCION, B.OC, B.FACTURA, B.MONTOR, B.BENEFICIARIO, B.VENCIMIENTO,	B.V0, B.V7, B.V15, B.V30, B.V31  
@@ -56,7 +71,7 @@ class pegasoCxP extends database {
                           where A.STATUS = 'IM' AND 
                           B.STATUS_PAGO is null
                           and trim(B.CVE_PROV) = Trim('$prov') 
-                          and FECHA_IMPRESION > '01.06.2017'
+                          --and FECHA_IMPRESION > '01.06.2017'
                           ORDER BY B.BENEFICIARIO ASC";
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)){

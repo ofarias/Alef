@@ -60,6 +60,27 @@
                                     <td align="right"><?php echo '$ '.number_format($data->SOLICITUDES+$data->MONTO + $data->CHEQUES,2); ?></td>
                                 </tr>
                             <?php endforeach; ?>
+                            <?php foreach($provCh as $dch):?>
+                                <tr class="odd gradeX" style='background-color:yellow' onmousemove="this.style.fontWeight = 'bold';
+                                        this.style.cursor = 'pointer'" onmouseout="this.style.fontWeight = 'normal';
+                                                this.style.cursor = 'default';" 
+                                    onclick="verDetCxP('<?php echo trim($dch->CVE_PROV);?>');" title="Cheques">
+                                    <td><?php echo $dch->BENEFICIARIO.' ('.$dch->CVE_PROV.')';?></td>
+                                    <td align="center"><?php echo $dch->CHQS;?></td>
+                                    <td align="right"></td>
+                                    <td align="right"></td>
+                                    <td align="center"></td>
+                                    <td align="center">0</td>
+                                    <td align="center">0</td>
+                                    <td align="center">0</td>
+                                    <td align="center">0</td>
+                                    <td align="right"><?php echo '$ '.number_format(0,2); ?></td>                                
+                                    <td align="right" title="Solicitudes que no estan registradas en el estado de cuenta"><?php echo '$ '.number_format(0,2); ?></td>                             
+                                    <td align="right"><?php echo '$ '.number_format($dch->MONTO,2); ?></td>
+                                    <td align="right"><?php echo '$ '.number_format($dch->MONTO,2); ?></td>
+                                </tr>
+
+                            <?php endforeach;?>    
                         </tbody>
                     </table>
                     <input type="button" class="btn btn-success" value="Actualizar" id="act">
