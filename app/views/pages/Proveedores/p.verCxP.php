@@ -21,6 +21,7 @@
                                 <th>Vencidos<br/> + 30 dias</th>
                                 <th>Deuda <br/>Contrarecibos</th>
                                 <th title="Solicitudes que no estan registradas en el estado de cuenta">Solicitudes <br/>Pendientes de Pago</th>
+                                <th title="Solicitudes que no estan registradas en el estado de cuenta">Cheques <br/>Post-Fechados</th>
                                 <th>Total Deuda</th>
                             </tr>
                         </thead>   
@@ -39,7 +40,6 @@
                                 }else{
                                     $color = "style='background-color:#CDFDE4'";
                                 }
-
                                 ?>
                                 <tr class="odd gradeX" <?php echo $color;?> onmousemove="this.style.fontWeight = 'bold';
                                         this.style.cursor = 'pointer'" onmouseout="this.style.fontWeight = 'normal';
@@ -56,7 +56,8 @@
                                     <td align="center"><?php echo $data->V31; ?></td>
                                     <td align="right"><?php echo '$ '.number_format($data->MONTO,2); ?></td>                                
                                     <td align="right" title="Solicitudes que no estan registradas en el estado de cuenta"><?php echo '$ '.number_format($data->SOLICITUDES,2); ?></td>                              
-                                    <td align="right"><?php echo '$ '.number_format($data->SOLICITUDES+$data->MONTO,2); ?></td>
+                                    <td align="right"><?php echo '$ '.number_format($data->CHEQUES,2); ?></td>
+                                    <td align="right"><?php echo '$ '.number_format($data->SOLICITUDES+$data->MONTO + $data->CHEQUES,2); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

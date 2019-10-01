@@ -72,8 +72,8 @@
                     <table class="table table-striped table-bordered table-hover" id="dataTables-oc-recepciones">
                         <thead>
                             <tr>
-                                <th>Solicitud</th>
-                                <th>Contrarecibo</th>
+                                <th>Documento</th>
+                                <th>Contrarecibo/cheque</th>
                                 <th>Recepcion</th>
                                 <th>O.C.</th>
                                 <th>Factura</th>
@@ -108,11 +108,26 @@
                             } else {
                                 ?>                               
                                 <tr class="odd gradeX">
-                                    <b><td colspan="6">No hay datos</td></b>
+                                    <b><td colspan="6">No hay Solicitudes Pendientes</td></b>
                                 </tr>
                                 <?php
                             }
                             ?>
+                            <?php if(count($ch) >0){ foreach ($ch as $c): ?>
+                                <tr class="odd gradeX">
+                                    <td><?php echo $c->CHEQUE?></td>
+                                    <td><?php echo $c->FOLIO_REAL;?></td>
+                                    <td><?php echo $c->RECEPCIONES; ?></td>
+                                    <td><?php echo $c->OC;?></td>
+                                    <td><?php echo '';?></td>
+                                    <td><?php echo $c->BENEFICIARIO; ?></td>
+                                    <td><?php echo $c->FECHA_APLI?></td>
+                                    <td><?php echo $c->STATUS; ?></td>
+                                    <td align="right"><font color="blue"><b><?php echo "$ " . number_format($c->MONTO, 2, '.', ','); ?><b/></font></td>
+                                    <td><?php echo $c->BANCO; ?></td>
+                                    <td><?php echo $c->EDOCTA_FECHA?></td>
+                                </tr>
+                            <?php  endforeach; } ?>
                         </tbody>
                     </table>
                 </div>

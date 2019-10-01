@@ -31,7 +31,10 @@ class pegasoCxP extends database {
                         SUM(B.V15) AS V15,
                         SUM(B.V30) AS V30,
                         SUM(B.V31) AS V31, 
-                        sum(CASE WHEN (SOLICITUDES > 0) THEN B.MONTO_REAL ELSE 0 END) AS SOLICITUDES
+                        sum(CASE WHEN (SOLICITUDES > 0) THEN B.MONTO_REAL ELSE 0 END) AS SOLICITUDES, 
+                        
+                        (SELECT COALESCE(SUM(MONTO),0) FROM P_CHEQUES CH LEFT JOIN FTC_POC PR ON PR.OC = CH.DOCUMENTO WHERE CH.CVE_PROV = B.CVE_PROV AND (PR.GUARDADO = 0 OR PR.GUARDADO IS NULL)) AS CHEQUES
+                        
                         FROM OC_CREDITO_CONTRARECIBO A 
                         INNER JOIN OC_PAGOS_CREDITO_RECIBO B ON A.IDENTIFICADOR = cast(B.RECEPCION as varchar(10))
                         where A.STATUS = 'IM' AND 
@@ -47,8 +50,7 @@ class pegasoCxP extends database {
 
 	function verDetCxP($prov){
 		$data=array();
-		$this->query="SELECT A.FOLIO, A.FECHA_IMPRESION, B.PROMESA_PAGO, A.TIPO, A.IDENTIFICADOR, A.USUARIO, B.RECEPCION, B.OC, B.FACTURA, B.MONTOR, B.BENEFICIARIO, B.VENCIMIENTO, 
-							B.V0, B.V7, B.V15, B.V30, B.V31  
+		$this->query="SELECT A.FOLIO, A.FECHA_IMPRESION, B.PROMESA_PAGO, A.TIPO, A.IDENTIFICADOR, A.USUARIO, B.RECEPCION, B.OC, B.FACTURA, B.MONTOR, B.BENEFICIARIO, B.VENCIMIENTO,	B.V0, B.V7, B.V15, B.V30, B.V31  
                           FROM OC_CREDITO_CONTRARECIBO A 
                           INNER JOIN OC_PAGOS_CREDITO_RECIBO B ON A.IDENTIFICADOR = cast(B.RECEPCION as varchar(10))
                           where A.STATUS = 'IM' AND 
@@ -63,7 +65,7 @@ class pegasoCxP extends database {
         return $data;
 	}
 
-	function varSolPen($prov){
+	function verSolPen($prov){
 		$data=array();
         $this->query="SELECT S.*, cast( (select list(ID) from OC_PAGOS_CREDITO_RECIBO o where o.id_solicitud = S.IDSOL) AS varchar(100))  as OC,
     CAST((select list('CRP'||FOLIO) from oc_credito_contrarecibo cr where identificador in (select o.recepcion from OC_PAGOS_CREDITO_RECIBO o where o.id_solicitud = S.IDSOL) ) AS VARCHAR(100)) as crs, 
@@ -77,5 +79,15 @@ class pegasoCxP extends database {
         }
         return $data;
 	}
+
+    function verChPost($prov){
+        $data=array();
+        $this->query="SELECT CH.*, PR.*, (SELECT max(ID_RECEPCION) FROM FTC_DETALLE_RECEPCIONES DR WHERE DR.ORDEN = CH.documento GROUP BY ID_RECEPCION) AS RECEPCIONES FROM P_CHEQUES CH LEFT JOIN FTC_POC PR ON PR.OC = CH.DOCUMENTO WHERE trim(CH.CVE_PROV)='$prov' AND (PR.GUARDADO = 0 OR PR.GUARDADO IS NULL)";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
 }
 ?>

@@ -65,7 +65,8 @@ class controller_CxP{
   			ob_start();
 			$data = new pegasoCxP;
 			$exec=$data->verDetCxP($prov);
-			$sol =$data->varSolPen($prov);
+			$sol =$data->verSolPen($prov);
+			$ch = $data->verChPost($prov);
 			include 'app/views/pages/Proveedores/p.verDetCxP.php';
   			$table = ob_get_clean();
   			$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table, $pagina);
