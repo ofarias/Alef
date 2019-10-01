@@ -459,7 +459,7 @@ class pegaso extends database{
 				
 	}
 
-	function GuardaPagoCorrecto($cuentaban, $docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc){
+	function GuardaPagoCorrecto($cuentaban, $docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $fchp, $nchp){
 		$TIME = time();
 		$HOY = date("Y-m-d H:i:s", $TIME);
 		$usuario= $_SESSION['user']->NOMBRE;
@@ -496,7 +496,7 @@ class pegaso extends database{
 					  WHERE Trim(CVE_DOC) = trim('$docu')";
 		}
 		$rs = $this->EjecutaQuerySimple();
-		$r = $this->ActPagoParOC($docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $cuentaban);
+		$r = $this->ActPagoParOC($docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $cuentaban, $fchp, $nchp);
 		$rs+= $this->GuardaCuentaBan($docu, $cuentaban);
 		//exit();
 		return $r;
@@ -511,7 +511,7 @@ class pegaso extends database{
 		$rs = $this->EjecutaQuerySimple();
 	}
 	/// Insertar Pagos a tablas P_CHEQUES
-	function ActPagoParOC($docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $cuentaban){
+	function ActPagoParOC($docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $cuentaban, $fchp, $nchp){
 		$TIME = time();
 		$HOY = date("Y-m-d H:i:s", $TIME);
 		$iva = $monto - ($monto / 1.16);
@@ -519,7 +519,7 @@ class pegaso extends database{
 
 		//echo 'Tipo: '.$tipop.'<p>';
 		if($tipop == 'ch'){
-			$query="INSERT INTO P_CHEQUES (ID, TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, CHEQUE, USUARIO_PAGO, BANCO) VALUES (";
+			$query="INSERT INTO P_CHEQUES (ID, TIPO, FECHA, MONTO, BENEFICIARIO, IVA, DOCUMENTO, FECHAELAB, CVE_PROV,STATUS,FECHA_DOC, FECHA_APLI, CHEQUE, FOLIO_REAL, USUARIO_PAGO, BANCO) VALUES (";
 			$query .=" NULL,";
 			$query .=" '".$tipop."',";
 			$query .=" '".$fechadoc."',";
@@ -530,9 +530,10 @@ class pegaso extends database{
 			$query .=" '".$HOY."',";
 			$query .=" '".$cveclpv."',";
 			$query .=" 'N',";
-			$query .=" '".$HOY."',";
-			$query .=" '".$HOY."',";
+			$query .=" '".$fchp."',";
+			$query .=" '".$fchp."',";
 			$query .=" '0',";
+			$query .=" '".$nchp."',";
 			$query .=" '$usuario',";
 			$query .=" '$cuentaban'";
 			$query .=") returning ID"; 
@@ -10231,10 +10232,7 @@ function Pagos() {
 
 
     function Cheques(){
-    	$a="SELECT P.*, B.BANCO 
-    		FROM P_CHEQUES P
-    		LEFT JOIN PG_PAGOBANCO B ON B.folio_pegaso = P.cheque
-      		WHERE FOLIO_REAL is null and p.id > 1842 ";
+    	$a="SELECT P.*, B.BANCO FROM P_CHEQUES P LEFT JOIN PG_PAGOBANCO B ON B.folio_pegaso = P.cheque WHERE P.status='I'";
     	$this->query=$a;
     	$result=$this->QueryObtieneDatosN();
     	while($tsArray=ibase_fetch_object($result)){
@@ -10267,12 +10265,9 @@ function Pagos() {
     }
 
     function impChBanamex($cheque, $fecha, $folio){
-        $f=explode('-', $fecha);
-        
+        $f=explode('-', $fecha);    
     	$fech= $f[0].'.'.$f[1].'.'.$f[2];
-    	
-    	$this->query="UPDATE P_CHEQUES SET FOLIO_REAL = $folio, FECHA_APLI='$fech' WHERE CHEQUE='$cheque'";
-    
+    	$this->query="UPDATE P_CHEQUES SET FOLIO_REAL = $folio, FECHA_APLI='$fech', STATUS='E' WHERE CHEQUE='$cheque'";
     	$rs=$this->EjecutaQuerySimple();
     	return $rs;
     }

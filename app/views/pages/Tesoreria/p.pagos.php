@@ -6,12 +6,10 @@
             <div class="panel-heading">
                 Confirmar Pagos
             </div>
-            <!-- /.panel-heading -->
             <div class="panel-body">
                 <div class="table-responsive">  
                     <span>Pago de documentos</span>
-
-                    <table class="table table-striped table-bordered table-hover" id="dataTables-pagos">
+                    <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th>ORDEN DE COMPRA</th>
@@ -70,7 +68,7 @@
                                     <input name="cveprov" type="hidden" value="<?php echo isset($data->CVE_CLPV)? $data->CVE_CLPV:$data->PROVEEDOR ?>"/>
                                     <input name="importe" type="hidden" value="<?php echo $data->IMPORTE ?>" />
                                     <input name="fechadoc" type="hidden" value="<?php echo $data->FECHAELAB ?>"/>
-                                    <select name="tipopago" required="required">
+                                    <select name="tipopago" required="required"  class="fp">
                                         <option value="<?php echo $tpp?>"><?php echo $tppdesc?></option>
                                         <option value="tr">Transferencia</option>
                                         <<?php echo (substr($data->CVE_DOC, 0, 1) == 'O')? 'option value="cr">Crédito</option>':''?>
@@ -81,7 +79,10 @@
                                     <br/><?php echo 'Pago Predeterminado Proveedor: <b>'.$tppdesc.' '.$pl.'</b>'?>
                                 </td>
                                 <td><?php echo "$ " . number_format($data->IMPORTE, 2, '.', ','); ?></td>
-                                <td><input name="monto" type="number" step="any" required="required" max="<?php echo ($data->IMPORTE + 1) ?>" value="<?php echo number_format($data->IMPORTE,2,".","")?>" readonly /> </td>
+                                <td><input name="monto" type="number" step="any" required="required" max="<?php echo ($data->IMPORTE + 1) ?>" value="<?php echo number_format($data->IMPORTE,2,".","")?>" readonly /> <br/>
+                                    <input type="date" name="fchp" class="hidden" id="FCHP"><label id="txt"></label><br/>
+                                    <input type="text" name="nchp" class="hidden" id="NCHP" size="8"><label id="txt2"></label>
+                                </td>
                                 <td>
                                     <button name="formpago" type="submit" value="enviar" class="btn btn-warning">Pagar <i class="fa fa-floppy-o"></i></button></td>
                             </form>
@@ -94,7 +95,6 @@
         </div>
     </div>
 </div>
-
 <?php if(count($detallesaldo)>0){?>
 <br /><br />
 <div class="row">
@@ -149,3 +149,31 @@
     </div>
 </div>
 <?php }?>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<script type="text/javascript">
+    $(".fp").change(function(){
+        var fp = $(this).val()
+        var p =document.getElementById("FCHP")
+        var a = document.getElementById("NCHP")
+        if(fp == 'ch'){
+            p.removeAttribute("class")
+            a.removeAttribute("class")
+            p.setAttribute("required","required")
+            a.setAttribute("required","required")
+            document.getElementById("txt").innerHTML="&nbsp;&nbsp;Fecha de cobro"
+            document.getElementById("txt2").innerHTML="&nbsp;&nbsp;Folio Cheque"
+        }else{
+            p.removeAttribute("required")
+            a.removeAttribute("required")
+            p.setAttribute("class","hidden")
+            a.setAttribute("class","hidden")
+            document.getElementById("txt").innerHTML=""
+            document.getElementById("txt2").innerHTML=""
+        }
+    })
+</script>

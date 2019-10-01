@@ -5,7 +5,6 @@
         	<div class="panel-heading">
             	Confirmar Pagos
         	</div>
-        	<!-- /.panel-heading -->
         	<div class="panel-body">
             	<div class="table-responsive">  
                 	<span>Pago de documentos</span>

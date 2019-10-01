@@ -28,8 +28,7 @@
                                         <?php
                                         foreach ($listado as $data): 
                                               $fecha=date('d-m-Y');
-                                              $i++;
-                                                
+                                              $i++;  
                                             ?>
                                         <tr class="odd gradeX" >
                                             <td><?php echo $data->CHEQUE;?></td>
@@ -41,32 +40,21 @@
                                             <td><?php echo $data->STATUS;?></td>
                                             <td><?php echo $data->BANCO;?></td>
                                             <form action="index.php" method="POST">
-                                            <td>
-                                            <input type="text" class = "d" name="fechapost" value="<?php echo $fecha;?>" >
-                                            </td> 
-                                            <td>
-                                                <input type="text" name="folion" value= "<?php echo $folios;?>" >
-                                            </td>
-                                            <input type="hidden" name="cheque" value="<?php echo $data->CHEQUE;?>">
-                                            <input type="hidden" name="banco" value="<?php echo $data->BANCO;?>">
-                                            <!--<center><a href="index.php?action=impCheque&cheque=<?php echo $data->CHEQUE;?>&banco=<?php echo $data->BANCO;?>"><i class="fa fa-print"></i></a></center></td>-->
-                                            <td>
-                                            <button type="submit" value="impCheque" name="impCheque"><i class="fa fa-print"></i></button>
-                                            </td>
+                                            <td><input type="date" name="fechapost" value="<?php echo substr($data->FECHA_DOC,0,10);?>" <?php echo empty($data->FOLIO_REAL)? '':'readonly="readonly"'?>></td> 
+                                            <td><input type="text" name="folion" value= "<?php echo empty($data->FOLIO_REAL)? $folios:$data->FOLIO_REAL;?>" <?php echo empty($data->FOLIO_REAL)? '':'readonly="readonly"'?>></td>
+                                                <input type="hidden" name="cheque" value="<?php echo $data->CHEQUE;?>">
+                                                <input type="hidden" name="banco" value="<?php echo $data->BANCO;?>">
+                                            <td><button type="submit" value="impCheque" name="impCheque"><i class="fa fa-print"></i></button></td>
                                             </form>
                                         </tr>
                                         <?php endforeach; ?>
                                  </tbody>
                                 </table>
-                                
                             </div>
-                            <!-- /.table-responsive -->
                       </div>
             </div>
         </div>
     </div>
-
-    
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="/resources/demos/style.css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>

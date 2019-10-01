@@ -139,7 +139,6 @@
             alert('No se realizo ningun Cambio');
             document.getElementById("select_"+i).value="nada";
             document.getElementById("btn_"+i).classList.remove('hide');
-            
         }
     }
 

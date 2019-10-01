@@ -134,7 +134,13 @@ if(!empty($_POST['seleccion'])) {
 	$nomprov = $_POST['nomprov'];
 	$cveclpv = $_POST['cveprov'];
 	$fechadoc = $_POST['fechadoc'];
-	$controller->PagoCorrecto($cuentaban, $docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc);
+	$fchp='';
+	$nchp='';
+	if($_POST['tipopago'] == 'ch'){
+		$fchp = $_POST['fchp'];
+		$nchp = $_POST['nchp'];
+	}
+	$controller->PagoCorrecto($cuentaban, $docu, $tipop, $monto, $nomprov, $cveclpv, $fechadoc, $fchp, $nchp);
 }elseif(isset($_POST['formpago_gasto'])){
 	$cuentabanco = $_POST['cuentabanco'];
 	$documento = $_POST['documento'];
@@ -152,7 +158,6 @@ if(!empty($_POST['seleccion'])) {
 	$montoOLD = $_POST['montoold'];
 	$nomprovOLD = $_POST['nomprovold'];
 	$cveclpvOLD = $_POST['cveprovold'];
-
 	$controller->PagoCorrectoOld($docuOLD, $tipopOLD, $montoOLD, $nomprovOLD, $cveclpvOLD);
 }elseif(isset($_POST['ped'])){
 	$ped = $_POST['ped'];
@@ -633,16 +638,12 @@ if(!empty($_POST['seleccion'])) {
     $id = $_POST['id'];
     $clasif = $_POST['clasificacion'];
     $descripcion = $_POST['descripcion'];
-    $activo = (!empty($_POST['activo']))? $_POST['activo'] : "N";
-            
+    $activo = (!empty($_POST['activo']))? $_POST['activo'] : "N";            
     $controller->GuardaCambiosClasG($id,$clasif,$descripcion,$activo);
-    
 }elseif(isset($_POST['nuevaclasifgasto'])){
     $clasif = $_POST['clasificacion'];
     $descripcion = $_POST['descripcion'];
-            
     $controller->GuardaNuevaClaGasto($clasif,$descripcion);
-
 }elseif(isset($_POST['guardacr'])){
 	$cr = $_POST['contra'];
 	$idc = $_POST['idcaja'];
@@ -1050,14 +1051,7 @@ elseif(isset($_POST['cambiarStatus'])){
 	$banco = $_POST['banco'];
 	$fecha = $_POST['fechapost'];
 	$folio = $_POST['folion'];
-	$banco = trim(substr($banco, 0 , 8));
-	if($banco =='Bancomer'){
-		$controller->ImpChBancomer($cheque,$fecha, $folio);	
-	}elseif($banco == 'Banamex'){
-		$controller->ImpChBanamex($cheque,$fecha,$folio);	
-	}elseif(empty($banco)){
-		$controller->ImpSinBanco($cheque, $fecha, $folio);
-		}
+	$controller->ImpCheque($cheque, $fecha, $folio, $banco);
 }elseif(isset($_POST['cancelaPedido'])) {
 	$pedido=$_POST['pedido'];
 	$motivo =$_POST['razon'];

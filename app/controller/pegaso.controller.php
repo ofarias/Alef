@@ -2859,7 +2859,13 @@ class pegaso_controller{
 			$pdf->Cell(60,10, "$ ".$datostrans->MONTO);
 			$pdf->Ln(20);
 			$pdf->Cell(60,10,"Fecha Realizacion: ");
-			$pdf->Cell(60,10,$datostrans->FECHA_APLI);
+			$pdf->Cell(60,10,$datostrans->FECHA);
+			$pdf->Ln(15);
+			$pdf->Cell(60,10,"Fecha Cobro del Cheque: ");
+			$pdf->Cell(60,10,substr($datostrans->FECHA_APLI,0,10));
+			$pdf->Ln(15);
+			$pdf->Cell(60,10,"Numero de Cheque: ");
+			$pdf->Cell(60,10,$datostrans->FOLIO_REAL);
 			$pdf->Ln(15);
 			$pdf->Cell(60,10,"Fecha de Recoleccion: ");
 			foreach ($cabecera as $clib){
@@ -5370,7 +5376,7 @@ function ValRecepNo($docr, $doco, $cantn, $coston, $cantorig, $costoorig, $idpre
         $pdf->Output('Secuencia unidad '.$datauni[0][0].'.pdf','d');
     }
     
-     function ImprimirSecuenciaEnt($unidad, $tipo){
+    function ImprimirSecuenciaEnt($unidad, $tipo){
         $data = new Pegaso;
         $secuenciaentrega=$data->AsignaSecEntrega($unidad,$tipo);
         $actualiza = $data->actRutaAdmon($secuenciaentrega, $tipo);
@@ -9904,17 +9910,16 @@ function imprimirFacturasAcuse(){
     	}           	 
 	}    
 
-
-	function PagoCorrecto($cuentabanco, $documento, $tipopago, $monto, $proveedor, $claveProveedor, $fechadocumento) {
+	function PagoCorrecto($cuentabanco, $documento, $tipopago, $monto, $proveedor, $claveProveedor, $fechadocumento, $fchp, $nchp) {
     	if (isset($_SESSION['user'])) {
         	$data = new pegaso;
         	$pagina = $this->load_template('Pagos');
         	$html = $this->load_page('app/views/pages/Tesoreria/p.pagos.listado.php');
         	ob_start();
         	$error = "Datos guardados correctamente";
-       		$guarda = $data->GuardaPagoCorrecto($cuentabanco, $documento, $tipopago, $monto, $proveedor, $claveProveedor, $fechadocumento);
-        	$exec = $data->Pagos();
-        	$gastos = $data->listadoGastos();
+       		$guarda = $data->GuardaPagoCorrecto($cuentabanco, $documento, $tipopago, $monto, $proveedor, $claveProveedor, $fechadocumento, $fchp, $nchp);
+        	//$exec = $data->Pagos();
+        	//$gastos = $data->listadoGastos();
         	switch ($tipopago){
        			case 'tr':
        				$ruta="index.php?action=imprimeTrans&id=".$guarda->ID."&doc=".$documento;
@@ -9936,24 +9941,17 @@ function imprimirFacturasAcuse(){
        				# code...
        				break;
        		}
-        	//include 'app/views/pages/Tesoreria/p.pagos.listado.php';
-            //$table = ob_get_clean();	
         	if (isset($guarda)) {
                 $redireccionar="pagos";
                 $pagina=$this->load_template('Pedidos');
         		$html = $this->load_page('app/views/pages/p.redirectform.php');
             	include 'app/views/pages/p.redirectform.php';
         		$this->view_page($pagina); 
-                //$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);
-            	//$pagina.="<script>alert('$error');</script>";
-
         	} else {
             	$pagina = $this->replace_content('/\#CONTENIDO\#/ms', $table . '<div class="alert-danger"><center><h2>No existen mas pagos pendientes.</h2><center></div>', $pagina);
         	}
         	$this->view_page($pagina);
-        	///IMPRESION DEL PAGO PARA QUITAR MULTIPAGOS.
-       		
-    	} else {
+      	} else {
         	$e = "Favor de Iniciar Sesión";
         	header('Location: index.php?action=login&e=' . urlencode($e));
         	exit;
@@ -10057,30 +10055,28 @@ function imprimirFacturasAcuse(){
 	}
 
 	function Cheques(){
-		
         if (isset($_SESSION['user'])){
-        $data = new pegaso;
-        $pagina=$this->load_template('Pedidos');
-        $html=$this->load_page('app/views/pages/p.impCheques.php');
-        ob_start();
-        $listado=$data->Cheques();
-        $folios=$data->folioReal();
-        if (count($listado)){
-            include 'app/views/pages/p.impCheques.php';
-            $table = ob_get_clean();
-            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
-        }else{
-            $pagina = $this->replace_content('/\CONTENIDO\#/ms',$html.'<div class="alert-info"><center><h2>NO ESISTEN CHEQUES POR IMPRIMIR</h2><center></div>', $pagina);
-                }
+        	$data = new pegaso;
+        	$pagina=$this->load_template('Pedidos');
+        	$html=$this->load_page('app/views/pages/Tesoreria/p.impCheques.php');
+        	ob_start();
+        	$listado=$data->Cheques();
+        	$folios=$data->folioReal();
+        	if (count($listado)){
+        	    include 'app/views/pages/Tesoreria/p.impCheques.php';
+        	    $table = ob_get_clean();
+        	    $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+        	}else{
+            	$pagina = $this->replace_content('/\CONTENIDO\#/ms',$html.'<div class="alert-info"><center><h2>NO ESISTEN CHEQUES POR IMPRIMIR</h2><center></div>', $pagina);
+            }
             $this->view_page($pagina);
-            }else{
+        }else{
                 $e = "Favor de iniciar Sesión";
                 header('Location: index.php?action=login&e='.urlencode($e)); exit;
-            }	
+        }	
 	}
 
-
-	function ImpChBanamex($cheque, $fecha, $folio){
+	function ImpCheque($cheque, $fecha, $folio, $banco){
 		$data=new pegaso;
 		$letras=new NumberToLetterConverter;
 		$actdatos=$data->impChBanamex($cheque, $fecha, $folio);/// Actualiza los datos de la fecha y folio de cheque.
@@ -10097,10 +10093,11 @@ function imprimirFacturasAcuse(){
         }else{
         	$leyenda = 'PESOS CON '.$centavos.'/100 MN';
         }
-
-        //$fecha=date("d-m-Y");
-   		//echo $res;    
-		$pdf = new FPDF('P', 'mm', 'Letter');
+        $fecha = explode('-',substr($datos->FECHA_APLI,0,10));
+        $dia= $fecha[2];
+        $mes= $fecha[1];
+        $anio = $fecha[0];
+        $pdf = new FPDF('P', 'mm', 'Letter');
 			$pdf->AddPage();
 			$pdf->SetFont('Arial', 'B', 15);
 			$pdf->SetTextColor(198,23,23);
@@ -10109,7 +10106,7 @@ function imprimirFacturasAcuse(){
 			$pdf->SetFont('Arial', 'I', 12);
 			$pdf->SetTextColor(14,3,3);
 			$pdf->SetXY(160,14);
-			$pdf->Cell(60,10,$fecha);
+			$pdf->Cell(60,10,$dia.'/'.$mes.'/'.$anio);
 			$pdf->SetXY(10,35);
 			$pdf->Cell(60,5,$datos->BENEFICIARIO);
 			$pdf->SetXY(170,32);
@@ -10118,16 +10115,32 @@ function imprimirFacturasAcuse(){
 			$pdf->Cell(10,10, $res.$leyenda);
 			$pdf->SetFont('Arial', 'I', 10);
 			$pdf->SetXY(10,88);
-			$pdf->Cell(10,10, 'Pago referente a la Orden de Compra Pegaso: '.$datos->DOCUMENTO);
+			$pdf->Cell(10,10, 'Pago referente a la Orden de Compra Pegaso: ');
+			$pdf->SetFont('Arial', 'B', 10);
+			$pdf->SetXY(90,88);
+			$pdf->Cell(10,10,$datos->DOCUMENTO);
+			$pdf->SetFont('Arial', 'I', 10);
 			$pdf->SetXY(10,93);
-			$pdf->Cell(10,10, $datos->FECHAELAB.'   Folio Interno: '.$datos->CHEQUE.' Banamex No.'.$datos->FOLIO_REAL);
-
-			
+			$pdf->Cell(10,10, 'Cheque Elaborado por: ');
+			$pdf->SetFont('Arial', 'B', 10);
+			$pdf->SetXY(48,93);
+			$pdf->Cell(10,10, $datos->USUARIO_PAGO.' el '.$datos->FECHAELAB);
+			$pdf->SetFont('Arial', 'I', 10);	
+			$pdf->SetXY(10,98);
+			$pdf->Cell(10,10,'Folio Interno: ');
+			$pdf->SetFont('Arial', 'B', 10);	
+			$pdf->SetXY(32,98);
+			$pdf->Cell(10,10, $datos->CHEQUE.' '.$banco.' Cheque No: '.$datos->FOLIO_REAL);
+			$pdf->SetFont('Arial', 'I', 10);	
+			$pdf->SetXY(10,103);
+			$pdf->Cell(10,10, 'Impreso por: ');
+			$pdf->SetFont('Arial', 'B', 10);	
+			$pdf->SetXY(32,103);
+			$pdf->Cell(10,10, $_SESSION['user']->NOMBRE.' el '.date("d-m-Y H:i:s"));
 			$pdf->Output('Transferencia'.$datos->FOLIO_REAL.'.pdf', 'i'); 	
 	}
 
 	function listadoPagosXImprimir() {
-    	
     	if (isset($_SESSION['user'])) {
         	$data = new pegaso;
         	$pagina = $this->load_template('Pagos');        	
