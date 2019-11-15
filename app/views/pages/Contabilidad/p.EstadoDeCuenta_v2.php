@@ -5,7 +5,6 @@
                         <div class="panel-heading">
                                  SALDO DE CUENTAS BANCARIAS &nbsp;&nbsp;&nbsp;v.2
                         </div>
-
                         <?php 
                           $saldoInicial = 0;
                           foreach ($saldos as $sdos ):
@@ -262,7 +261,7 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                          Pagos Registrados en <?php echo $mesactual->NOMBRE.'
+                          Movimientos Registrados en <?php echo $mesactual->NOMBRE.'
                           durante el periodo del '.$mesactual->FECHA_INI.' al '.$mesactual->FECHA_FIN;?>.
                         </div>
                            <div class="panel-body">
@@ -279,15 +278,15 @@
                                             <th>TIPO PAGO</th>
                                             <th>REGISTRAR</th>
                                             <th>USUARIO QUE REGISTRO</th>
-                                            <th>Contabilizado?</th>
-                                           
+                                            <th>TIPO</th>
                                         </tr>
                                     </thead>
                                   <tbody>
                                         <?php $i = 0;
                                               $desc1 = '';
+                                              $desc = '';
                                         foreach ($exec as $datos):
-                                              if(empty($datos->TP) and $datos->TIPO = 'Venta'){
+                                              if(empty($datos->TP) and $datos->TIPO == 'Venta'){
                                                 $tipo = 'Venta';
                                               } else{
                                                 $tipo = $datos->TP;  
@@ -305,7 +304,7 @@
                                                 $desc = 'Pago de Factura';
                                               }elseif($tipo == 'Compra'){
                                                $desc = 'Compra'; 
-                                              }elseif (substr($tipo,0,3)== 'GTR' or (substr($tipo,0,3))== 'GEF' or (substr($tipo,0,3)== 'GCH')){
+                                              }elseif(substr($tipo,0,3)== 'GTR' or (substr($tipo,0,3))== 'GEF' or (substr($tipo,0,3)== 'GCH')){
                                                 $desc = $tipo;
                                                 $desc1 = 'gasto';
                                               }elseif ($tipo == 'Deudor') {
@@ -328,8 +327,15 @@
                                             <td align="right"><?php echo '$ '.number_format($datos->CARGO,2);?></td>
                                             <td align="right"><?php echo '$ '.number_format($datos->SALDO,2);?></td>
                                             <td>
+                                              <?php if($desc == "Pago de Factura"){?>
                                               <a href="index.php?action=pagoFacturas&idp=<?php echo $datos->IDENTIFICADOR?>" target="_blank"?> <?php echo $desc;?> </a>
+                                            <?php }elseif($datos->TIPO == 'Gasto'){?>
+                                              <a href="index.php?action=detalleGasto&idg=<?php echo $datos->CONSECUTIVO?>" target="_blank">Detalle <?php echo $datos->TIPO?></a>
+                                              <?php }else{?>
+                                              <?php echo $desc;?> 
+                                              <?php }?>
                                             </td>
+
                                             <form action = "index.php" method="post">
                                             <td>
                                               <input type="hidden" name="anio" value = "<?php echo $anio?>"/>
@@ -356,15 +362,12 @@
 
                                                value ='<?php echo ($desc=='Compra' or $desc1 =='gasto')? "$datos->CARGO":"$datos->ABONO"?>' 
                                                docu="<?php echo $datos->S.'+'.$datos->IDENTIFICADOR;?>"
-                                        
-
                                                <?php echo $datos->S > 1? 'class="compra"':''?>
                                                <?php echo $datos->S == 1? 'class="abono"':''?>
                                                 >                                             
                                               </td>
                                             <td><?php echo $datos->USUARIO;?></td>
-                                            <td><?php echo $datos->CONTABILIZADO?></td>
-                                               
+                                            <td><?php echo $datos->TP_TES?></td>
                                             </form>
                                         <?php endforeach ?>
                                         </tr>
@@ -501,10 +504,10 @@
      document.getElementById('ccierre').value=totalCompras;
      document.getElementById('fcierre').value=saldoFinal;
 
-
   });
 
-function actFecha(docu, tipo, nuevaFecha, identificador){
+
+  function actFecha(docu, tipo, nuevaFecha, identificador){
 
         var value= document.getElementById('caja_'+identificador);
         var banco = document.getElementById('banco').value;
@@ -539,6 +542,7 @@ function actFecha(docu, tipo, nuevaFecha, identificador){
                                   renglon = document.getElementById(identificador);
                                       renglon.style.background="#BEF4BB";
                                       document.getElementById('caja_'+identificador).checked=true;
+                                      var actSaldo = actualizaSaldo()
                                       alert("El Registro se Actualizo correctamente");
                                       
                               }else if(data.status == "NO"){
@@ -639,8 +643,8 @@ function test(a, docu, tipo){
     if(a != 'j'){
     alert('Actualizando el Saldo...');
     }
-              var abonos = 0;
-              var pagos = '';         
+            var abonos = 0;
+            var pagos = '';         
             $(document).ready(function() {
             $("input:checkbox:checked.abono").each(function() {
                      var  docs = $(this).attr("docu");
@@ -723,7 +727,75 @@ function test(a, docu, tipo){
         $("#formGuardar").submit();
       }
 }
- function currency(value, decimals, separators) {
+
+function actualizaSaldo(){
+    var abonos = 0;
+    var pagos = '';         
+    $(document).ready(function() {
+    $("input:checkbox:checked.abono").each(function() {
+             var  docs = $(this).attr("docu");
+             var a = parseFloat(this.value,2);
+             abonos = abonos + a;
+             pagos = pagos +','+ docs;
+        });
+      });
+     var abonosActuales = document.getElementById('abonos_a').value; 
+    abonos = parseFloat(abonos,2) + parseFloat(abonosActuales,2);
+    var tete = currency(abonos);
+    document.getElementById('pagosA').value=pagos;
+    var compras = 0;
+    var docCompras= '';
+    $(document).ready(function() {
+    $("input:checkbox:checked.compra").each(function() {
+             var comp = $(this).attr("docu");
+             var tipo = $(this).attr("tipo");
+             var a = parseFloat(this.value,2);
+             compras = compras + a;
+             docCompras = docCompras + ',' + comp;
+        });
+      });
+      document.getElementById('comprasA').value  = docCompras;
+    var gastos = 0;
+    var docGastos = '';
+    $(document).ready(function() {
+    $("input:checkbox:checked.gasto").each(function() {
+             var gtos =  $(this).attr("docu"); 
+             var tipo = $(this).attr("tipo");
+             var a = parseFloat(this.value,2);
+             gastos = gastos + a;
+             docGastos = docGastos + ',' + gtos;
+        });
+      });
+      //alert('Documentos de Gastos' +  docGastos);
+    document.getElementById('gastosA').value = docGastos;
+      //var gastos = currency(gastos);
+      //document.getElementById('total_gastos').innerHTML='$ '+ gastos;
+    var saldoInicial = document.getElementById('saldo_inicial').value;
+        //var saldoInicial = currency(saldoInicial);
+        var comprasActuales = document.getElementById('cargos_a').value;
+        //alert('compras Actuales');
+        var totalAbonos  = abonos;
+        var totalCompras = parseFloat(compras,2) + parseFloat(gastos,2) + parseFloat(comprasActuales,2);
+        var saldoFinal  = parseFloat(saldoInicial) + parseFloat((totalAbonos - totalCompras),2);
+        var totalCompras = currency(totalCompras);
+        var saldoFinal = currency(saldoFinal);
+        var saldoInicial = currency(saldoInicial);  
+        //document.getElementById('saldo_inicial').innerHTML = '$ ' +  saldoInicial;
+        document.getElementById('total_abonos').innerHTML = '$ '+ tete;
+        //document.getElementById('total_abonos').innerHTML = '$ ' + tete;
+        document.getElementById('total_cargos').innerHTML='$ '+ totalCompras;
+        document.getElementById('saldoFinal').innerHTML = '$' + saldoFinal; 
+      document.getElementById('saldo_inicial_header').innerHTML = saldoInicial;
+      document.getElementById('abonos_header').innerHTML = tete;
+      document.getElementById('cargos_header').innerHTML = totalCompras;
+      document.getElementById('saldo_final').innerHTML =  saldoFinal;
+  document.getElementById('icierre').value=saldoInicial;
+  document.getElementById('acierre').value=tete;
+  document.getElementById('ccierre').value=totalCompras;
+  document.getElementById('fcierre').value=saldoFinal;
+}
+
+function currency(value, decimals, separators) {
     decimals = decimals >= 0 ? parseInt(decimals, 0) : 2;
     separators = separators || [',', ",", '.'];
     var number = (parseFloat(value) || 0).toFixed(decimals);

@@ -16,7 +16,7 @@ class pegasoCobranza extends database {
         while ($tsArray = ibase_fetch_object($res)) {
             $data2[]=$tsArray;
         }
-		return $data2;
+        return $data2;
 	}
 
     function actualizaComprometido(){
@@ -1045,7 +1045,7 @@ class pegasoCobranza extends database {
         $c=trim($_SESSION['user']->CC); ///LETRA
         $this->query="SELECT m.*, 
                             (select count(id) from maestros_ccc mc where m.clave = mc.cve_maestro) as ccredito, 
-                            coalesce(cast((select list(dias_pago) from cartera where tipo = m.clave and ccc is not null) as varchar(100)),'N') as diasd, 
+                            coalesce(cast((select list(dias_pago) from cartera where tipo = m.clave and ccc is not null) as varchar(300)),'N') as diasd, 
                             coalesce((select count(id) from FTC_RC_DETALLE rd where (select status from ftc_rc r where r.idr = rd.idr)  < 9 and cvem = m.clave group by cvem), 0) AS RUTAS 
                             FROM MAESTROS m 
                             WHERE   m.CARTERA = '$c' and 
@@ -1053,7 +1053,6 @@ class pegasoCobranza extends database {
                                     m.cobranza > 0
                             order by m.nombre";
         //echo $this->query;
-
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)){
             $data[]=$tsArray;
@@ -1190,6 +1189,92 @@ class pegasoCobranza extends database {
             }
         }
         return;
+    }
+
+    function verCCs($idm){
+        $data = array();
+        $this->query="SELECT c.*, ct.*, coalesce((SELECT SUM(SALDOFINAL) FROM FACTURAS_PENDIENTES WHERE cc=c.id),0) as facturas, 
+                                        Coalesce((SELECT SUM(fp.SALDOFINAL) FROM FACTURAS_PENDIENTES_FP fp WHERE cc=c.id),0) as facturas_fp 
+                    FROM MAESTROS_CCC c 
+                    left join cartera ct on ct.ccc = c.id 
+                    WHERE c.ID_MAESTRO = $idm";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function traeContactos($tipo, $ccc, $t){
+        $data = array();
+        $condicion='';
+        if($t=='ccc'){
+            $campo = 'ccc';
+        }elseif ($t=='m') {
+            $campo = 'idm';
+            $condicion = " and status= 'A'";
+        }
+        $this->query="SELECT * FROM FTC_CONTACTOS WHERE $campo=$ccc and tipo='$tipo' $condicion";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function agregaContacto($nombre, $paterno, $materno, $sn, $depto, $puesto, $tel, $correo, $ccc, $idm, $cvem, $tipo){
+        $usuario=$_SESSION['user']->NOMBRE;
+        $this->query="SELECT * FROM FTC_CONTACTOS WHERE NOMBRE CONTAINING('$nombre')";
+        $res=$this->EjecutaQuerySimple();
+        $row=ibase_fetch_object($res);
+        
+        if($tipo == 'b'){
+            $this->query="UPDATE FTC_CONTACTOS SET STATUS = 'B' where id=$correo ";
+            $this->queryActualiza();
+        }elseif($tipo == 'a'){
+            $this->query="UPDATE FTC_CONTACTOS SET STATUS = 'A' where id=$correo ";
+            //echo $this->query;
+            $this->queryActualiza();
+        }else{
+            $this->query="INSERT INTO FTC_CONTACTOS (id, ccc, nombre, apellido_p, apellido_m, segundo_n, tipo, fecha, usuario, correo, telefono, depto, idm, cvem, status, puesto) 
+                VALUES ( null,$ccc, '$nombre', '$paterno', '$materno', '$sn', '$tipo', current_timestamp, '$usuario', '$correo', '$tel', '$depto', $idm, '$cvem', 'A', '$puesto')";
+            $this->grabaBD();
+        }
+        return; 
+    }
+
+    function verRevisionMaestros(){
+        $data=array();
+        $this->query="SELECT F.* FROM FACTURAS_FP F  WHERE vencimiento is null And Saldofinal > 5 ";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function verEntidades(){
+        $data=array();
+        $this->query="SELECT * FROM FTC_ENTIDADES ";
+        $rs=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($rs)){
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function creaEntidad($razon, $rfc, $comercial){
+        $usuario=$_SESSION['user']->NOMBRE;
+        $this->query="INSERT INTO FTC_ENTIDADES (ID, NOMBRE, RFC, COMERCIAL, STATUS, FECHA_ALTA, USUARIO_ALTA, tipo) VALUES (null, '$razon', '$rfc','$comercial', 'A', current_timestamp, '$usuario', 'E')";
+        $this->grabaBD();
+        return array("status"=>'ok', "mensaje"=>'Se ha creado la entidad');
+    }
+
+    function bajaEntidad($ide){
+        $usuario=$_SESSION['user']->NOMBRE;
+        $this->query="UPDATE FTC_ENTIDADES SET STATUS = 'B', usuario_baja='$usuario', fecha_baja = current_timestamp WHERE ID=$ide";
+        $this->queryActualiza();
+        return array("status"=>'ok',"mensaje"=>'Se dio de baja la entidad y ya no se podra usar para generar CEP');
     }
 
 }?>

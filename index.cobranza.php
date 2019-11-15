@@ -128,6 +128,17 @@ if (isset($_POST['cobranza'])){
 	$res=$controller_cxc->asociaClCC($cl, $ccc);
 	echo json_encode($res);
 	exit();
+}elseif (isset($_POST['agregaContacto'])) {
+	$controller_cxc->agregaContacto($_POST['nombre'], $_POST['paterno'], $_POST['materno'], $_POST['sn'], $_POST['depto'], $_POST['puesto'], $_POST['tel'], $_POST['correo'], $_POST['ccc'], $_POST['idm'], $_POST['cvem'], $_POST['tipo']);
+	exit();
+}elseif (isset($_POST['creaEntidad'])) {
+	$res=$controller_cxc->creaEntidad($_POST['razon'], $_POST['rfc'],$_POST['comercial']);
+	echo json_encode($res);
+	exit();
+}elseif (isset($_POST['ide'])) {
+	$res = $controller_cxc->bajaEntidad($_POST['ide']);
+	echo json_encode($res);
+	exit();
 }
 else{
 	switch ($_GET['action']){
@@ -198,6 +209,27 @@ else{
 		$opcion =$_GET['opcion'];
 		$controller_cxc->delCss($cvem, $ccc, $opcion);
 		break;
+	case 'verCCs':
+			$controller_cxc->verCCs($_GET['idm'], $_GET['cvem']);
+			break;
+	case 'conCob':
+			$controller_cxc->conCob($_GET['idm'],  $_GET['cvem'], $_GET['ccc']);
+			break;
+	case 'verRutasCob':
+			$controller_cxc->verRutasCob($_GET['cvem'], $_GET['idm'], $_GET['t']);
+			break;
+	case 'verDocRuta':
+			$controller_cxc->verDocRuta($_GET['idr'], $_GET['idm'], $_GET['cvem'], $_GET['cc']);
+			break;
+	case 'verCC':
+			$controller_cxc->verCC($_GET['cveMaestro'], $_GET['cveCliente']);
+			break;
+	case 'verRevisionMaestros':
+			$controller_cxc->verRevisionMaestros();
+			break;
+	case 'verEntidades':
+			$controller_cxc->verEntidades();
+			break;
     default:
 		header('Location: index.php?action=login');
 		break;

@@ -25,7 +25,6 @@
                             <td colspan="6" style="text-align: right">
                                 <label for="medio">Medio de pago: </label>
                                 <select name="medio" required="required">
-                                    <option selected value="-1">-SELECCIONE-</option>
                                     <option value="ch">CHEQUE</option>
                                     <option value="tr">TRANSFERENCIA</option>
                                     <option value="e">EFECTIVO</option>
@@ -33,7 +32,6 @@
                             
                                 <label for="cuentabanco">Cuenta bancaria: </label>
                                 <select name="cuentabanco" required="required">
-                                    <option>--Selecciona la Cuenta Banco--</option>
                                     <<?php foreach ($cuentaBancarias as $ban): ?>
                                     <option value="<?php echo $ban->BANCO; ?>"><?php echo $ban->BANCO; ?></option>
                                     <?php endforeach; ?>

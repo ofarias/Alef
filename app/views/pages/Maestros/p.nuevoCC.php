@@ -100,6 +100,7 @@
                                 <select name="plazo" class="form-control" required>
                                     <option value ="0"> Contado</option>
                                     <option value ="8"> 8 Días</option>
+                                    <option value ="15"> 15 Días</option>
                                     <option value="30">30 Días</option>
                                     <option value="45">45 Días</option>
                                     <option value="60">60 Días</option>

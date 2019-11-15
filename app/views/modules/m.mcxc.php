@@ -114,12 +114,12 @@
                       </div>
                       <div class="panel-body<?php echo $m->ID?>">
                           <p title="Ver Centros de Credito del Maestro <?php echo $m->NOMBRE?>">
-                            <a href="index.cobranza.php?action=verCCs&idm=<?php echo $m->ID?>&cvem=<?php echo $m->CLAVE?>" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=900')">Centros de Credito: <?php echo $m->CCREDITO?></a></p>
-                          <P><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo $m->CLAVE?>&tipo=v" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Deuda Vencida:</a> <font color="blue"><?php echo '$ '.number_format($m->COBRANZA,2)?></font></P>
-                          <P><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo $m->CLAVE?>&tipo=sv" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Deuda Sin Vencer:</a> <font color="green"><?php echo '$ '.number_format($m->REVISION,2)?></font></P>
-                           <P><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo $m->CLAVE?>&tipo=t" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Total Deuda:</a> <font color="red"><?php echo '$ '.number_format($m->REVISION + $m->COBRANZA,2)?></font></P>
+                            <a href="index.cobranza.php?action=verCCs&idm=<?php echo $m->ID?>&cvem=<?php echo  urlencode($m->CLAVE)?>" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=900')">Centros de Credito: <?php echo $m->CCREDITO?></a></p>
+                          <P><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo  urlencode($m->CLAVE)?>&tipo=v" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Deuda Vencida:</a> <font color="blue"><?php echo '$ '.number_format($m->COBRANZA,2)?></font></P>
+                          <P><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo  urlencode($m->CLAVE)?>&tipo=sv" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Deuda Sin Vencer:</a> <font color="green"><?php echo '$ '.number_format($m->REVISION,2)?></font></P>
+                           <P><a href="index.cobranza.php?action=CarteraxCliente&cve_maestro=<?php echo  urlencode($m->CLAVE)?>&tipo=t" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Total Deuda:</a> <font color="red"><?php echo '$ '.number_format($m->REVISION + $m->COBRANZA,2)?></font></P>
                           <p><?php if($m->RUTAS > 0){?>
-                            <a href="index.cobranza.php?action=verRutasCob&idm=<?php echo $m->ID?>&cvem=<?php echo $m->CLAVE?>&t='rutas'" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;"><font color="blue">Ver Rutas</font> &nbsp;&nbsp;</a></p>
+                            <a href="index.cobranza.php?action=verRutasCob&idm=<?php echo $m->ID?>&cvem=<?php echo  urlencode($m->CLAVE)?>&t='rutas'" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;"><font color="blue">Ver Rutas</font> &nbsp;&nbsp;</a></p>
                           <?php }else{?>
                             <b>Sin Rutas</b>.
                           <?php }?>

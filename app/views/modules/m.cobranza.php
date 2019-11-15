@@ -122,7 +122,7 @@
             document.getElementById('cobranza').innerHTML="Total Cobranza: <font size='4pxs' color='red'>"+totalCobranza+"</font>";
             document.getElementById('logistica').innerHTML=" Total Logistica: <font size='4pxs' color='green'>"+totalLogistica+"</font>";
             document.getElementById('liberado').innerHTML=" Total Liberado: <font size='4pxs' color='green'>"+totalliberado+"</font>";
-            document.getElementById('revision').innerHTML=" Total Revision: <font size='4pxs' color='green'>"+totalrevision+"</font>";
+            document.getElementById('revision').innerHTML="<a href='index.cobranza.php?action=verRevisionMaestros' target='_blank'> Total Revision:</a> <font size='4pxs' color='green'>"+totalrevision+"</font>";
             document.getElementById('saldoCliente').innerHTML=" Total saldoCliente:       <font size='4pxs' color='green'>"+totalsaldoCliente+"</font>";
             document.getElementById('lineaComprometida').innerHTML=" Total Linea Comprometida: <font size='4pxs' color='green'>"+totallineaComprometida+"</font>";
             document.getElementById('remisiones').innerHTML="Total remisiones: " + totalremisiones; 

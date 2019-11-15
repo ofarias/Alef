@@ -13396,10 +13396,11 @@ function ImpSolicitud2($idsol){
 	            }
 	            $facturaP =array();
 	            $y = $x-$total;
-	            echo $y;
+	            //echo $y.'---'.$y;
 	            if($x > $total){
-	       			$facturasP=$data->facturasMaestro($pago);
+	            	$facturasP=$data->facturasMaestro($pago);
 	       		}
+
 	            $bancos = $data->traeBancosSAT();
 	            include 'app/views/pages/cobranza/p.pagoFacturas.php';
 	            $table = ob_get_clean();
@@ -15837,6 +15838,33 @@ function ImpSolicitud2($idsol){
     	}		
     }
 
+    function aplicarPago3($idp, $saldop, $items, $total, $retorno){
+    	if(isset($_SESSION['user'])){
+    		$data= new pegaso;
+			$pagina=$this->load_template('Pedidos');
+    		$html=$this->load_page('app/views/pages/p.pagarFacturas.php');
+    		ob_start();
+    			$aplicaPago = $data->aplicarPago3($idp, $saldop, $items, $total, $retorno);
+    			exit();
+    			if($retorno == 'cobranza'){
+    				$redireccionar = "CarteraxCliente&cve_maestro={$aplicaPago}";
+             		$pagina=$this->load_template('Pedidos');
+		            $html = $this->load_page('app/views/pages/p.redirectformCobranza.php');
+		            include 'app/views/pages/p.redirectformCobranza.php';
+		            $this->view_page($pagina);                     
+    			}else{
+    				$redireccionar = "SaldosxDocumento&cliente={$aplicaPago}";
+             		$pagina=$this->load_template('Pedidos');
+		            $html = $this->load_page('app/views/pages/p.redirectform.php');
+		            include 'app/views/pages/p.redirectform.php';
+		            $this->view_page($pagina);
+ 	   			}
+    	}else{
+    		$e = "Favor de iniciar Sesión";
+    		header('Location: index.php?action=login&e='.urlencode($e)); exit;
+    	}		
+    }
+
     function verSolClientes(){
     	
     	if(isset($_SESSION['user'])){
@@ -16741,7 +16769,6 @@ function ImpSolicitud2($idsol){
     }
 
     function recibirValidacion($doco, $folio){
-    	
     	if(isset($_SESSION['user'])){
     		$data = new pegaso;
     		ob_start();

@@ -1887,10 +1887,11 @@ WHERE CVE_DOC_COMPPAGO IS NULL AND (NUM_CPTO = 22 OR NUM_CPTO = 11 OR NUM_CPTO =
         $sf=$row->SF;
 
         if($sf > 5){
-                //$this->query="UPDATE CAJAS SET STATUS_LOG = 'NC', status_recepcion = iif(status_recepcion >=5, status_recepcion, 5) WHERE ID = $idc";
-                //        $res=$this->queryActualiza();
-                $this->query="EXECUTE PROCEDURE SP_LIB_X_NC ($idc)";
-                $res=$this->EjecutaQuerySimple();
+                $this->query="UPDATE CAJAS SET STATUS_LOG = 'NC', status_recepcion = iif(status_recepcion >=5, status_recepcion, 5) WHERE ID = $idc";
+                        $res=$this->queryActualiza();
+                
+                //$this->query="EXECUTE PROCEDURE SP_LIB_X_NC ($idc)";
+                //$res=$this->EjecutaQuerySimple();
         
                 if($res==1){
                     return array("status"=>'ok');

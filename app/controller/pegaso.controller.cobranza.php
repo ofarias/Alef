@@ -26,7 +26,7 @@ class pegaso_controller_cobranza{
 		return $pagina;
 	}
 
-    function load_template_popup($title='Ferretera Pegaso'){
+    function load_template_popup($title){
         $pagina = $this->load_page('app/views/master.php');
         $header = $this->load_page('app/views/sections/s.header2.php');
         $pagina = $this->replace_content('/\#HEADER\#/ms' ,$header , $pagina);
@@ -1237,6 +1237,100 @@ class pegaso_controller_cobranza{
             $html = $this->load_page('app/views/pages/p.redirectform.php');
             include 'app/views/pages/p.redirectform.php';
             $this->view_page($pagina);
+        }
+    }
+
+    function verCCs($idm, $cvem){
+        if($_SESSION['user']){
+            $data= new pegasoCobranza;
+            $pagina =$this->load_templateL('popup');
+            $html=$this->load_page('app/views/pages/cobranza/p.verCCs.php');
+            ob_start();
+            $maestro=$data->traeMaestro($idm, $cvem);
+            $ccs=$data->verCCs($idm);
+            $contactos=$data->traeContactos($tipo='c', $idm, $t='m');
+            include 'app/views/pages/cobranza/p.verCCs.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);   
+        }   
+    }
+
+    function conCob($idm, $cvem, $ccc){
+        if($_SESSION['user']){
+            $data= new pegasoCobranza;
+            $pagina =$this->load_templateL('popup');
+            $html=$this->load_page('app/views/pages/cobranza/p.conCob.php');
+            ob_start();
+            $maestro=$data->traeMaestro($idm, $cvem);
+            $ccs=$data->verCCs($idm);
+            $contactos=$data->traeContactos($tipo='c', $ccc, $t='ccc');
+            include 'app/views/pages/cobranza/p.conCob.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);   
+        }   
+    }
+
+    function agregaContacto($nombre, $paterno, $materno, $sn, $depto, $puesto, $tel, $correo, $ccc, $idm, $cvem, $tipo){
+        $data=new pegasoCobranza;
+        $res=$data->agregaContacto($nombre, $paterno, $materno, $sn, $depto, $puesto, $tel, $correo, $ccc, $idm, $cvem, $tipo);
+        $redireccionar="conCob&idm={$idm}&cvem={$cvem}&ccc={$ccc}";
+        $pagina=$this->load_template('Pedidos');
+        $html = $this->load_page('app/views/pages/p.redirectformCobranza.php');
+        include 'app/views/pages/p.redirectformCobranza.php';
+        $this->view_page($pagina);  
+    }
+
+    function verRevisionMaestros(){
+        if(isset($_SESSION['user'])){
+            $data= new pegasoCobranza;
+            $pagina=$this->load_template('Pedidos');
+            $html=$this->load_page('app/views/pages/cobranza/p.verRevisionMaestros.php');
+            ob_start();
+                $docs=$data->verRevisionMaestros();
+                include 'app/views/pages/cobranza/p.verRevisionMaestros.php';
+                $table = ob_get_clean();
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$html.'<div class="alert-danger"><center><h2>Hubo un error al mostrar los datos</h2><center></div>', $pagina);
+                $this->view_page($pagina);
+        }else{
+            $e = "Favor de iniciar Sesión";
+            header('Location: index.php?action=login&e='.urlencode($e)); 
+        }           
+    }
+
+    function verEntidades(){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina=$this->load_template_popup('Ver Entidades');
+            $html=$this->load_page('app/views/pages/cobranza/p.verEntidades.php');
+            ob_start();
+            $info=$data->verEntidades();
+            include 'app/views/pages/cobranza/p.verEntidades.php';
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$html.'<div class="alert-danger"><center><h2>No hay entidades</h2><center></div>', $pagina);
+            $this->view_page($pagina);
+        }else{
+            $e = "Favor de iniciar Sesión";
+            header('Location: index.php?action=login&e='.urlencode($e)); 
+        }
+    }
+
+    function creaEntidad($razon, $rfc, $comercial){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $res =$data->creaEntidad($razon, $rfc, $comercial);
+            return $res;
+        }
+    }
+
+    function bajaEntidad($ide){
+        if ($_SESSION['user']) {
+            $data = new pegasoCobranza;
+            $res = $data->bajaEntidad($ide);
+            return $res;
         }
     }
 }
