@@ -560,7 +560,29 @@ class pegaso_controller_cobranza{
         } 
     }
 
-
+    function CarteraxCCC($clave, $tipo){
+        if (isset($_SESSION['user'])){
+        $data = new pegasoCobranza;
+        $pagina=$this->load_template_popup('Pedidos');
+        $html=$this->load_page('app/views/pages/cobranza/p.saldosxccc.php');
+        ob_start();
+        //$saldoIndividual=$data->saldoIndividual($cve_maestro);
+        //$saldoIMaestro=$data->saldoIndMaestro($cve_maestro);
+        $saldoIndividual=array("status"=>"a");
+        $facturas =$data->facturasCCC($clave, $tipo);
+        include 'app/views/pages/cobranza/p.saldosxccc.php';
+        $table = ob_get_clean();    
+            if (count($saldoIndividual)>0){
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            }else{
+                $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table.'<div class="alert-info"><center><h2>No hay datos para mostrar</h2><center></div>', $pagina);
+            }
+        $this->view_page($pagina);
+        }else{
+            $e = "Favor de iniciar Sesión";
+            header('Location: index.php?action=login&e='.urlencode($e)); 
+        } 
+    }
 
     function SaldosxDocumento($cliente){    //19072016
         //session_cache_limiter('private_no_expire');
@@ -1331,6 +1353,22 @@ class pegaso_controller_cobranza{
             $data = new pegasoCobranza;
             $res = $data->bajaEntidad($ide);
             return $res;
+        }
+    }
+
+    function verRutaCobranza($idr){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina =$this->load_template('Pedidos');
+            $html=$this->load_page('app/views/pages/cobranza/p.verDetalleRutaCobranza.php');
+            ob_start();
+            $usuario = $_SESSION['user']->NOMBRE;
+            $tipoUsuario = $_SESSION['user']->LETRA;
+            $ruta=$data->verRutaCobranza($idr);
+            include 'app/views/pages/cobranza/p.verDetalleRutaCobranza.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);
         }
     }
 }

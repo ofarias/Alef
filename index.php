@@ -1289,8 +1289,9 @@ elseif(isset($_POST['cambiarStatus'])){
 	$marca = $_POST['marca'];
 	$proveedor = $_POST['proveedor'];
 	$costo = 0; // $_POST['costo'];
-	$unidad =$_POST['unidad'];
-	$controller->IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad);
+	$unidad = $_POST['unidad'];
+	$rec = $_POST['rec'];
+	$controller->IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad, $rec);
 }elseif (isset($_POST['guardaCargoFinanciero'])){
 	$monto=$_POST['monto'];
 	$fecha=$_POST['fecha'];
@@ -2679,6 +2680,10 @@ exit();
 	exit();
 }elseif (isset($_POST['traePago'])){
 	$res=$controller->traePago($_POST['idp'], $_POST['t']);
+	echo json_encode($res);
+	exit();
+}elseif (isset($_POST['gcb'])) {
+	$res=$controller->gcb($_POST['nc'], $_POST['p'], $_POST['u']);
 	echo json_encode($res);
 	exit();
 }

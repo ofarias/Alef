@@ -230,6 +230,14 @@ else{
 	case 'verEntidades':
 			$controller_cxc->verEntidades();
 			break;
+    case 'CarteraxCCC':
+        $clave = $_GET['clave'];
+        $tipo = isset($_GET['tipo'])? $_GET['tipo']:'v';
+        $controller_cxc->CarteraxCCC($clave, $tipo);
+        break;
+    case 'verRutaCobranza':
+		$controller_cxc->verRutaCobranza($_GET['idr']);
+		break;
     default:
 		header('Location: index.php?action=login');
 		break;

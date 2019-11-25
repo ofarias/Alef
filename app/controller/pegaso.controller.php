@@ -12048,13 +12048,13 @@ function fallarOC($doco){
 
     }
 
-    function IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad){
+    function IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad, $rec){
      	if (isset($_SESSION['user'])) {            
              $data = new pegaso;
              $datav = new pegaso_ventas;    	            
              ob_start(); 
              	$um = $datav->traeUM();
-                $ingresar= $data->IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad);
+                $ingresar= $data->IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad, $rec);
                 $desc = explode(":", $desc);
                 $desc1 = trim($desc[0]);
                 if ($ingresar== True){
@@ -17855,7 +17855,6 @@ function ImpSolicitud2($idsol){
 	}
 
 	function verInventarioBodega(){
-		
 		if($_SESSION['user']){
 			$data= new pegaso;
 			$pagina=$this->load_template('Pedidos');
@@ -17872,6 +17871,14 @@ function ImpSolicitud2($idsol){
 	    		$e = "Favor de iniciar Sesión";
 	    		header('Location: index.php?action=login&e='.urlencode($e)); exit;
 	    }		
+	}
+
+	function gcb($nc, $p, $u){
+		if($_SESSION['user']){
+			$data = new pegaso;
+			$gcb=$data->gcb($nc, $p, $u);
+			return $gcb;
+		}
 	}
 
 	function cierreInvBodega($datos){

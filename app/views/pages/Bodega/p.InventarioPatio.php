@@ -26,7 +26,6 @@
                                             <th>EMPACADO</th>
                                             <th>FACTURADO</th>
                                             <th>REMISIONADO</th>
-                                            
                                             <th>EN PATIO</th>
                                             <th>PRESUPUESTO COMPRA</th>
                                             <th>COSTO REAL</th>

@@ -19,7 +19,7 @@
 
                         <thead>
                             <tr>   
-                                <th>Clave</th>
+                                <th>Clave<br/>Caja</th>
                                 <th>Descripcion</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
@@ -47,15 +47,15 @@
                                     $i++;
                             ?>
                                     <tr class="odd gradeX" <?php echo $color?> id="tr_<?php echo $i?>">
-                                        <td><a href="index.php?action=verMovInventario&producto=<?php echo $data->PRODUCTO?>" target="_blank"><?php echo $data->PRODUCTO?></a></td>
+                                        <td><a href="index.php?action=verMovInventario&producto=<?php echo $data->PRODUCTO?>" target="_blank"><?php echo $data->PRODUCTO?></a><br/><input type="text" name="caja" class="nocaja" size="5" prod="<?php echo $data->PRODUCTO?>" u="<?php echo $data->UNIDAD?>" <?php echo !empty($data->CAJA)? 'value="'.$data->CAJA.'"':''?>></td>
                                         <td><?php echo $data->DESCRIPCION; ?></td>
                                         <td><?php echo $data->MARCA?></td>
                                         <td><?php echo $data->CATEGORIA?></td>
                                         <td><?php echo $data->PROVEEDOR?></td>
-                                        <td><input name= "cantidad" type="number" step="any" value="<?php echo $data->RESTANTE;?>" disabled="disabled" </td>
+                                        <td><input name= "cantidad" type="number" step="any" value="<?php echo $data->RESTANTE;?>" disabled="disabled"> </td>
                                         <td><input type="text" name="unidad" placeholder="Unidad de Medida" value="<?php echo $data->UNIDAD;?>" disabled="disabled"></td>
                                         <td><?php echo $data->FECHA; ?></td>
-                                        <td align="right"><input type="number" step="any" name="costo" placeholder="<?php echo $data->COSTO?>" value="<?php echo (empty($data->COSTO))? '0':$data->COSTO; ?>"  disabled="disabled" /> </td>
+                                        <td align="right"><input type="number" step="any" name="costo" placeholder="<?php echo $data->COSTO?>" value="<?php echo (empty($data->COSTO))? '0':$data->COSTO; ?>"  disabled="disabled" /></td>
                                         <?php if($rol != 'ventasp'){?>
                                         <td>
                                             <input type="number" name="conteo" step="any" value="<?php echo ($data->NUEVA == 9999999)? $data->RESTANTE:$data->NUEVA?>" min="0.001" class="conteo" original="<?php echo $data->RESTANTE?>" info="<?php echo $data->RESTANTE.':'.$data->PRODUCTO?>" info2="<?php echo $data->UNIDAD?>" onchange="revisar(<?php echo $i?>,'<?php echo $data->PRODUCTO?>', <?php echo $data->RESTANTE?>,this.value, '<?php echo $data->UNIDAD?>')" id='conteo_<?php echo $i?>'>
@@ -81,8 +81,32 @@
     <input type="hidden" name="cierreInvBodega" value="">
     <input type="hidden" name="datos" value="" id="datosCierre">
 </form>
+
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 <script type="text/javascript">
 
+    $(".nocaja").change(function(){
+        var nc = $(this).val()
+        var p = $(this).attr('prod')
+        var u = $(this).attr('u')
+        $.ajax({
+            url:'index.php',
+            type:'post',
+            dataType:'json',
+            data:{gcb:1, nc , p, u}, 
+            success:function(data){
+
+            },  
+            error:function(){
+                alert('No se pudo guardar la informaicon')
+            }
+        })
+    })
 
 function revisar(i, prod, canto, cantn, um){
         renglon = document.getElementById('tr_'+i);

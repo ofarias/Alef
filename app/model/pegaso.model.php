@@ -6534,13 +6534,13 @@ function ReEnrutar($id_preoc, $pxr, $doco){
 	}
 
 
-	function IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad){
+	function IngresarBodega($desc, $cant, $marca, $proveedor, $costo, $unidad, $rec){
     	$desc = explode(":", $desc);
     	$prod = trim($desc[0]);
     	$descripcion = $desc[1];
     	$usuario = $_SESSION['user']->NOMBRE;
-    	$this->query="INSERT INTO INGRESOBODEGA (PRODUCTO, DESCRIPCION, CANT, FECHA, MARCA, Proveedor, Costo, unidad, restante, usuario, origen) 
-    	VALUES ('$prod',(select nombre from producto_ftc where clave = '$prod'), $cant, current_timestamp, '$marca', '$proveedor', (select costo_ventas from producto_ftc where clave = '$prod'), '$unidad', $cant,'$usuario', 'Directo')";
+    	$this->query="INSERT INTO INGRESOBODEGA (PRODUCTO, DESCRIPCION, CANT, FECHA, MARCA, Proveedor, Costo, unidad, restante, usuario, origen, recepcion) 
+    	VALUES ('$prod',(select nombre from producto_ftc where clave = '$prod'), $cant, current_timestamp, '$marca', '$proveedor', (select costo_ventas from producto_ftc where clave = '$prod'), '$unidad', $cant,'$usuario', 'Directo','$rec')";
     	$rs =  $this->EjecutaQuerySimple();
     	
     	$this->query="SELECT MAX(ID) AS FOLIO FROM INGRESOBODEGA";
@@ -20233,13 +20233,19 @@ function ejecutarRecepcion($ida, $cantRec, $cantOr ){
 				 (select marca from producto_ftc where clave = ib.producto) as marca,
 				 (select proveedor from producto_ftc where clave = ib.producto) as proveedor,
 				 (select categoria from producto_ftc where clave = ib.producto) as categoria, 
-				 iif((select nueva from FTC_INVFISBOD ifi where ifi.status = 0 and ifi.producto = ib.producto and ifi.UM = ib.unidad) is null, 9999999,(select nueva from FTC_INVFISBOD ifi where ifi.status = 0 and ifi.producto = ib.producto and ifi.UM = ib.unidad)) as nueva
+				 iif((select nueva from FTC_INVFISBOD ifi where ifi.status = 0 and ifi.producto = ib.producto and ifi.UM = ib.unidad) is null, 9999999,(select nueva from FTC_INVFISBOD ifi where ifi.status = 0 and ifi.producto = ib.producto and ifi.UM = ib.unidad)) as nueva, max(recepcion) as caja
 				 FROM INGRESOBODEGA ib WHERE ib.RESTANTE > 0 group by ib.producto, ib.unidad ";
 		$rs=$this->EjecutaQuerySimple();
 		while($tsArray=ibase_fetch_object($rs)){
 			$data[]=$tsArray;
 		}
 		return $data;
+	}
+
+	function gcb($nc, $p, $u ){
+		$this->query="UPDATE INGRESOBODEGA SET RECEPCION = $nc where producto = '$p' and UNIDAD = '$u' and restante > 0 ";
+		$this->queryActualiza();
+		return array("status"=>'ok');
 	}
 
 

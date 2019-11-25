@@ -19,6 +19,9 @@
 			<?php endforeach ?>
 			</select>
 			<br/>
+      <input type="text" name="rec" size="5" placeholder="Caja">
+      <br/>
+      <br/>
 			<button type="submit" class="alert alert-warning" name="IngresarBodega" value = "enviar"> Agregar</button>
 		</form>
 	</div>

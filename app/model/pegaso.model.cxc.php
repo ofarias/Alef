@@ -403,6 +403,29 @@ class pegasoCobranza extends database {
         return $data;
     }
 
+    function facturasccc($clave, $tipo){
+        $data = array();
+        $c='';
+        if($tipo == 'v'){
+            $c=" and f.cc = ".$clave." and f.vencimiento >= 0 ";
+        }elseif($tipo == 'sv'){
+            $c=" and f.cc = '".$clave."' and f.vencimiento < 0 ";
+        }elseif ($tipo == 'ccd') {
+            $c = ' and f.c_compras = '.$cve_maestro;
+        }elseif($tipo == 't'){
+            $c = " and f.cc ='".$clave."' and f.vencimiento is not null";
+        }
+        $this->query="SELECT * FROM FACTURAS_PENDIENTES_FP f LEFT JOIN FTC_REGISTRO_COBRANZA RC ON RC.DOCUMENTO = f.cve_doc and rc.MARCA = 'S' LEFT JOIN CLIE01 CL ON CL.CLAVE_TRIM = F.CVE_CLPV OR CL.CLAVE = F.CVE_CLPV LEFT JOIN CARTERA C ON C.CCC = F.CC
+                    WHERE f.saldofinal > 3 $c
+                      order by f.fechaelab, f.vencimiento";
+        $rs = $this->EjecutaQuerySimple();
+            while ($tsArray=ibase_fetch_object($rs)) {
+                $data[]=$tsArray;
+            }
+            
+        return $data;
+    }
+
     function factMaestro($cve_maestro){
         $data = array();
         $this->query="SELECT * FROM FACTURAS_FP f LEFT JOIN FTC_REGISTRO_COBRANZA RC ON RC.DOCUMENTO = f.cve_doc and rc.MARCA = 'S' 
@@ -1043,7 +1066,7 @@ class pegasoCobranza extends database {
     function maestrosCartera(){
         $data=array();
         $c=trim($_SESSION['user']->CC); ///LETRA
-        $this->query="SELECT m.*, 
+        /*$this->query="SELECT m.*, 
                             (select count(id) from maestros_ccc mc where m.clave = mc.cve_maestro) as ccredito, 
                             coalesce(cast((select list(dias_pago) from cartera where tipo = m.clave and ccc is not null) as varchar(300)),'N') as diasd, 
                             coalesce((select count(id) from FTC_RC_DETALLE rd where (select status from ftc_rc r where r.idr = rd.idr)  < 9 and cvem = m.clave group by cvem), 0) AS RUTAS 
@@ -1052,6 +1075,16 @@ class pegasoCobranza extends database {
                                     m.status = 'A' and 
                                     m.cobranza > 0
                             order by m.nombre";
+        */
+        $this->query="SELECT fp.CC AS CLAVE_CC, SUM(fp.SALDOFINAL) as cobranza, COUNT(fp.CVE_DOC) AS DOCS, max(m.nombre) AS NOMBRE, MAX(DIAS_PAGO) AS DIASD, C_COBRANZA AS CARTERA, C_REVISION as cartera_revision, clave_MAESTRO AS CLAVE,  max(m.id_maestro) as id,
+            (select count(mc.ID) from maestros_ccc mc where mc.cve_maestro = fp.CLAVE_MAESTRO) as ccredito,
+            (SELECT coalesce(SUM(saldofinal),0) FROM facturas_pendientes_fp fpp where fpp.cc = fp.cc and vencimiento < 0) as revision,
+            (SELECT COUNT(r.IDR) FROM FTC_RC r where r.ccc = fp.cc and status = 1 ) as rutas
+            FROM facturas_pendientes_FP fp
+            LEFT JOIN maestros_ccc m on m.id = fp.cc
+            LEFT JOIN CARTERA c on c.ccc = fp.cc
+            WHERE fp.VENCIMIENTO >= 0 and fp.c_cobranza = '$c'
+            GROUP BY fp.CC, C_COBRANZA, C_REVISION, CLAVE_MAESTRO";
         //echo $this->query;
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)){
@@ -1064,7 +1097,7 @@ class pegasoCobranza extends database {
         $model= new pegaso;
         $data=array();
         $dia = $semana[(date('N')-1)];
-        $this->query="SELECT (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) ,
+        /*$this->query="SELECT (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) ,
                         FP.*, RC.* FROM FACTURAS_FP FP
                         LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
                         WHERE  
@@ -1087,6 +1120,12 @@ class pegasoCobranza extends database {
                             and fp.saldofinal >=2
                             and (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) = '$dia'
                             AND RC.STATUS IS NULL";
+        */
+        $this->query="SELECT F.*, (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC AND FR.STATUS = 'P') as activos
+                         FROM FACTURAS_PENDIENTES_FP F LEFT JOIN CARTERA CA ON CA.CCC = F.CC  WHERE F.VENCIMIENTO >= 0 AND
+                         (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC) >= 0
+                         and CA.DIAS_PAGO CONTAINING('MA')
+                         ORDER BY CLAVE_MAESTRO";
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)) {
             $data[]=$tsArray;
@@ -1135,55 +1174,49 @@ class pegasoCobranza extends database {
 
     function creaRutaCobranza($data, $tipoUsuario){
         $model= new pegaso;
-        $usuario= $_SESSION['user']->NOMBRE;
+        $usuario = $_SESSION['user']->NOMBRE;
         $fecha = date('d.m.Y');
-        $nuevafecha = strtotime ( '+7 day' , strtotime ( $fecha ) ) ;
+        $nuevafecha = strtotime ( '+7 day' , strtotime($fecha));
         $nuevafecha = date ( 'd.m.Y' , $nuevafecha );
         $monto = 0;
         $dia = $model->diaMx(date('N'));
         $d=date('N');
-        echo 'Valor de data: '.count($data);
+        echo 'Valor de data:'.count($data);
         if(count($data)>0){
             $docs = count($data);
+            $maestros = 1;
+            $m2='';
+            $ccs = 1;
+            $c2='';
             foreach ($data as $key) {
                 $monto +=  $key->SALDOFINAL;
+                $m1 = $key->CLAVE_MAESTRO;
+                if($m1 == $m2 or $m2==''){
+                    $m2=$key->CLAVE_MAESTRO;
+                }else{
+                    $maestros++;
+                    $m2=$key->CLAVE_MAESTRO;
+                }
+                $c1 = $key->CC;
+                if($c1 == $c2 or $c2 =''){
+                  $c2 = $key->CC;  
+                }else{
+                    $ccs++;
+                    $c2 = $key->CC;
+                }
             }
-            $this->query="SELECT count(cve_doc) FROM FACTURAS_FP FP
-                        LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
-                        WHERE 
-                            FP.C_COBRANZA = '$tipoUsuario' 
-                            and FP.vencimiento >=0
-                            and fp.saldofinal >=2
-                            AND RC.STATUS IS NULL
-                            group by cve_clpv";
-            $res=$this->EjecutaQuerySimple();
-            while ($tsArray=ibase_fetch_object($res)) {
-                $dc[]=$tsArray;
-            }
-            $clientes =count($dc); 
-
-            $this->query="SELECT count(cve_doc) FROM FACTURAS_FP FP
-            LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
-            WHERE 
-                FP.C_COBRANZA = '$tipoUsuario' 
-                and FP.vencimiento >=0
-                and fp.saldofinal >=2
-                AND RC.STATUS IS NULL
-                group by clave_maestro";
-            $res=$this->EjecutaQuerySimple();
-            while ($tsArray=ibase_fetch_object($res)) {
-                $dm[]=$tsArray;
-            }
-            $maestros =count($dm);
-
-            $this->query="INSERT INTO FTC_RC (IDR, FECHA_INICIAL, FECHA_FINAL, CARTERA, USUARIO_GENERA, DOCUMENTOS, MAESTROS, CLIENTES, VALOR, COBRADOS, LLAMADAS, VISITAS, CORREOS, GERENCIA, CORTE_CREDITO, STATUS, DIA, Nombre_dia) VALUES (NULL, CURRENT_DATE, '$nuevafecha', '$tipoUsuario', '$usuario', $docs, $maestros, $clientes, $monto, 0,0,0,0,0,0,0,$d, '$dia') RETURNING IDR";
+            // echo 'Numero de Maestros: '.$maestros.'<br/>';
+            // echo 'Numero de Centros: '.$ccs.'<br/>';
+            $this->query="INSERT INTO FTC_RC (IDR, FECHA_INICIAL, FECHA_FINAL, CARTERA, USUARIO_GENERA, DOCUMENTOS, MAESTROS, CLIENTES, VALOR, COBRADOS, LLAMADAS, VISITAS, CORREOS, GERENCIA, CORTE_CREDITO, STATUS, DIA, Nombre_dia) 
+                VALUES (NULL, CURRENT_DATE, '$nuevafecha', '$tipoUsuario', '$usuario', $docs, $maestros, $ccs, $monto, 0,0,0,0,0,0,0,$d, '$dia') RETURNING IDR";
             $res=$this->grabaBD();
             $row=ibase_fetch_object($res);
             $idr = $row->IDR;
+
             if(!empty($idr)){
                 foreach ($data as $key) {
                     $this->query="INSERT INTO FTC_RC_DETALLE (ID, DOCUMENTO, FECHA_INICIAL, FECHA_CIERRE, STATUS, IDR, STATUS_DOCUMENTO, CARTERA, CC, CVEM) 
-                                    VALUES (NULL, '$key->CVE_DOC', CURRENT_DATE, '$nuevafecha', 'P', $idr, 'N', '$tipoUsuario', $key->C_COMPRAS,'$key->CVE_MAESTRO')";
+                                    VALUES (NULL, '$key->CVE_DOC', CURRENT_DATE, '$nuevafecha', 'P', $idr, 'N', '$tipoUsuario', $key->CC,'$key->CLAVE_MAESTRO')";
                     $this->grabaBD();
                 }
             }
@@ -1197,7 +1230,7 @@ class pegasoCobranza extends database {
                                         Coalesce((SELECT SUM(fp.SALDOFINAL) FROM FACTURAS_PENDIENTES_FP fp WHERE cc=c.id),0) as facturas_fp 
                     FROM MAESTROS_CCC c 
                     left join cartera ct on ct.ccc = c.id 
-                    WHERE c.ID_MAESTRO = $idm";
+                    WHERE c.ID_MAESTRO = $idm and (cve_maestro <> '')";
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)) {
             $data[]=$tsArray;
@@ -1275,6 +1308,24 @@ class pegasoCobranza extends database {
         $this->query="UPDATE FTC_ENTIDADES SET STATUS = 'B', usuario_baja='$usuario', fecha_baja = current_timestamp WHERE ID=$ide";
         $this->queryActualiza();
         return array("status"=>'ok',"mensaje"=>'Se dio de baja la entidad y ya no se podra usar para generar CEP');
+    }
+
+    function verRutaCobranza($idr){
+        $data=array();
+        $this->query="SELECT RCD.*, FP.*,
+                        det_cobrado As cobrados,
+                        0 as monto_cobrado,
+                        det_llamadas AS LLAMADAS, 
+                        det_correos AS CORREOS, 
+                        det_visitas AS VISITAS, 
+                        det_gerencia AS GERENCIA, 
+                        det_corte_credito AS CORTE_CREDITO
+                        FROM FTC_RC_DETALLE RCD LEFT JOIN FACTURAS_FP FP ON FP.CVE_DOC = RCD.DOCUMENTO WHERE IDR=$idr";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
     }
 
 }?>
