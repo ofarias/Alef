@@ -32,6 +32,7 @@
     </div>
 </div>
 <br/>
+<!--
 <div class="row">
     <div class="col-lg-16">
         <div class="col-xs-16 col-md-6">
@@ -41,7 +42,7 @@
         </div>
     </div>
 </div>
-
+-->
 <div>
     <label>Hoy es <?php echo $dia.' '.date('d').' de '.$mes.' del '.$anio.'.'?></label>
 </div>
@@ -61,6 +62,9 @@
       <th align="center">Incio</th>  
       <th align="center">Fin</th>
       <th align="center">Valor</th>
+      <th>Cobrado</th>
+      <th>Corte <br/> de Credito</th>
+      <th>Estado</th>
       <th>Detalle</th>
       <th>Cedulas</th>
     </tr>
@@ -70,6 +74,9 @@
         <td><?php echo $ract->FECHA_INICIAL?></td>
         <td><?php echo $ract->FECHA_FINAL?></td>
         <td><?php echo '$ '.number_format($ract->VALOR,2)?></td>
+        <td><?php echo '$ '.number_format($ract->COBRADOS,2)?></td>
+        <td><?php echo $ract->CORTE_CREDITO?></td>
+        <td><?php echo $ract->STATUS?></td>
         <td><a onclick="verRuta(<?php echo $ract->IDR?>)">Detalle</a></td>
         <td><a onclick="verCedula(<?php echo $ract->IDR?>)">Ver Cedulas</a></td>
       </tr>
@@ -184,7 +191,7 @@
     }
 
     function verCedula(idr){
-      window.open('index.cobranza.php?action=verCedula&idr='+idr, '_blank', 'width=1200, height=800')
+      window.open('index.cobranza.php?action=verCedulas&idr='+idr, '_blank', 'width=1200, height=800')
     }
 
     $("#buscar").click(function(){

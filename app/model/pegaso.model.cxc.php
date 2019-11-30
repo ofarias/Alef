@@ -1093,6 +1093,35 @@ class pegasoCobranza extends database {
         return $data;
     }
 
+    function diaSemana($dia){
+        switch ($dia) {
+            case '1':
+                $d = 'L';
+                break;
+            case '2':
+                $d = 'MA';
+                break;
+            case '3':
+                $d = 'MI';
+                break;
+            case '4':
+                $d = 'J';
+                break;
+            case '5':
+                $d = 'V';
+                break;
+            case '6':
+                $d = 'S';
+                break;
+            case '7':
+                $d = 'D';
+                break;
+            default:
+                break;
+        }
+        return $d;
+    }
+
     function docVencidos($tipoUsuario, $semana){
         $model= new pegaso;
         $data=array();
@@ -1110,7 +1139,6 @@ class pegasoCobranza extends database {
         while ($tsArray=ibase_fetch_object($res)) {
             $data[]=$tsArray;
         }
-
         $this->query="SELECT (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) ,
                         FP.*, RC.* FROM FACTURAS FP
                         LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
@@ -1121,11 +1149,15 @@ class pegasoCobranza extends database {
                             and (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) = '$dia'
                             AND RC.STATUS IS NULL";
         */
-        $this->query="SELECT F.*, (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC AND FR.STATUS = 'P') as activos
-                         FROM FACTURAS_PENDIENTES_FP F LEFT JOIN CARTERA CA ON CA.CCC = F.CC  WHERE F.VENCIMIENTO >= 0 AND
-                         (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC) >= 0
-                         and CA.DIAS_PAGO CONTAINING('MA')
-                         ORDER BY CLAVE_MAESTRO";
+        $d = $this->diaSemana(date('N'));
+        $this->query="SELECT F.*, 
+                        (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC AND FR.STATUS = 'P') as activos
+                         FROM FACTURAS_PENDIENTES_FP F 
+                            LEFT JOIN CARTERA CA ON CA.CCC = F.CC  
+                        WHERE F.VENCIMIENTO >= 0 AND (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC AND FR.STATUS = 'P') = 0
+                        and CA.DIAS_PAGO CONTAINING('$d')
+                        ORDER BY CLAVE_MAESTRO";
+        //echo '<br/>'.$this->query.'<br/>';
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)) {
             $data[]=$tsArray;
@@ -1327,6 +1359,38 @@ class pegasoCobranza extends database {
         }
         return $data;
     }
+
+    function verCedulas($idr){
+        $this->query="SELECT rd.cc, sum(fp.saldofinal) as xCobrar, count(rd.documento) as documentos, sum(det_cobrado) as cobrado, sum(det_corte_credito) as corte, (select max(mc.nombre) from maestros_ccc mc where mc.id = rd.cc) as nombre
+            FROM FTC_RC_DETALLE rd left join facturas_pendientes_FP fp on fp.cve_doc = rd.documento
+            WHERE IDR=$idr 
+            group by rd.cc  order by CC";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function detDocCobr($idr, $cc ){
+        $this->query="SELECT * FROM FTC_RC_DETALLE rd left join facturas_fp f on f.cve_doc = rd.documento WHERE IDR = $idr and CC = $cc";
+        echo $this->query;
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function auditRuta($idr, $cc){
+        $this->query="SELECT COUNT(DOCUMENTO) FROM FTC_RC_DETALLE WHERE IDR = $idr and cc = $cc and STATUS_DOCUMENTO = 'X'";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
 
 }?>
     

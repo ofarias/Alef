@@ -340,6 +340,9 @@ class pegaso_controller{
 
 	function MenuCxC(){     //14062016		
 		if(isset($_SESSION['user']) && ($_SESSION['user']->USER_ROL=='cxc' ||$_SESSION['user']->USER_ROL=='administracion')){
+			//if($_SESSION['user']->NOMBRE != 'Oscar Farias Ayala'){
+		//		exit('En Desarrollo ...');
+		//	}
 			$tipoUsuario=$_SESSION['user']->LETRA;
 			$data=new pegaso;
 			$data2=new pegasoCobranza;
@@ -355,8 +358,8 @@ class pegaso_controller{
 			$anio = date('Y');
 			$semana=array('L', 'MA','MI', 'J', 'V', 'S', 'D');
 			$maestros=$data2->maestrosCartera();
-			$doctos=$data2->docVencidos($tipoUsuario, $semana);
-			$rutas = $data2->rutasCobranza($tipoUsuario);
+			$doctos=$data2->docVencidos($tipoUsuario, $semana);/// Creacion de la ruta.
+			$rutas = $data2->rutasCobranza($tipoUsuario); 
 			$rutasActivas = $data2->verRutasCobranza($tipo='A', $tipoUsuario);
 			if($documentos == 0 ){	
 				include 'app/views/modules/m.mcxc.php';

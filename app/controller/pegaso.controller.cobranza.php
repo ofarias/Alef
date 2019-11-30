@@ -1254,7 +1254,7 @@ class pegaso_controller_cobranza{
             $pagina =$this->load_template('pedidos');
             ob_start();
             $borrar=$data->delCss($cvem, $ccc, $opcion); 
-            $redireccionar="verCCC&cvem={$cvem}&idm={$borrar}";
+            $redireccionar="verCCC&cvem=".urlencode($cvem)."&idm={$borrar}";
             $pagina=$this->load_template('Pedidos');
             $html = $this->load_page('app/views/pages/p.redirectform.php');
             include 'app/views/pages/p.redirectform.php';
@@ -1371,5 +1371,46 @@ class pegaso_controller_cobranza{
             $this->view_page($pagina);
         }
     }
+
+    function verCedulas($idr){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina =$this->load_template('Cedulas de Cobranza');
+            $html=$this->load_page('app/views/pages/cobranza/p.verCedulasRuta.php');
+            ob_start();
+            $usuario = $_SESSION['user']->NOMBRE;
+            $tipoUsuario = $_SESSION['user']->LETRA;
+            $c=$data->verCedulas($idr);
+            include 'app/views/pages/cobranza/p.verCedulasRuta.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);
+        }    
+    }
+
+    function detDocCobr($idr, $cc){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina =$this->load_template('Gestion Cobranza');
+            $html=$this->load_page('app/views/pages/cobranza/p.detDocCobr.php');
+            ob_start();
+            $usuario = $_SESSION['user']->NOMBRE;
+            $tipoUsuario = $_SESSION['user']->LETRA;
+            $docs=$data->detDocCobr($idr, $cc);
+            include 'app/views/pages/cobranza/p.detDocCobr.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);
+        }   
+    }
+
+    function auditRuta($idr, $cc){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $res = $data->auditRuta($idr, $cc);
+            return $res;
+        }   
+    }
 }
 ?>
+

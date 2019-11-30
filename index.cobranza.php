@@ -139,6 +139,10 @@ if (isset($_POST['cobranza'])){
 	$res = $controller_cxc->bajaEntidad($_POST['ide']);
 	echo json_encode($res);
 	exit();
+}elseif (isset($_POST['auditRuta'])) {
+	$res=$controller_cxc->auditRuta($idr, $cc);
+	echo json_encode($res);
+	exit();
 }
 else{
 	switch ($_GET['action']){
@@ -237,6 +241,12 @@ else{
         break;
     case 'verRutaCobranza':
 		$controller_cxc->verRutaCobranza($_GET['idr']);
+		break;
+	case 'verCedulas':
+		$controller_cxc->verCedulas($_GET['idr']);
+		break;
+	case 'detDocCobr':
+		$controller_cxc->detDocCobr($_GET['idr'], $_GET['cc']);
 		break;
     default:
 		header('Location: index.php?action=login');
