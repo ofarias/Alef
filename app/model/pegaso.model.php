@@ -10953,7 +10953,13 @@ function Pagos() {
 			$corte = $bn->DIA_CORTE;
 			$fechaIni=$corte.'.'.$mes.'.'.$anio;
 			if($corte == 1){
+				if($mes == 12){
+				$fechafin='1.1.2020';
+
+				}else{
 				$fechafin=($corte).'.'.($mes+1).'.'.$anio;
+
+				}
 			}else{
 				$fechafin=($corte-1).'.'.($mes+1).'.'.$anio;
 			}
@@ -13402,7 +13408,13 @@ function Pagos() {
 			$corte = $bn->DIA_CORTE;
 			$fechaIni=$corte.'.'.$mes.'.'.$anio;
 			if($corte == 1){
+				if($mes==12){
+				$fechafin='1.1.2020';
+
+				}else{
 				$fechafin=($corte).'.'.($mes+1).'.'.$anio;
+
+				}
 			}else{
 				$fechafin=($corte-1).'.'.($mes+1).'.'.$anio;
 			}
@@ -15747,7 +15759,7 @@ function Pagos() {
     	$importe = $row->IMPORTE;
 
 
-        $limite = 300000;
+        $limite = 500000;
 
     	/// traemos el saldo de facturas pendientes de pago del cliente
     	$this->query="SELECT iif(SUM(SALDOFINAL) is null, 0 , sum(saldofinal)) as SF FROM FACTURAS WHERE CVE_CLPV = '$cveclie'";
