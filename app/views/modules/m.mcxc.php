@@ -48,7 +48,7 @@
 </div>
 
 <div>
-  <label>Genera Ruta <?php count($doctos)?></label>
+  <label><a href="index.cobranza.php?action=verDocCorte" target="_blank" onclick="window.open(this.href, this.target, 'width=1600,height=800'); return false;">Ver Documentos de Corte</a></label>
  <div class="col-lg-12">
         <div class="panel panel-default" id="">
             <div class="panel-heading">

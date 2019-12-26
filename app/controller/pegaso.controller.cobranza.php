@@ -1419,6 +1419,45 @@ class pegaso_controller_cobranza{
             return $res;
         }
     }
+
+    function verDocCorte(){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina =$this->load_template('Gestion Cobranza');
+            $html=$this->load_page('app/views/pages/cobranza/p.verDocCorte.php');
+            ob_start();
+            $usuario = $_SESSION['user']->NOMBRE;
+            $tipoUsuario = $_SESSION['user']->LETRA;
+            $docs=$data->verDocCorte($usuario, $tipoUsuario);
+            include 'app/views/pages/cobranza/p.verDocCorte.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);
+        }   
+    }
+
+    function verCajasCorte($cc){
+        if($_SESSION['user']){
+            $data=new pegasoCobranza;
+            $pagina =$this->load_template('Gestion Cobranza');
+            $html=$this->load_page('app/views/pages/cobranza/p.verCajasCorte.php');
+            ob_start();
+            $usuario = $_SESSION['user']->NOMBRE;
+            $letra = $_SESSION['user']->LETRA;
+            $cajas=$data->verCajasCorte($cc);
+            include 'app/views/pages/cobranza/p.verCajasCorte.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);
+        }   
+    }
+
+    function autoPed($id){
+        $data = new pegasoCobranza;
+        $res=$data->autoPed($id);
+        return $res;
+    }
+
 }
 ?>
 

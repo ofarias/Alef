@@ -1695,7 +1695,7 @@ elseif (isset($_POST['imprimeValidacion'])) {
 	$idp = $_POST['idp'];
 	$idca = $_POST['idca'];
 	$urgente = $_POST['urgente'];
-	$controller->libPedidoFTC($folio, $idp, $idca, $urgente);
+	$controller->libPedidoFTC($folio, $idp, $idca, $urgente, $_POST['cc']);
 }elseif (isset($_POST['editarMXC'])) {
 	$idcxm = $_POST['id'];
 	$controller->editarMXC($idcxm);

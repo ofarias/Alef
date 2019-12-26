@@ -147,6 +147,10 @@ if (isset($_POST['cobranza'])){
 	$res=$controller_cxc->cerrarDoc($_POST['idr'], $_POST['doc'], $_POST['tipo'], $_POST['fecha'], $_POST['obs']);
 	echo json_encode($res);
 	exit();
+}elseif (isset($_POST['autoPed'])) {
+	$res=$controller_cxc->autoPed($_POST['id']);
+	echo json_encode($res);
+	exit();
 }
 else{
 	switch ($_GET['action']){
@@ -251,6 +255,12 @@ else{
 		break;
 	case 'detDocCobr':
 		$controller_cxc->detDocCobr($_GET['idr'], $_GET['cc']);
+		break;
+	case 'verDocCorte':
+		$controller_cxc->verDocCorte();
+		break;
+	case 'verCajasCorte':
+		$controller_cxc->verCajasCorte($_GET['cc']);
 		break;
     default:
 		header('Location: index.php?action=login');

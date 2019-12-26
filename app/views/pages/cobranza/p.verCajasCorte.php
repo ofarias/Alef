@@ -7,7 +7,7 @@
                         </div>
                            <div class="panel-body">
                             <div class="table-responsive">                            
-                                <table class="table table-striped table-bordered table-hover" id="dataTables-verCajasAlmacen">
+                                <table class="table table-striped table-bordered table-hover" >
                                     <thead>
                                         <tr>
                                             <th>Cajas <br/><font color="red">Cotizacion</font></th>
@@ -18,9 +18,8 @@
                                             <th>Estado <br/> Sobregiro Autorizado</th>
                                             <th>Fecha Creacion <br/> Resultado </th>
                                             <th>Ver Cotizacion</th>
-                                            <th>Liberar</th>
-                                            <th>Ver Pedido <br/> Cliente</th>
-                                            <th>Subir Pedido</th>
+                                            <th>Autorizar</th>
+                                            
                                         </tr>
                                     </thead>
                                   <tbody>
@@ -40,7 +39,7 @@
                                                 $status_clie = 'Suspendido con Prorroga';    
                                             }
                                             $credito = 'no';
-                                            if( $data->LINEA - ($data->SALDOTOTAL + $data->DBIMPTOT) > -10){
+                                            if($data->LINEA - ($data->SALDOTOTAL + $data->DBIMPTOT) > -10){
                                               $credito = 'ok';
                                             }
                                             ?>
@@ -66,35 +65,13 @@
                                             <td>
                                                 <button name="verPedido" type="submit" value="enviar" class="btn btn-success"> Ver Pedido</button>
                                             </td>
-                                            <?php if($letra == 'G' or $_SESSION['user']->POLIZA_TIPO == 'G'){?>
-                                            <td title="Solo se permite liberar pedidos de clientes con Centro de credito asignado y con suficiente Linea de credito.">
-                                             <button name="libPedidoFTC" type="submit" value="enviar " class= "btn btn-warning"
-                                                <?php echo ($data->STATUS != 0 or empty($data->NOMBRE_ARCHIVO) or empty($data->CCRED) or $credito=='no' )? "disabled='disabled'":""?>
-                                                > 
 
-                                               <?php echo ($data->STATUS != 0)? "$status":"Liberar"?> 
-                                               </button>
-                                             <button name="rechazarFTC" type="submit" value="enviar" class="btn btn-danger"
-                                              <?php echo (($data->STATUS != 0) or empty($data->NOMBRE_ARCHIVO) or empty($data->CCRED) or $credito=='no' )? "disabled='disabled'":""?>
-                                                > 
-                                               <?php echo ($data->STATUS != 0)? "$status":"Rechazar"?>   
-                                             </button>
-                                             </td> 
-                                             <?php }else{?>
-                                             <td>
-                                             </td>
-                                             <?php }?>
-                                             </form>
-                                             <td>
-                                                <a href="/PedidosVentas/<?php echo substr($data->NOMBRE_ARCHIVO,30, 176)?>" download="/PedidosVentas/<?php echo substr($data->NOMBRE_ARCHIVO,30, 176)?>"><?php echo substr($data->NOMBRE_ARCHIVO,30,30)?> </a>
-                                             </td>
-                                             <td title="Solo se permite subir archivos de Clientes con Centro de Credito">
-                                                <form action="upload_pedido_ventas.php" method="post" enctype="multipart/form-data">
-                                                <input type="file" name="fileToUpload" id="fileToUpload" required>
-                                                <input type="hidden" name="cotizacion" value="<?php echo $data->PEDIDO?>">
-                                                <input type="submit" value="Subir Pedido" name="submit" <?php echo (!empty($data->NOMBRE_ARCHIVO) or empty($data->CCRED) or $credito=='no')? 'disabled=disabled':'' ?>>
-                                                </form>
-                                             </td>
+                                            <td>
+                                              <?php if(empty($data->CCC)){ ?>
+                                                <input type="button" name="autoriza" value="Autoriza" class="autoriza" onclick="auto(<?php echo $data->IDCA?>)"></td>
+                                              <?php }else{ ?>
+                                                Autorizado.
+                                              <?php } ?>                                          
                                         </tr> 
                                         <?php endforeach; 
                                         ?>
@@ -105,3 +82,25 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript" language="JavaScript" src="app/views/bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+
+  function auto(a){
+    alert('Desea Autorizar esta cotizacion para la liberacion?')
+    
+    $.ajax({
+      url:'index.cobranza.php',
+      type:'post',
+      dataType:'json',
+      data:{autoPed:1, id:a},
+      success:function(data){
+        location.reload(true)
+      },
+      error:function(){
+        alert('Ocurrio un error al autorizar, favor de volver a internar o revisar la informacion')
+      }
+    });
+
+  }
+</script>

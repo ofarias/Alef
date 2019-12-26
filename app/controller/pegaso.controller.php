@@ -14752,14 +14752,13 @@ function ImpSolicitud2($idsol){
         $pdf->Output('Cotizacion_'.$folio.'_.pdf','d');
 	}
 
-	function libPedidoFTC($folio, $idp, $idca, $urgente){
-		
+	function libPedidoFTC($folio, $idp, $idca, $urgente, $cc){
         if($_SESSION['user']){
             $data = new pegaso;
             $pagina=$this->load_template('Pedidos'); 
             $html = $this->load_page('app/views/pages/p.redirectform.php');
             $altaProd=$data->libPedidoFTC($folio, $idp, $idca, $urgente);
-
+            echo "<script> alert('El Centro de compras tiene un corte de credito y no podra liberar pedidos, favor de revisarlo con el departamento de Cuentas por Cobrar o Direccion.')</script>";
             $redireccionar = "verCajasAlmacen";      
             include 'app/views/pages/p.redirectform.php';
             $this->view_page($pagina);

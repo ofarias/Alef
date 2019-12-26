@@ -1411,5 +1411,35 @@ class pegasoCobranza extends database {
         return array("status"=>'ok'); 
     }
 
+    function verDocCorte($usuario, $tipoUsuario){
+        $data = array();
+        $this->query="SELECT RD.*, f.* FROM FTC_RC_DETALLE RD left join facturas_fp f on f.cve_doc = rd.documento
+                        WHERE RD.STATUS = 'C' AND RD.STATUS_DOCUMENTO = 'Corte' or RD.STATUS_DOCUMENTO = 'Rest'";
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)){
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function verCajasCorte($cc){
+        $data=array();
+        //$this->query="SELECT C.* FROM CAJAS_ALMACEN C left join factp01 p on p.cve_doc = c.pedido left join CLIE01 cl on cl.clave = p.cve_clpv WHERE cl.C_COMPRAS = $cc and C.status = 0 ";
+        $this->query="SELECT ca.*, ftcc.urgente, ftcc.cve_cliente, iif(cl.status_cobranza is null, 0 , cl.status_cobranza) as status_cobranza,  ftcc.dbimptot, cl.saldo_monto_cobranza, cl.nombre as cliente, ftcc.idpedido as oc, ftcc.cdfolio,  (SELECT coalesce(SUM(SALDO_FINAL), 0) FROM FTC_FACTURAS WHERE CLIENTE = ftcc.cve_cliente) + (SELECT coalesce(sum( ((cant_orig - facturado - devuelto) * (Total/ cant_orig) ) * 1.16 ), 0) from preoc01 where trim(clien) = ftcc.cve_cliente and status <>'P') as SaldoTotal, 0 as linea, 'A' as letra from cajas_almacen ca left join FTC_COTIZACION ftcc on ftcc.CDfolio = ca.cotizacion 
+                    left join clie01 cl on trim(cl.clave) = trim(ftcc.cve_cliente) where (ca.status  = 0 or datediff(day from fecha_ventas to current_timestamp) < 15) and cl.C_COMPRAS = $cc order by ca.fecha_ventas desc ";
+                    //echo $this->query;
+        $res=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($res)) {
+            $data[]=$tsArray;
+        }
+        return $data;
+    }
+
+    function autoPed($id){
+        $this->query="UPDATE CAJAS_ALMACEN SET CCC = 1 where idca = $id ";
+        $this->EjecutaQuerySimple();
+        return array("status"=>'ok', "mensaje"=>'Se ha actualizado');
+    }
+
 }?>
     

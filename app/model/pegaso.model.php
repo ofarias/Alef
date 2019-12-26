@@ -15728,7 +15728,7 @@ function Pagos() {
       	return $data;
     }
 
- function libPedidoFTC($folio, $idp, $idca, $urgente){
+ function libPedidoFTC($folio, $idp, $idca, $urgente, $cc){
     	$mensaje = '';
     	$TIME = time();
 		$HOY = date("Y-m-d H:i:s", $TIME);
@@ -15738,7 +15738,8 @@ function Pagos() {
     		$u = '';
     	}
     	$usuario=$_SESSION['user']->NOMBRE;
-    
+
+
     	$this->query="SELECT p.CVE_CLPV, limcred, diascred, iif(status_cobranza is null, 0, status_cobranza) as status_cobranza,
  						iif(finaliza_corte is null, current_timestamp, finaliza_corte) as finaliza_corte,
                     	iif(saldo_monto_cobranza is null, 0, saldo_monto_cobranza) as saldo_monto_cobranza, 
@@ -15758,6 +15759,12 @@ function Pagos() {
     	$saldoCobranza =$row->SALDO_MONTO_COBRANZA;
     	$importe = $row->IMPORTE;
 
+    	if(empty($cc)){
+	    	$val=$this->valCorte($folio, $idca);
+	    	if($val['status'] == 'no'){
+	    		return $val;
+	    	}
+    	}
 
         $limite = 500000;
 
@@ -15807,6 +15814,20 @@ function Pagos() {
     				$mensaje = 'ok';
     	}
    		return $mensaje;
+    }
+
+    function valCorte($folio, $idca){
+    	$data=array();
+    	$this->query="SELECT rd.* FROM FTC_RC_DETALLE rd left join facTuras_fp f on f.cve_doc = rd.documento WHERE rd.STATUS = 'C' AND (rd.STATUS_DOCUMENTO = 'Corte' or rd.STATUS_DOCUMENTO = 'Rest') and f.saldofinal > 5 and f.C_COMPRAS = (SELECT C_COMPRAS FROM CLIE01 WHERE CLAVE_TRIM = (SELECT CVE_CLIENTE FROM FTC_COTIZACION WHERE CDFOLIO = $idca))";
+    	$rs=$this->EjecutaQuerySimple();
+    	while ($tsArray=ibase_fetch_object($rs)) {
+    		$data[]=$tsArray;
+    	}
+    	if(count($data) > 0){
+    		return array("status"=>'no', "docs"=>count($data), "datos"=>$data);
+    	}else{
+    		return array("status"=>'ok');
+    	}
     }
 
     function verCatergoriasXMarcas(){
