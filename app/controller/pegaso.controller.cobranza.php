@@ -1411,6 +1411,14 @@ class pegaso_controller_cobranza{
             return $res;
         }   
     }
+
+    function cerrarDoc($idr, $doc, $tipo, $fecha, $obs){
+        if($_SESSION['user']){
+            $data= new pegasoCobranza;
+            $res = $data->cerrarDoc($idr, $doc, $tipo, $fecha, $obs);
+            return $res;
+        }
+    }
 }
 ?>
 

@@ -56,27 +56,51 @@
             </div>
 <div class="panel-body">
   <div class="table-responsive">                            
-  <table class="table table-bordered" >
+  <table class="table table-striped table-bordered table-hover" id="dataTables-RutaCobranza" >
+    <thead>
     <tr>
+      <th>Ruta</th>
       <th align="center">Dia</th>
       <th align="center">Incio</th>  
       <th align="center">Fin</th>
       <th align="center">Valor</th>
       <th>Cobrado</th>
+      <th>Pendiente <br/>de cobro</th>
       <th>Corte <br/> de Credito</th>
       <th>Estado</th>
       <th>Detalle</th>
       <th>Cedulas</th>
     </tr>
-    <?php foreach($rutasActivas as $ract):?>
+    </thead>
+    <?php foreach($rutasActivas as $ract):
+        $color='';
+        switch ($ract->STATUS) {
+          case 0:
+            $status_text = 'Activa';
+            break;
+          case 1:
+            $status_text = 'Parcial';
+            break;
+          case 2:
+            $status_text = 'Vencida';
+            break;
+          case 3:
+            $status_text = 'Cerrada';
+            break;
+          default:
+            break;
+        }
+      ?>
       <tr>
+        <td><?php echo $ract->IDR?></td>
         <td><?php echo $ract->NOMBRE_DIA?></td>
         <td><?php echo $ract->FECHA_INICIAL?></td>
         <td><?php echo $ract->FECHA_FINAL?></td>
-        <td><?php echo '$ '.number_format($ract->VALOR,2)?></td>
-        <td><?php echo '$ '.number_format($ract->COBRADOS,2)?></td>
+        <td align="right"><b><?php echo '$ '.number_format($ract->VALOR,2)?></b></td>
+        <td align="right"><font color="green"><?php echo '$ '.number_format($ract->COBRADOS,2)?></font></td>
+        <td align="right"><font color="red"><?php echo '$ '.number_format($ract->VALOR - $ract->COBRADOS,2)?> </font></td>
         <td><?php echo $ract->CORTE_CREDITO?></td>
-        <td><?php echo $ract->STATUS?></td>
+        <td><?php echo $status_text?></td>
         <td><a onclick="verRuta(<?php echo $ract->IDR?>)">Detalle</a></td>
         <td><a onclick="verCedula(<?php echo $ract->IDR?>)">Ver Cedulas</a></td>
       </tr>

@@ -670,8 +670,7 @@ class pegasoCobranza extends database {
                         left join facturas_fp fp on fp.cve_doc = ca.factura
                         where STATUS_RECEPCION = $tipo $recibidos
                         group by $campo";
-               //echo 'Tipo = 6 '.$this->query.' ---Finaliza';
-
+            //echo 'Tipo = 6 '.$this->query.' ---Finaliza';
         }elseif($tipo == 62){
             $tipo = 6;
             $this->query="SELECT F.*, C.*, CT.*, cl.*, iif(factura = '' or factura is null, remision, factura) as documento,
@@ -1169,7 +1168,16 @@ class pegasoCobranza extends database {
 
     function rutasCobranza($tipoUsuario){
         $data=array();
-        $this->query="SELECT * FROM FTC_RC WHERE CARTERA = '$tipoUsuario'";
+        /// Actualiza el status de la ruta 
+            /// STATUS  DE RUTA 0 = PENDIENTE, 1= PARCIAL, 2 = VENCIDA, 3= CERRADA
+        $this->query="UPDATE FTC_RC R SET STATUS = 3 WHERE STATUS < 3 AND (SELECT COUNT(RD.DOCUMENTO) FROM FTC_RC_DETALLE RD WHERE RD.IDR = R.IDR) = (SELECT COUNT(RD.DOCUMENTO) FROM FTC_RC_DETALLE RD WHERE RD.IDR = R.IDR AND STATUS = 'C')";
+        $this->EjecutaQuerySimple();
+
+        $this->query="UPDATE FTC_RC SET STATUS = 2 WHERE (STATUS = 0 OR STATUS = 1) AND cast(FECHA_FINAL as date) < CURRENT_DATE ";
+        $this->EjecutaQuerySimple();
+
+
+        $this->query="SELECT * FROM FTC_RC WHERE CARTERA = '$tipoUsuario' order by idr";
         $res=$this->EjecutaQuerySimple();
         while($tsArray=ibase_fetch_object($res)){
             $data[]=$tsArray;
@@ -1190,9 +1198,9 @@ class pegasoCobranza extends database {
     function verRutasCobranza($tipo, $cartera){
         $data=array();
         if($tipo == 'A'){
-            $c = " where status = 0 and cartera ='".$cartera."'";
+            $c = " where status < 3 and cartera ='".$cartera."'";
         }elseif($tipo == 'H'){
-            $c = " where status = 9 and cartera ='".$cartera."'";
+            $c = " where status >= 0 and cartera ='".$cartera."'";
         }elseif($tipo == 'T'){
             $c = '';
         }
@@ -1247,8 +1255,8 @@ class pegasoCobranza extends database {
 
             if(!empty($idr)){
                 foreach ($data as $key) {
-                    $this->query="INSERT INTO FTC_RC_DETALLE (ID, DOCUMENTO, FECHA_INICIAL, FECHA_CIERRE, STATUS, IDR, STATUS_DOCUMENTO, CARTERA, CC, CVEM) 
-                                    VALUES (NULL, '$key->CVE_DOC', CURRENT_DATE, '$nuevafecha', 'P', $idr, 'N', '$tipoUsuario', $key->CC,'$key->CLAVE_MAESTRO')";
+                    $this->query="INSERT INTO FTC_RC_DETALLE (ID, DOCUMENTO, FECHA_INICIAL, FECHA_CIERRE, STATUS, IDR, STATUS_DOCUMENTO, CARTERA, CC, CVEM, SALDO_DOC ) 
+                                    VALUES (NULL, '$key->CVE_DOC', CURRENT_DATE, '$nuevafecha', 'P', $idr, 'N', '$tipoUsuario', $key->CC,'$key->CLAVE_MAESTRO', (SELECT SALDO_FINAL FROM FTC_FACTURAS WHERE DOCUMENTO = '$key->CVE_DOC') )";
                     $this->grabaBD();
                 }
             }
@@ -1361,7 +1369,7 @@ class pegasoCobranza extends database {
     }
 
     function verCedulas($idr){
-        $this->query="SELECT rd.cc, sum(fp.saldofinal) as xCobrar, count(rd.documento) as documentos, sum(det_cobrado) as cobrado, sum(det_corte_credito) as corte, (select max(mc.nombre) from maestros_ccc mc where mc.id = rd.cc) as nombre
+        $this->query="SELECT rd.cc, sum(rd.saldo_doc) as xCobrar, count(rd.documento) as documentos, sum(det_cobrado) as cobrado, sum(det_corte_credito) as corte, (select max(mc.nombre) from maestros_ccc mc where mc.id = rd.cc) as nombre, count(documento) as docsX, (select count(a.documento) from FTC_RC_DETALLE a WHERE a.IDR =$idr and a.status = 'C' and a.cc = rd.cc) as docsy 
             FROM FTC_RC_DETALLE rd left join facturas_pendientes_FP fp on fp.cve_doc = rd.documento
             WHERE IDR=$idr 
             group by rd.cc  order by CC";
@@ -1373,8 +1381,8 @@ class pegasoCobranza extends database {
     }
 
     function detDocCobr($idr, $cc ){
-        $this->query="SELECT * FROM FTC_RC_DETALLE rd left join facturas_fp f on f.cve_doc = rd.documento WHERE IDR = $idr and CC = $cc";
-        echo $this->query;
+        $this->query="SELECT rd.*, f.*, (SELECT FACTURA_NUEVA FROM REFACTURACION WHERE FACT_ORIGINAL = rd.documento)  as refact FROM FTC_RC_DETALLE rd left join facturas_fp f on f.cve_doc = rd.documento WHERE IDR = $idr and CC = $cc";
+        //echo $this->query;
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)) {
             $data[]=$tsArray;
@@ -1391,6 +1399,17 @@ class pegasoCobranza extends database {
         return $data;
     }
 
+    function cerrarDoc($idr, $doc, $tipo, $fecha, $obs){
+        $this->query="UPDATE FTC_RC_DETALLE SET STATUS = 'C', STATUS_DOCUMENTO = '$tipo', OBSERVACIONES = 'Promesa de Pago: '||'$fecha'||' '||'$obs' WHERE IDR = $idr and DOCUMENTO = '$doc'";
+        $this->EjecutaQuerySimple();
+        
+        if(!empty($fecha)){
+            /// quiere decir que es corte de credito
+            $this->query="";
+        }
+        
+        return array("status"=>'ok'); 
+    }
 
 }?>
     

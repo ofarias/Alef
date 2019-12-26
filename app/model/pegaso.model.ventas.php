@@ -42,7 +42,8 @@ class pegaso_ventas extends database{
                    )
                     and ftcd2.cdfolio = A.cdfolio
                     and clib.camplib2 is null) as Sinskus,
-            B.addendaf as addenda 
+            B.addendaf as addenda ,
+            B.uuid as st
             FROM FTC_COTIZACION A 
             INNER JOIN CLIE01 B ON TRIM(A.CVE_CLIENTE) = TRIM(B.CLAVE) 
             WHERE CDUSUARI = '$usuario'";        

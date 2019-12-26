@@ -26,7 +26,9 @@
                     </div>
                     <div class="panel-body">
                         <p>Linea Otorgada <font color="blue"><?php echo '$ '.number_format($data->LINEACRED_CALCULADA,2)?></font></p>
+                        
                         <p>Pendiente aplicar: <font color="green"><?php echo '$ '.number_format($data->ACREEDOR,2) ?></font></p>
+                        
                         <p>Comprometido: <font color="#cc9900"><?php echo '$ '.number_format($data->LIBERADO + $data->REVISION + $data->COBRANZA + $data->LOGISTICA ,2)?></font></p>
                         <p>Disponible <font color="green"><?php echo '$ '.number_format($data->LINEACRED_CALCULADA - ($data->LIBERADO + $data->REVISION + $data->COBRANZA + $data->LOGISTICA + $data->REMISIONES),2)?></font></p>
                         <p>Saldo Cliente:<font color="red"> <?php echo '$ '.number_format($data->REVISION + $data->COBRANZA + $data->LOGISTICA ,2)?></font></p>

@@ -16,16 +16,20 @@
                             <a href="index.cobranza.php?action=detDocCobr&idr=<?php echo $idr?>&cc=<?php echo $ced->CC?>" 
                                 target="popup" 
                                 onclick="window.open(this.href, this.target, 'width=1200, height=900')"
-                                >Por Cobrar: <?php echo $ced->XCOBRAR?>    
+                                >Por Cobrar:<font color="green"> <?php echo '$ '.number_format($ced->XCOBRAR,2)?></font>    
                             </a>
                           </p>
                           <P><a href="index.cobranza.php?action=CarteraxCCC&clave=<?php echo urlencode($ced->CC)?>&tipo=v" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Cobrado:</a> <font color="blue"><?php echo '$ '.number_format($ced->COBRADO,2)?></font>
                           </P>
 
-                          <P><a href="index.cobranza.php?action=CarteraxCCC&clave=<?php echo  urlencode($ced->CC)?>&tipo=sv" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Vencido:</a> <font color="green"><?php echo '$ '.number_format($ced->XCOBRAR - $ced->COBRADO,2)?></font>
+                          <P><a href="index.cobranza.php?action=CarteraxCCC&clave=<?php echo  urlencode($ced->CC)?>&tipo=sv" target="popup" onclick="window.open(this.href, this.target, 'width=1200, height=800'); return false;">Vencido:</a> <b><font color="red"><?php echo '$ '.number_format($ced->XCOBRAR - $ced->COBRADO,2)?></font></b>
                           </P>
                           <p>
-                            <button class="btn-sm btn-info cerrar" cc="<?php echo $ced->CC?>" idr="<?php echo $idr?>" ven="<?php echo $ced->XCOBRAR - $ced->COBRADO?>">Cerrar Ruta</button>
+                          <?php if($ced->DOCSY == $ced->DOCSX){?>
+                           <font color="blue">Cerrado</font>
+                          <?php }else{?>
+                            Faltan:<font color="red"> <?php echo $ced->DOCSX - $ced->DOCSY?></font> por cerrar.
+                          <?php }?>
                           </p>
                           
                       </div>
@@ -34,6 +38,8 @@
             <?php endforeach;?>
         </div>
 </div>
+
+
 
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>

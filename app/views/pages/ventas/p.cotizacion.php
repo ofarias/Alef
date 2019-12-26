@@ -96,10 +96,11 @@
                                 &nbsp;&nbsp; <?php echo $data->SERIE.$data->FOLIOL;?></td>
                                 <td><?php echo $data->CLIENTE;?>
                                         <br/>
-                                        <a href="index.v.php?action=verSKUS&cliente=<?php echo $data->CLIENTE?>&cdfolio=<?php echo $data->FOLIO?>"   target="popup" onclick="window.open(this.href, this.target, 'width=1200,height=820'); return false;">Capturar SKUS </a>   
+                                        <a href="index.v.php?action=verSKUS&cliente=<?php echo $data->CLIENTE?>&cdfolio=<?php echo $data->FOLIO?>"   target="popup" onclick="window.open(this.href, this.target, 'width=1200,height=820'); return false;">Capturar SKUS </a>
+
                             
                                 </td>
-                                <td><?php echo $data->NOMBRE;?><br/><?php echo $test?></td>
+                                <td title="Cliente restringido por Cobranza"><?php echo $data->NOMBRE;?><br/><?php echo $test?><br/><b><font color="red"><?php echo $data->ST?></font></b></td>
                                 <td><?php echo $data->RFC.'<br/>'.$data->PRODUCTOS;?> </td>
                                 <td align="right"><?php echo '$ '.number_format($data->SALDO_CORRIENTE,2)?> <br/> <?php echo '$ '.number_format($data->SALDO_VENCIDO,2)?></td>
                                 <td><?php echo $data->FECHA;?></td>

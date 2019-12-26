@@ -17530,6 +17530,7 @@ function ImpSolicitud2($idsol){
 					$exec=$data->ejecutaRefac($opcion, $idsol);
 				}	
 				if($exec['status'] == 'ok'){
+					$cobranza=$this->ActualizaCobranza($idsol, $exec['factura']);	
 					$fecha  = date('d-m-Y');
 					//$movFactura=$data->moverFactura($exec['factura'], $exec['rfc']);
 	  				//$movNC=$data->moverNC($exec['nc'],$exec['rfc']);

@@ -12648,13 +12648,13 @@ function Pagos() {
    		$val = $this->validaEdoCta($banco, $cuenta, $mes, $anio);
    		$usuario=$_SESSION['user']->NOMBRE;
    		if($val == 'ok'){
-   			$this->query="INSERT INTO CARGO_FINANCIERO (FECHA_RECEP, MONTO, BANCO, CUENTA, SALDO, USUARIO, FECHA) VALUES ('$fecha', $monto, '$banco','$cuenta',$monto, '$usuario', current_timestamp )";
-   			$rs=$this->EjecutaQuerySimple();	
+   			$this->query="INSERT INTO CARGO_FINANCIERO (FECHA_RECEP, MONTO, BANCO, CUENTA, SALDO, USUARIO, FECHA, ) VALUES ('$fecha', $monto, '$banco','$cuenta',$monto, '$usuario', current_timestamp )";
+   			//$rs=$this->EjecutaQuerySimple();	
    			$mensaje = 'Se ha relizado el Cargo Fiannciero Correctamente';
    		}else{
    			$mensaje ='El estado de cuenta esta cerrado y conciliado, Se guardo el cargo, favor de revisar.';
    			$this->query="INSERT INTO CARGO_FINANCIERO (FECHA_RECEP, MONTO, BANCO, CUENTA, SALDO, USUARIO, FECHA) VALUES ('$fecha', $monto, '$banco','$cuenta',$monto,'$usuario', current_timestamp )";
-   			$rs=$this->EjecutaQuerySimple();
+   			//$rs=$this->EjecutaQuerySimple();
    		}
    		return $mensaje;
    	}
@@ -19855,7 +19855,7 @@ function cerrarRecepcion($doco){
 				  		$this->grabaBD();
 
 				  		$this->query="INSERT INTO REFACTURACION_DETALLE (ID_REFAC, NUEVA_FECHA, OBSERVACIONES, SAT_USO_ACTUAL, SAT_FP_ACTUAL, SAT_MP_ACTUAL, CLIENTE_ACTUAL, RFC_ACTUAL) 
-				  						VALUES ( (SELECT MAX(ID) FROM REFACTURACION), '$nf', '$obs', '$satcfdi', '$satmp', '$satfp', TRIM('$row->CVE_CLPV'),TRIM('$row->RFC'))";
+				  						VALUES ( (SELECT MAX(ID) FROM REFACTURACION), '$nf', '$obs', '$satcfdi',  '$satfp','$satmp', TRIM('$row->CVE_CLPV'),TRIM('$row->RFC'))";
 				  		$this->grabaBD();
 
 			  		}elseif($opcion == 2){ /// Cambio de cliente
@@ -24259,7 +24259,7 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
 				            	$unidad = $data[0];
 				            	$importe = $data[1];
 				            	$cantidad = $data[2];
-				            	$descripcion = str_replace(array("\\", "¨", "º", "-", "~",
+				            	$descripcion = str_replace(array("\\", "¨", "º", "~",
 								             "#", "@", "|", "!", "\"",
 								             "·", "$", "%", "&", "/",
 								             "(", ")", "?", "'", "¡",
@@ -24275,11 +24275,29 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
 				            	if($rs=$this->grabaBD() === false){
 				            		echo 'Falla al insertar la partida:<br/>';
 				            		echo $this->query.'<br/>';
-				            	}          
+				            	}
+				            	$y=explode(" ", $descripcion);
+				            	//echo '<br/> Valor de count Y'.count($y).'<br/>';
+				            		if(count($y)==4){
+				            			$y3 = $y[3];
+				            			$this->query="SELECT * FROM FTC_FACTURAS WHERE UUID = '$y3'";
+				            			$res=$this->EjecutaQuerySimple();
+				            			$rowy= ibase_fetch_object($res);
+				            			if(isset($rowy)){
+				     						// Insertamos el cargo financiero
+				     						$uY= $_SESSION['user']->USER_LOGIN;
+				            				$this->query="INSERT INTO CARGO_FINANCIERO (ID, FECHA_RECEP, MONTO, SALDO, USUARIO, FECHA, FACTURA, UUID, UUID_INTERESES) VALUES (NULL, current_date, $importe, 0, '$uY', current_timestamp, '$rowy->DOCUMENTO', '$y3', '$uuid') RETURNING ID";
+       										
+       										//echo 'Quitamos el saldo del estado de cuenta';
+				            				if($resg=$this->grabaBD()){
+				            					$this->query="UPDATE FTC_FACTURAS SET SALDO_FINAL = SALDO_FINAL - $importe where UUID='$y3' and saldo_final >= ($importe - 0.1) ";
+					            				$res=$this->queryActualiza();	
+				            				}
+				            			}
+				            		}
 				            	$i=$i+1;
 			            	}
 			            	$this->calcularImpuestos($uuid);
-
 			            }elseif($tipo2 == 'C'){
 			            	$this->query = "INSERT INTO XML_DATA_CANCELADOS (UUID, CLIENTE, SUBTOTAL, IMPORTE, FOLIO, SERIE, FECHA, RFCE, DESCUENTO, STATUS, TIPO, FILE )";
 				            $this->query.= "VALUES ('$uuid', '$rfc', '$subtotal', '$total', '$folio', '$serie', '$fecha', '$rfce', $descuento, 'C', '$tipo2', '$archivo')";
@@ -26734,5 +26752,29 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
  		exit();
  	}
 
+ 	function actualizaCobranza($idsol, $facturaN){
+ 		$this->query="SELECT R.CAJA AS CAJA_ORIGINAL, R.*, FP.* FROM REFACTURACION R left join FACTURAS_FP FP ON FP.CVE_DOC = R.FACT_ORIGINAL WHERE R.ID = $idsol";
+ 		$res=$this->EjecutaQuerySimple();
+ 		$row=ibase_fetch_object($res);
 
+ 		$this->query="EXECUTE PROCEDURE CopiaCaja(caja_original)";
+ 		$this->EjecutaQuerySimple();
+ 		/// Revisar si con eso sale la refactura para que se le ponga el contrarecibo y asi dispare la fecha de inicio de cobranza.
+ 		$val=$this->validaRC($facturaN, $row->DOCUMENTO);
+	}
+
+ 	function validaRC($fact_n, $fact_o){
+ 		$this->query="SELECT * FROM FTC_RC_DETALLE WHERE DOCUMENTO = '$fact_o' and status = 'P'";
+ 		$res=$this->EjecutaQuerySimple();
+ 		$row=ibase_fetch_object($res);
+ 		if(!empty($row->DOCUMENTO)){
+ 			$this->query="INSERT INTO FTC_RC_DETALLE (ID, DOCUMENTO, FECHA_INICIAL, FECHA_CIERRE, STATUS, IDR, STATUS_DOCUMENTO, CARTERA, DET_COBRADO, CC, CVEM, SALDO_DOC, OBSERVACIONES) VALUES (NULL, '$fact_n', '$row->FECHA_INICIAL', '$row->FECHA_CIERRE', 'P', $row->IDR, 'N', '$row->CARTERA', 0, $row->CC, '$row->CVEM', $row->SALDO_DOC, '')";
+ 			$this->grabaBD();
+
+ 			$this->query="UPDATE FTC_RC_DETALLE SET STATUS = 'C', STATUS_DOCUMENTO='Recfactura', DET_COBRADO = 0, SALDO_DOC = 0 WHERE ID = $row->ID";
+ 			$this->queryActualiza();
+
+ 		}
+ 		return;
+ 	}
 }?>
