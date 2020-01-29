@@ -153,7 +153,7 @@
                     </div>
                 </div>
             </div>
-            </div>
+           <!-- </div> -->
             <div class="col-xs-12 col-md-2">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -161,7 +161,7 @@
                     </div>
                     <div class="panel-body">
                         <p><br></p>
-                        <center><a href="index.php?action=documentos_cliente" class="btn btn-default"><img src="app/views/images/Clientes/Catalogodeclientes.png" width="50" height="70"></a></center>
+                        <center><a href="index.php?action=documentos_cliente" class="btn btn-default"><img src="app/views/images/Clientes/Catalogodeclientes.png" width="50" height="60"></a></center>
                     </div>
                 </div>
             </div>
@@ -183,7 +183,7 @@
                 </div>
                 <div class="panel-body">
                     <p>Impresion de Facturas</p>
-                    <center><a href="index.php?action=imprimeXML" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                    <center><a href="index.php?action=imprimeXML" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png" width="50" height="50"></a></center>
                 </div>
                 </div>
             </div>
@@ -194,10 +194,79 @@
                     </div>
                     <div class="panel-body">
                         <p><br></p>
-                        <center><a href="index.php?action=catalogo_documentos" class="btn btn-default"><img src="app/views/images/Documents-icon.png"></a></center>
+                        <center><a href="index.php?action=catalogo_documentos" class="btn btn-default"><img src="app/views/images/Documents-icon.png" width="50" height="60"></a></center>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-12 col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Asignar el Material</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Asignar el Material</p>
+                        <center><a href="index.php?action=AMaterial" class="btn btn-default"><img src="app/views/images/boxes-brown-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+
+             <div class="col-xs-12 col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Embalaje de Material</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Embalar Material</p>
+                        <center><a href="index.php?action=embalar" class="btn btn-default"><img src="app/views/images/Packing-1-icon.png" ></a></center>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Documentar Cajas</h4> 
+                    </div>
+                    <div class="panel-body">
+                        <p><br></p>
+                        <center><a href="index.php?action=Cajas" class="btn btn-default"><img src="app/views/images/packing-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+             <div class="col-xs-12 col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"> Prefacturas Pendientes</i></h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Facturar Prefacturas</p>
+                        <center><a href="index.php?action=prefacturasPendientes" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+                <div class="col-xs-12 col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Notas de Credito</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Notas de Credito y Refacturaciones </p>
+                        <center><a href="index.php?action=buscaFacturaNC" class="btn btn-default"><img src="app/views/images/Clipboard-Paste-icon.png"></a></center>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Catalogo de Productos</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Alta y Edicion de productos</p>
+                        <center><a href="index.php?action=catalogoProductosFTC" class="btn btn-default"><img src="app/views/images/Proveedores y productos/CatalogoProductos.png" width="50" height="70" ></a></center>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
     

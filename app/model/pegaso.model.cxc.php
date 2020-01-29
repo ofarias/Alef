@@ -657,7 +657,7 @@ class pegasoCobranza extends database {
             $campo = 'cartera';
            
         }
-
+        echo '----'.$tipo;
         if($tipo == 6 ){
           $this->query="SELECT count(ca.id) as documentos ,  max(c.cve_maestro), $campo as cartera, 
                         coalesce(sum(f.saldofinal), sum(fp.saldofinal)) as facturas, sum(r.importe) as remisiones
@@ -702,7 +702,8 @@ class pegasoCobranza extends database {
                 cast((SELECT list(NC.DOCUMENTO) FROM FTC_NC NC WHERE NC.IDCAJA = C.ID) as varchar(100)),
                 cast((SELECT list(NCI.DOCUMENTO) FROM FTC_NCI NCI WHERE NCI.IDCAJA = C.ID) as varchar(100)
                     )
-                    ) AS NCP 
+                    ) AS NCP,
+                    '' as HISTORIAL
                 FROM CAJAS C 
                 LEFT JOIN FACTP01 F  ON F.CVE_DOC = C.CVE_FACT 
                 LEFT JOIN CARTERA CT ON CT.IDCLIENTE = F.CVE_CLPV
@@ -710,7 +711,7 @@ class pegasoCobranza extends database {
                 left join maestros m on m.clave = cl.cve_maestro
                 WHERE $a STATUS_RECEPCION = $tipo $recibidos
                 $cr";
-                //echo 'Tipo = 62 '.$this->query;
+                ///echo 'Tipo = 62 '.$this->query;
 
         }elseif($tipo == 7){
                 $this->query="SELECT F.*, C.*, CT.*, cl.*, iif(factura = '' or factura is null, remision, factura) as documento,
@@ -1124,7 +1125,9 @@ class pegasoCobranza extends database {
     function docVencidos($tipoUsuario, $semana){
         $model= new pegaso;
         $data=array();
+        $dt=array();
         $dia = $semana[(date('N')-1)];
+        $status = 0;
         /*$this->query="SELECT (SELECT DIAS_PAGO FROM CARTERA WHERE CCC = C_COMPRAS) ,
                         FP.*, RC.* FROM FACTURAS_FP FP
                         LEFT JOIN FTC_RC_DETALLE RC ON RC.DOCUMENTO = FP.CVE_DOC AND RC.STATUS = 'P'
@@ -1149,6 +1152,9 @@ class pegasoCobranza extends database {
                             AND RC.STATUS IS NULL";
         */
         $d = $this->diaSemana(date('N'));
+        //$d = 'Vi';
+        //exit;
+        //// Hacer una rutina para que recorra todos los dias y fechas anteriores a la fecha actual.
         $this->query="SELECT F.*, 
                         (SELECT COUNT(ID) FROM FTC_RC_DETALLE FR WHERE FR.DOCUMENTO = F.CVE_DOC AND FR.STATUS = 'P') as activos
                          FROM FACTURAS_PENDIENTES_FP F 
@@ -1162,7 +1168,15 @@ class pegasoCobranza extends database {
             $data[]=$tsArray;
         }
 
-        $this->creaRutaCobranza($data, $tipoUsuario);
+        $this->query="SELECT * FROM FTC_RC R where status = 2";
+        $rs=$this->EjecutaQuerySimple();
+        while ($tsArray=ibase_fetch_object($rs)) {
+            $dt[]=$tsArray;
+        }
+        if(count($dt)>0){
+            $status = 4;
+        }
+        $this->creaRutaCobranza($data, $tipoUsuario, $status);
         return $data;
     }
 
@@ -1212,15 +1226,16 @@ class pegasoCobranza extends database {
         return $data;
     }
 
-    function creaRutaCobranza($data, $tipoUsuario){
+    function creaRutaCobranza($data, $tipoUsuario, $status){
         $model= new pegaso;
         $usuario = $_SESSION['user']->NOMBRE;
         $fecha = date('d.m.Y');
-        $nuevafecha = strtotime ( '+7 day' , strtotime($fecha));
+        $nuevafecha = strtotime ( '+6 day' , strtotime($fecha));
         $nuevafecha = date ( 'd.m.Y' , $nuevafecha );
         $monto = 0;
         $dia = $model->diaMx(date('N'));
         $d=date('N');
+        //$d = 3;
         echo 'Valor de data:'.count($data);
         if(count($data)>0){
             $docs = count($data);
@@ -1248,7 +1263,7 @@ class pegasoCobranza extends database {
             // echo 'Numero de Maestros: '.$maestros.'<br/>';
             // echo 'Numero de Centros: '.$ccs.'<br/>';
             $this->query="INSERT INTO FTC_RC (IDR, FECHA_INICIAL, FECHA_FINAL, CARTERA, USUARIO_GENERA, DOCUMENTOS, MAESTROS, CLIENTES, VALOR, COBRADOS, LLAMADAS, VISITAS, CORREOS, GERENCIA, CORTE_CREDITO, STATUS, DIA, Nombre_dia) 
-                VALUES (NULL, CURRENT_DATE, '$nuevafecha', '$tipoUsuario', '$usuario', $docs, $maestros, $ccs, $monto, 0,0,0,0,0,0,0,$d, '$dia') RETURNING IDR";
+                VALUES (NULL, CURRENT_DATE, '$nuevafecha', '$tipoUsuario', '$usuario', $docs, $maestros, $ccs, $monto, 0,0,0,0,0,0, $status, $d, '$dia') RETURNING IDR";
             $res=$this->grabaBD();
             $row=ibase_fetch_object($res);
             $idr = $row->IDR;

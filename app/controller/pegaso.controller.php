@@ -339,7 +339,7 @@ class pegaso_controller{
 /// Finaliza Menus 
 
 	function MenuCxC(){     //14062016		
-		if(isset($_SESSION['user']) && ($_SESSION['user']->USER_ROL=='cxc' ||$_SESSION['user']->USER_ROL=='administracion')){
+		if(isset($_SESSION['user']) && ($_SESSION['user']->USER_ROL=='cobranza' ||$_SESSION['user']->USER_ROL=='administracion')){
 			//if($_SESSION['user']->NOMBRE != 'Oscar Farias Ayala'){
 		//		exit('En Desarrollo ...');
 		//	}
@@ -358,8 +358,8 @@ class pegaso_controller{
 			$anio = date('Y');
 			$semana=array('L', 'MA','MI', 'J', 'V', 'S', 'D');
 			$maestros=$data2->maestrosCartera();
+			$rutas = $data2->rutasCobranza($tipoUsuario);  /// Revisamos las rutas y actualizamos el status.
 			$doctos=$data2->docVencidos($tipoUsuario, $semana);/// Creacion de la ruta.
-			$rutas = $data2->rutasCobranza($tipoUsuario); 
 			$rutasActivas = $data2->verRutasCobranza($tipo='A', $tipoUsuario);
 			if($documentos == 0 ){	
 				include 'app/views/modules/m.mcxc.php';
@@ -583,7 +583,7 @@ class pegaso_controller{
 	}
 
 	function xmlMenu(){
-		if(isset($_SESSION['user']) && ($_SESSION['user']->USER_ROL == 'xml' || $_SESSION['user']->USER_ROL == 'ContaXML'|| $_SESSION['user']->USER_ROL == 'administracion')){
+		if(isset($_SESSION['user']) && ($_SESSION['user']->USER_ROL == 'xml' || $_SESSION['user']->USER_ROL == 'ContaXML'|| $_SESSION['user']->USER_ROL == 'administracion' || $_SESSION['user']->USER_ROL == 'cobranza')){
 			$data = new pegaso;
 			$pagina = $this->load_template('Menu Admin');			
 			$html = $this->load_page('app/views/modules/m.mxml.php');
@@ -9578,7 +9578,6 @@ function imprimirFacturasAcuse(){
     }
 
     function VerInventarioEmpaque(){
-    	
         if (isset($_SESSION['user'])){
         $data = new pegaso;
         $pagina=$this->load_template('Pedidos');
@@ -14757,8 +14756,10 @@ function ImpSolicitud2($idsol){
             $data = new pegaso;
             $pagina=$this->load_template('Pedidos'); 
             $html = $this->load_page('app/views/pages/p.redirectform.php');
-            $altaProd=$data->libPedidoFTC($folio, $idp, $idca, $urgente);
-            echo "<script> alert('El Centro de compras tiene un corte de credito y no podra liberar pedidos, favor de revisarlo con el departamento de Cuentas por Cobrar o Direccion.')</script>";
+            $altaProd=$data->libPedidoFTC($folio, $idp, $idca, $urgente, $cc);
+            if($altaProd['status'] == 'no'){
+            	echo "<script> alert('El Centro de compras tiene un corte de credito y no podra liberar pedidos, favor de revisarlo con el departamento de Cuentas por Cobrar o Direccion.')</script>";
+            }
             $redireccionar = "verCajasAlmacen";      
             include 'app/views/pages/p.redirectform.php';
             $this->view_page($pagina);
@@ -17528,8 +17529,10 @@ function ImpSolicitud2($idsol){
 				}else{
 					$exec=$data->ejecutaRefac($opcion, $idsol);
 				}	
+				var_dump($exec);
+				
 				if($exec['status'] == 'ok'){
-					$cobranza=$this->ActualizaCobranza($idsol, $exec['factura']);	
+					$cobranza=$data->ActualizaCobranza($idsol, $exec['factura']);	
 					$fecha  = date('d-m-Y');
 					//$movFactura=$data->moverFactura($exec['factura'], $exec['rfc']);
 	  				//$movNC=$data->moverNC($exec['nc'],$exec['rfc']);
@@ -17539,6 +17542,7 @@ function ImpSolicitud2($idsol){
 			}
 		}
 	}
+
 
 	function guardaPartida($docf, $par, $precio, $ncant){
 		if($_SESSION['user']){

@@ -51,6 +51,41 @@ class controller_xml{
 		}
 	}
 
+	function verMetaDatos(){
+		if($_SESSION['user']){
+			$data=new pegaso;
+			$pagina =$this->load_template('Pedidos');
+			$html=$this->load_page('app/views/pages/xml/p.verMetaDatos.php');
+   			ob_start();
+   			$md = $data->verMetaDatos();
+   			include 'app/views/pages/xml/p.verMetaDatos.php';
+   			$table = ob_get_clean();
+   			$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+   			$this->view_page($pagina);	
+		}else{
+			$e = "Favor de Revisar sus datos";
+			header('Location: index.php?action=login&e='.urlencode($e)); exit;
+		}
+		//$res= $data->insertaLTPD();
+	}
+
+	function verMetaDatosDet($archivo){
+		if($_SESSION['user']){
+			$data=new pegaso;
+			$pagina =$this->load_template2('Pedidos');
+			$html=$this->load_page('app/views/pages/xml/p.verMetaDatosDet.php');
+   			ob_start();
+   			$md = $data->verMetaDatosDet($archivo);
+   			include 'app/views/pages/xml/p.verMetaDatosDet.php';
+   			$table = ob_get_clean();
+   			$pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+   			$this->view_page($pagina);	
+		}else{
+			$e = "Favor de Revisar sus datos";
+			header('Location: index.php?action=login&e='.urlencode($e)); exit;
+		}
+	}
+
 	function facturacionCargaXML($files2upload, $tipo){
 		if (isset($_SESSION['user'])) {            
             $data = new cargaXML;
@@ -91,5 +126,13 @@ class controller_xml{
         }	
 	}
 
+
+	function cancelaAdm($doc){
+		if($_SESSION['user']){
+			$data = new cargaXML;
+			$res=$data->cancelaAdm($doc);
+			return $res;
+		}
+	}
 }?>
 

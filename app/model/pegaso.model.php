@@ -9900,6 +9900,8 @@ function insertaDetalleNC($folsig, $tablad, $termino, $docNCD, $docf, $usuario, 
                 and upper(p.status) <> 'F'
                 and upper(p.status) <> 'S'
                 and upper (p.status) <> 'X'
+                --and upper (p.status) <> 'B'
+                and pendiente_facturar > 0
                 order by ca.fecha_liberacion, cotiza, fechasol";
         $this->query=$a;
         $result=$this->QueryObtieneDatosN();
@@ -15728,7 +15730,7 @@ function Pagos() {
       	return $data;
     }
 
- function libPedidoFTC($folio, $idp, $idca, $urgente, $cc){
+ 	function libPedidoFTC($folio, $idp, $idca, $urgente, $cc){
     	$mensaje = '';
     	$TIME = time();
 		$HOY = date("Y-m-d H:i:s", $TIME);
@@ -15738,7 +15740,6 @@ function Pagos() {
     		$u = '';
     	}
     	$usuario=$_SESSION['user']->NOMBRE;
-
 
     	$this->query="SELECT p.CVE_CLPV, limcred, diascred, iif(status_cobranza is null, 0, status_cobranza) as status_cobranza,
  						iif(finaliza_corte is null, current_timestamp, finaliza_corte) as finaliza_corte,
@@ -15818,7 +15819,9 @@ function Pagos() {
 
     function valCorte($folio, $idca){
     	$data=array();
-    	$this->query="SELECT rd.* FROM FTC_RC_DETALLE rd left join facTuras_fp f on f.cve_doc = rd.documento WHERE rd.STATUS = 'C' AND (rd.STATUS_DOCUMENTO = 'Corte' or rd.STATUS_DOCUMENTO = 'Rest') and f.saldofinal > 5 and f.C_COMPRAS = (SELECT C_COMPRAS FROM CLIE01 WHERE CLAVE_TRIM = (SELECT CVE_CLIENTE FROM FTC_COTIZACION WHERE CDFOLIO = $idca))";
+    	$this->query="SELECT rd.* FROM FTC_RC_DETALLE rd left join facTuras_fp f on f.cve_doc = rd.documento WHERE rd.STATUS = 'C' AND (rd.STATUS_DOCUMENTO = 'Corte' or rd.STATUS_DOCUMENTO = 'Rest') and f.saldofinal > 5 and f.C_COMPRAS = (SELECT C_COMPRAS FROM CLIE01 WHERE CLAVE_TRIM = (SELECT CVE_CLIENTE FROM FTC_COTIZACION WHERE CDFOLIO = $folio))";
+    	//echo $this->query;
+    	//exit;
     	$rs=$this->EjecutaQuerySimple();
     	while ($tsArray=ibase_fetch_object($rs)) {
     		$data[]=$tsArray;
@@ -21308,6 +21311,8 @@ function invAunaFecha($fecha, $tipo){
 		return;
     }
 
+
+
     function timbrarDocumentos($facto, $nfact,$idsol, $folioF,$serieF, $folioRFP, $usuario, $folioNC, $serieN, $folioNCRP ){
     		$nf=substr($facto,0,2).'-'.substr($facto,2,10);
     		/// obtenemos los datos del cliente,
@@ -21412,8 +21417,9 @@ function invAunaFecha($fecha, $tipo){
 					$a=copy("C:\\xampp\\htdocs\\Facturas\\FacturasJson\\".str_replace(" ","",trim($rfc))."(".$factura.")".$fecha.".xml", "C:\\xampp\\htdocs\\Facturas\\facturaPegaso\\".$factura.".xml");
 					$espera = 15;
 					$factura = "C:\\xampp\\htdocs\\Facturas\\FacturasJson\\".str_replace(" ","",trim($rfc))."(".$factura.")".$fecha.".xml";
-					$exe = $this->insertarArchivoXMLCargado($archivo=$factura, $tipo='F');
-					$mensaje= 'Todo bien';
+					$a=$this->leeXML($factura);
+					$exe = $this->insertarArchivoXMLCargado($archivo=$factura, $tipo='I', $a);
+					//$mensaje= 'Todo bien';
 				}elseif(file_exists("C:\\xampp\\htdocs\\Facturas\\ErroresJson\\".$factura.".json")){
 					$factura = 'error';
 					$mensaje = 'Error la factura no se timbro';
@@ -26773,12 +26779,13 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
  		exit();
  	}
 
- 	function actualizaCobranza($idsol, $facturaN){
+ 	function ActualizaCobranza($idsol, $facturaN){
  		$this->query="SELECT R.CAJA AS CAJA_ORIGINAL, R.*, FP.* FROM REFACTURACION R left join FACTURAS_FP FP ON FP.CVE_DOC = R.FACT_ORIGINAL WHERE R.ID = $idsol";
  		$res=$this->EjecutaQuerySimple();
  		$row=ibase_fetch_object($res);
 
  		$this->query="EXECUTE PROCEDURE CopiaCaja(caja_original)";
+ 		echo 'Crea caja nueva: '.$this->query;
  		$this->EjecutaQuerySimple();
  		/// Revisar si con eso sale la refactura para que se le ponga el contrarecibo y asi dispare la fecha de inicio de cobranza.
  		$val=$this->validaRC($facturaN, $row->DOCUMENTO);
@@ -26786,16 +26793,43 @@ function ejecutaOC($oc, $tipo, $motivo, $partida, $final){
 
  	function validaRC($fact_n, $fact_o){
  		$this->query="SELECT * FROM FTC_RC_DETALLE WHERE DOCUMENTO = '$fact_o' and status = 'P'";
+ 		echo '<br/> Selecciona desde RC_Detalle'.$this->query;
  		$res=$this->EjecutaQuerySimple();
  		$row=ibase_fetch_object($res);
  		if(!empty($row->DOCUMENTO)){
  			$this->query="INSERT INTO FTC_RC_DETALLE (ID, DOCUMENTO, FECHA_INICIAL, FECHA_CIERRE, STATUS, IDR, STATUS_DOCUMENTO, CARTERA, DET_COBRADO, CC, CVEM, SALDO_DOC, OBSERVACIONES) VALUES (NULL, '$fact_n', '$row->FECHA_INICIAL', '$row->FECHA_CIERRE', 'P', $row->IDR, 'N', '$row->CARTERA', 0, $row->CC, '$row->CVEM', $row->SALDO_DOC, '')";
+ 			echo '<br/> Insercion de RC_DETAlle'.$this->query;
  			$this->grabaBD();
 
  			$this->query="UPDATE FTC_RC_DETALLE SET STATUS = 'C', STATUS_DOCUMENTO='Recfactura', DET_COBRADO = 0, SALDO_DOC = 0 WHERE ID = $row->ID";
+ 			echo '<br/> Actualizacion de RC_DETAlle'.$this->query;
+ 			
  			$this->queryActualiza();
 
  		}
  		return;
  	}
+
+
+
+ 	function verMetaDatos(){
+		$data=array();
+		$this->query="SELECT archivo, min(fecha_certificacion) as fecha_ini, max(fecha_certificacion) as fecha_fin, count(uuid) as Registros, min(FECHA_CANCELACION) as FECHA_CANCELACION, count(FECHA_CANCELACION) as cancelados, min(usuario) as usuario, min(fecha_carga) as fecha_carga FROM FTC_META_DATOS group by ARCHIVO";
+		$res=$this->EjecutaQuerySimple();
+		while ($tsArray=ibase_fetch_object($res)) {
+			$data[]=$tsArray;
+		}
+		return $data;
+	}
+
+	function verMetaDatosDet($archivo){
+		$data=array();
+		$this->query="SELECT f.*, COALESCE( CAST((SELECT LIST(TIPO||trim(POLIZA)||' - '||PERIODO||'/'||EJERCICIO) FROM XML_POLIZAS XP WHERE XP.UUID = f.uuid and status='A') AS VARCHAR(100)),'') as poliza, (select DOCUMENTO from xml_data x where x.uuid = f.uuid) as Documento, coalesce( (select status from ftc_facturas where documento = (select DOCUMENTO from xml_data x where x.uuid = f.uuid)), (select status from ftc_nc where documento = (select DOCUMENTO from xml_data x where x.uuid = f.uuid)),'') AS STA_ADM FROM FTC_META_DATOS f WHERE f.ARCHIVO = '$archivo'";
+		$res=$this->EjecutaQuerySimple();
+		while ($tsArray=ibase_fetch_object($res)) {
+			$data[]=$tsArray;
+		}
+		return $data;
+	}
+
 }?>

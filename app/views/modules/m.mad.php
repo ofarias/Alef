@@ -153,6 +153,17 @@
                         <center><a href="index.php?action=cxc" class="btn btn-default"> <img src="app/views/images/Cobranza/Cobranza.png" width="58" height="60"></a></center>
                     </div>
                 </div>
+            </div> 
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Estado Financiero </h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Estados Financieros</p>
+                        <center><a href="index.edo.php?action=edo_fin" class="btn btn-default"> <img src="app/views/images/estado_financiero.png" width="58" height="60"></a></center>
+                    </div>
+                </div>
             </div>     
             
             <div class="col-md-3">

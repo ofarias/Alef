@@ -22,8 +22,28 @@
                     </div>
                 </div>
             </div>
-
-
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"> Imprimir Facturas</i></h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Impresion de Facturas</p>
+                        <center><a href="index.php?action=imprimeXML" class="btn btn-default"><img src="http://icons.iconarchive.com/icons/mcdo-design/smooth-leopard/64/Route-Folder-Blue-icon.png" width="80" height="80"></a></center>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><i class="fa fa-list-alt"></i> Liberar Pedidos</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Pedidos a Produccion</p>
+                        <center><a href="index.php?action=verCajasAlmacen" class="btn btn-default"><img src="app/views/images/boxes-brown-icon.png" width="80" height="80"></a></center>
+                    </div>
+                </div>
+            </div>  
            
     </div>
 </div>

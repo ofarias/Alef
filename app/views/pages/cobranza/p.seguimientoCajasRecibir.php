@@ -131,7 +131,7 @@
                                             <a href="/Facturas/facturaPegaso/<?php echo $data->DOCUMENTO ?>.pdf" download> <img border='0' src='app/views/images/pdf.jpg' width='25' height='30'></a> 
                                             <a href="/Facturas/facturaPegaso/<?php echo $data->DOCUMENTO?>.xml" download> <img border='0' src='app/views/images/xml.jpg' width='25' height='30'></a>
 
-                                            <?php echo ($data->DOCUMENTO == $data->HISTORIAL)? '':$data->HISTORIAL?><br/> $ <?php echo number_format($saldofinal,2)?>  
+                                            <?php echo ($data->DOCUMENTO == $data->HISTORIAL)? '':$data->HISTORIAL?><br/> $ <?php echo number_format($SALDOFINAL,2)?>  
                                             </td>
                                             <td><a href="index.php?action=verDetalleDevolucion&idd=<?php echo substr($data->FOLIO_DEV,3,10)?>" target="popup" onclick="window.open(this.href, this.target, 'width=1200,height=820'); return false;"><?php echo $data->FOLIO_DEV?></a><br/><?php echo $data->NCP?></td>
                                             <td align="center"><?php echo $data->FECHA_REV.'<br/>'.$data->DIAS;?></td>

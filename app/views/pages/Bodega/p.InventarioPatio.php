@@ -5,7 +5,7 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                          Inventatio patio.
+                          Inventario patio.
                         </div>
                         <!-- /.panel-heading -->
                            <div class="panel-body">
@@ -27,10 +27,10 @@
                                             <th>FACTURADO</th>
                                             <th>REMISIONADO</th>
                                             <th>EN PATIO</th>
-                                            <th>PRESUPUESTO COMPRA</th>
+                                            <!--<th>PRESUPUESTO COMPRA</th>-->
                                             <th>COSTO REAL</th>
-                                            <th>DIFERENCIA</th>
-                                            <th>PRESUPUESTO VENTA</th>
+                                            <!--<th>DIFERENCIA</th>-->
+                                            <!--<th>PRESUPUESTO VENTA</th>-->
                                         </tr>
                                     </thead>
                                   <tbody>
@@ -82,10 +82,10 @@
                                             <td><?php echo $data->REMISIONADO;?></td>
                                             
                                             <td><font color ="blue"><big><b> <?php echo $data->BODEGA;?></b></big> </font></td>
-                                            <td align="right"><?php echo '$ '.number_format($data->PPTO_COMPRA,2);?></td>
+                                            <!--<td align="right"><?php echo '$ '.number_format($data->PPTO_COMPRA,2);?></td>-->
                                             <td align="right"> <font color="blue"><?php echo '$ '.number_format($data->COSTO_REAL,2)?></font></td>
-                                            <td align="right"><?php echo '$ '.number_format($data->DIFERENCIA,2)?></td>
-                                            <td align="right"><?php echo '$ '.number_format($data->PPTO_VENTA,2)?></td>
+                                            <!--<td align="right"><?php echo '$ '.number_format($data->DIFERENCIA,2)?></td>-->
+                                            <!--<td align="right"><?php echo '$ '.number_format($data->PPTO_VENTA,2)?></td>-->
                                             </tr>
                                         <?php } ?>
                                         <?php endforeach; ?>
