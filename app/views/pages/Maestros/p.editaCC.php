@@ -85,7 +85,7 @@
 		<div class="form-group">
 				<label for="categoria" class="col-lg-2 control-label">Presupuesto: </label>
 				<div class="col-lg-10">
-					<input type="text" step="10000" name="presup" min="0" placeholder="Presupuesto Mensual" value="<?php echo '$ '.number_format($ccc->PRESUPUESTO_MENSUAL,2)?>" class=" form form-control" required="required" readonly>
+					<input type="number" step="10000" name="presup" min="0" placeholder="Presupuesto Mensual" value="<?php $ccc->PRESUPUESTO_MENSUAL?>" class=" form form-control" required="required" >
 				</div>
 		</div>
 		<div class="form-group">
@@ -196,8 +196,6 @@
                             <input type="checkbox" name="cob[]" value="D" >D</label>
                         </div>
                     </div>
-
-            
              <div class="form-group">
                         <label for="bancoDeposito" class="col-lg-2 control-label" > Banco Deposito: (Receptor)</label>
                         <div class = "col-lg-8">

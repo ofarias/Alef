@@ -152,7 +152,7 @@ if (isset($_POST['cobranza'])){
 	echo json_encode($res);
 	exit();
 }elseif (isset($_POST['editCC'])){
-	$controller_cxc->editCC($_POST['cc'], $_POST['cvem'], $_POST['contacto'], $_POST['telefono'], $_POST['lincred'], $_POST['plazo']);
+	$controller_cxc->editCC($_POST['cc'], $_POST['cvem'], $_POST['contacto'], $_POST['telefono'], $_POST['lincred'], $_POST['plazo'], $_POST['presup']);
 	exit();
 }
 else{

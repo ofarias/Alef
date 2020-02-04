@@ -14857,14 +14857,13 @@ function ImpSolicitud2($idsol){
 
 
     function verProveedores(){
-    	
     	if($_SESSION['user']){
     		$data = new pegaso;
     		$pagina=$this->load_template('Pedidos');
     		$html = $this->load_page('app/views/pages/Proveedores/p.verProveedores.php');
     		ob_start();
     		$proveedores=$data->verProveedores();
-    		$lay = $data->LayOutCargaProv();
+    		//$lay = $data->LayOutCargaProv();
     		include 'app/views/pages/Proveedores/p.verProveedores.php';
     		$table = ob_get_clean();
     		$pagina= $this->replace_content('/\#CONTENIDO\#/ms', $table, $pagina);

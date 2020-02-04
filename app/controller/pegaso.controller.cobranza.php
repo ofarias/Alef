@@ -1278,10 +1278,10 @@ class pegaso_controller_cobranza{
         }
     }
 
-    function editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo){
+    function editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo, $presup){
         if($_SESSION['user']){
             $data= new pegasoCobranza; 
-            $act= $data->editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo);
+            $act= $data->editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo, $presup);
             $redireccionar = "editaCCC&cvem=".urlencode($cvem)."&ccc={$ccc}&opcion=E";
             //exit($redireccionar);
             $pagina=$this->load_template('Pedidos');

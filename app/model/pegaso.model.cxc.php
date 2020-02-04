@@ -1456,8 +1456,8 @@ class pegasoCobranza extends database {
         return array("status"=>'ok', "mensaje"=>'Se ha actualizado');
     }
 
-    function editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo){
-        $this->query="UPDATE MAESTROS_CCC SET COMPRADOR = '$contacto', TELEFONO = '$telefono' where id  = $ccc ";
+    function editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo, $presup){
+        $this->query="UPDATE MAESTROS_CCC SET COMPRADOR = '$contacto', TELEFONO = '$telefono', PRESUPUESTO_mensual = $presup where id  = $ccc ";
         $this->queryActualiza();
 
         $this->query="UPDATE CARTERA SET  LINEA_CRED = $lincred, Plazo = $plazo where ccc = $ccc ";
