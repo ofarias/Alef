@@ -1262,6 +1262,36 @@ class pegaso_controller_cobranza{
         }
     }
 
+    function editaCCC($cvem, $ccc, $opcion){
+        if($_SESSION['user']){
+            $data = new pegasoCobranza;
+            $pagina =$this->load_templateL('popup');
+            $html=$this->load_page('app/views/pages/Maestros/p.editaCC.php');
+            ob_start();
+            $cc = $ccc;
+            $maestro=$data->traeMaestro($idm=0, $cvem);
+            $ccc = $data->traeCC($ccc);
+            include 'app/views/pages/Maestros/p.editaCC.php';    
+            $table = ob_get_clean();
+            $pagina = $this->replace_content('/\#CONTENIDO\#/ms',$table,$pagina);
+            $this->view_page($pagina);   
+        }
+    }
+
+    function editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo){
+        if($_SESSION['user']){
+            $data= new pegasoCobranza; 
+            $act= $data->editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo);
+            $redireccionar = "editaCCC&cvem=".urlencode($cvem)."&ccc={$ccc}&opcion=E";
+            //exit($redireccionar);
+            $pagina=$this->load_template('Pedidos');
+            $html = $this->load_page('app/views/pages/p.redirectformCobranza.php');
+            include 'app/views/pages/p.redirectformCobranza.php';
+            $this->view_page($pagina);
+            return;
+        }
+    }
+
     function verCCs($idm, $cvem){
         if($_SESSION['user']){
             $data= new pegasoCobranza;

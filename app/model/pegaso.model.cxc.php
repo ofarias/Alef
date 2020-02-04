@@ -1013,7 +1013,7 @@ class pegasoCobranza extends database {
     }
 
     function traeCC($cc){
-        $this->query="SELECT mc.*, m.nombre as nombre_maestro FROM MAESTROS_CCC mc left join maestros m on m.id=mc.id_maestro where mc.ID =$cc";
+        $this->query="SELECT mc.*, m.nombre as nombre_maestro, C.LINEA_CRED , C.PLAZO FROM MAESTROS_CCC mc left join maestros m on m.id=mc.id_maestro LEFT JOIN CARTERA C ON C.CCC = MC.ID where mc.ID =$cc";
         $rs=$this->EjecutaQuerySimple();
         return $row = ibase_fetch_object($rs);
     }
@@ -1429,7 +1429,7 @@ class pegasoCobranza extends database {
     function verDocCorte($usuario, $tipoUsuario){
         $data = array();
         $this->query="SELECT RD.*, f.* FROM FTC_RC_DETALLE RD left join facturas_fp f on f.cve_doc = rd.documento
-                        WHERE RD.STATUS = 'C' AND RD.STATUS_DOCUMENTO = 'Corte' or RD.STATUS_DOCUMENTO = 'Rest'";
+                        WHERE RD.STATUS = 'C' AND (RD.STATUS_DOCUMENTO = 'Corte' or RD.STATUS_DOCUMENTO = 'Rest') and f.saldofinal > 0.1 ";
         $res=$this->EjecutaQuerySimple();
         while ($tsArray=ibase_fetch_object($res)){
             $data[]=$tsArray;
@@ -1454,6 +1454,16 @@ class pegasoCobranza extends database {
         $this->query="UPDATE CAJAS_ALMACEN SET CCC = 1 where idca = $id ";
         $this->EjecutaQuerySimple();
         return array("status"=>'ok', "mensaje"=>'Se ha actualizado');
+    }
+
+    function editCC($ccc, $cvem, $contacto, $telefono, $lincred, $plazo){
+        $this->query="UPDATE MAESTROS_CCC SET COMPRADOR = '$contacto', TELEFONO = '$telefono' where id  = $ccc ";
+        $this->queryActualiza();
+
+        $this->query="UPDATE CARTERA SET  LINEA_CRED = $lincred, Plazo = $plazo where ccc = $ccc ";
+        $this->queryActualiza();
+
+        return;
     }
 
 }?>

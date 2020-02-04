@@ -151,6 +151,9 @@ if (isset($_POST['cobranza'])){
 	$res=$controller_cxc->autoPed($_POST['id']);
 	echo json_encode($res);
 	exit();
+}elseif (isset($_POST['editCC'])){
+	$controller_cxc->editCC($_POST['cc'], $_POST['cvem'], $_POST['contacto'], $_POST['telefono'], $_POST['lincred'], $_POST['plazo']);
+	exit();
 }
 else{
 	switch ($_GET['action']){
@@ -220,6 +223,9 @@ else{
 		$ccc=$_GET['ccc'];
 		$opcion =$_GET['opcion'];
 		$controller_cxc->delCss($cvem, $ccc, $opcion);
+		break;
+	case 'editaCCC':
+		$controller_cxc->editaCCC($_GET['cvem'],$_GET['ccc'],$_GET['opcion']);
 		break;
 	case 'verCCs':
 			$controller_cxc->verCCs($_GET['idm'], $_GET['cvem']);
